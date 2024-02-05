@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Program>
+    <Header RobotName="igus REBEL-6DOF" RobotType="igus-REBEL/REBEL-6DOF-01" GripperType="GMT_GEZ_KA68440.xml" Software="iRC V902-14-001" VelocitySetting="0" />
+    <Store Nr="1" Type="position" Value="215.9 0 275.7 180 0 180" ValueJoints="0 -20 110 0 90 0 0 0 0" Name="apppos" Descr="" />
+    <Store Nr="2" Type="number" Value="0" Name="appnum" Descr="" />
+    <Store Nr="3" Type="number" Value="2" Name="base" Descr="" />
+    <Store Nr="4" Type="number" Value="0" Name="result" Descr="" />
+    <App Nr="5" App="MinimalApp-Python" Name="pow" Param_base_variable="base" Param_exponent_number="3" Param_result_variable="result" Descr="" />
+    <Wait Nr="6" Type="Conditional" Condition="False" Descr="Keep the program running for the counting example" />
+</Program>

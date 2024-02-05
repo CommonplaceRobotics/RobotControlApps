@@ -1,0 +1,297 @@
+syntax = "proto3";
+
+package robotcontrolapp;
+
+/******************************************************************************/
+// Interface exported by the server.
+service RobotControlApp {
+
+    // Receives AppActions (see message AppAction, contains app functions and UI updates...)
+    rpc RecieveActions(stream AppAction) returns (stream Event) {}
+
+    // Requests the current tool center point
+    rpc GetTCP(GetTCPRequest) returns (Matrix44) {}
+
+    // streams the robot state
+    rpc GetRobotStateStream(RobotStateRequest) returns (stream RobotState) {}
+
+    // Requests the current robot state
+    rpc GetRobotState(RobotStateRequest) returns (RobotState) {}
+
+    // Requests one or more program variables
+    rpc GetProgramVariables(ProgramVariablesRequest) returns (stream ProgramVariable) {}
+
+    // Sets one or more program variables
+    rpc SetProgramVariables(SetProgramVariablesRequest) returns (SetProgramVariablesResponse) {}
+}
+
+// requests the current robot state (sent by app)
+message RobotStateRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+}
+
+// requests one or more program variable (sent by app)
+message ProgramVariablesRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+    repeated string variable_names = 2;
+}
+
+// sets one or more program variable (sent by app)
+message SetProgramVariablesRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+    repeated ProgramVariable variables = 2;
+}
+
+// response to the set program variable request
+message SetProgramVariablesResponse {
+}
+
+// requests the current tool center point
+message GetTCPRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+}
+
+/*******************************************************************************
+ * Basic data types
+ ******************************************************************************/
+// 3-dimensional vector
+message Vector3 {
+    double x = 1;
+    double y = 2;
+    double z = 3;
+}
+
+// 4x4 matrix
+message Matrix44 {
+    repeated double data = 1;
+}
+
+/*******************************************************************************
+ * Robot configuration and state
+ ******************************************************************************/
+// Robot State
+enum DIOState {
+    LOW = 0;
+    HIGH = 1;
+}
+
+// Is a digital input used for a special function, e.g. PLC?
+enum DInSpecialFunction {
+    NORMAL_DIN = 0;
+    PLC_ENABLE = 1;
+}
+
+// Is a digital output used for a special function, e.g. PLC?
+enum DOutSpecialFunction {
+    NORMAL_DOUT = 0;
+    PLC_ENABLED = 1;
+}
+
+// Digital input configuration and state
+message DIn {
+    uint32 id = 1;
+    string name = 2;
+    DIOState state = 3;
+    DInSpecialFunction function = 10;
+}
+
+// Digital output configuration and state
+message DOut {
+    uint32 id = 1;
+    string name = 2;
+    DIOState state = 3;
+    DIOState target_state = 4;
+    DOutSpecialFunction function = 10;
+}
+
+// Hardware state (i.e. CANv2 error bits)
+enum HardwareState {
+    option allow_alias = true;
+    ERROR_DEAD = 0;
+    ENABLED = 1;
+    OK = 1;
+    ERROR_MOTOR_NOT_ENABLED = 2;
+    ERROR_COMMUNICATION = 4;
+    ERROR_OVERCURRENT = 8;
+    ERROR_POSITION_LAG = 16;
+    ERROR_ESTOP = 32;
+    ERROR_DRIVER = 64;
+    ERROR_ENCODER = 128;
+    ERROR_OVERTEMP = 256;
+}
+
+// Joint configuration, position and state
+message Joint {
+    uint32 id = 1;
+    string name = 2;
+    message JointPosition {
+        double position = 1;
+        double target_position = 2;
+    }
+    JointPosition position = 3;
+    HardwareState state = 5;
+}
+
+// Robot state
+message RobotState {
+    Matrix44 tcp = 3;
+    repeated Joint joints = 4;
+    repeated DIn DIns = 5;
+    repeated DOut DOuts = 6;
+}
+
+/*******************************************************************************
+ * UI <-> App interaction
+ ******************************************************************************/
+ // States of a button
+enum ButtonState {
+    NOT_CLICKED = 0;
+    CLICKED = 1;
+}
+
+// States of a checkbox
+enum CheckboxState {
+    UNCHECKED = 0;
+    CHECKED  = 1;
+}
+
+// State of a dropdown box
+message DropdownState {
+    repeated string options = 1; // list of available options
+    string selected_option = 2;
+}
+
+// State of a textbox or static text element
+message TextfieldState {
+    string current_text = 1;
+}
+
+// State of a number box, can be used to set a static text element to a number value
+message NumberfieldState {
+    double current_number = 1;
+}
+
+// State of an image element
+message ImageState {
+    message ImageData {
+        enum ImageEncoding {
+            JPEG = 0;
+        }
+        ImageEncoding encoding = 1;
+        bytes data = 2; // base64 encoded image of the given encoding
+        uint32 width = 3; // image width
+        uint32 height = 4; // image height
+    }
+    optional ImageData image_data = 1;
+
+    message ClickedAt {
+        ButtonState is_clicked = 1;
+        double x = 2;
+        double y = 3;
+    }
+    optional ClickedAt clicked_at = 2;
+}
+
+// State of a UI element, may contain any type. Used to communicate UI events and updates in both ways.
+message AppUIElement {
+    message AppUIState {
+        oneof state {
+            ButtonState button_state = 1;
+            CheckboxState checkbox_state = 2;
+            DropdownState dropdown_state = 3;
+            TextfieldState textfield_state = 4;
+            NumberfieldState numberfield_state = 5;
+            ImageState image_state = 6;
+        }
+    }
+    string element_name = 1;
+    AppUIState state = 3;
+    optional bool is_visible = 4;
+}
+
+// App function call, e.g. coming from the app program command
+message AppFunction {
+    message Parameter {
+        string name = 1;
+        oneof value {
+            bool bool_value = 2;
+            int64 int64_value = 3;
+            double double_value = 4;
+            string string_value = 5;
+            Vector3 vector3_value = 6;
+            Matrix44 cartesian_value = 7;
+        }
+    }
+    string name = 1;
+    int64 call_id = 2;
+    repeated Parameter parameters = 3;
+
+    string label = 9;
+    string ui_hint = 10;
+}
+
+// App event, this contains app function and UI updates
+message Event {
+    message DisconnectRequest
+    {
+        string reason = 1;
+    }
+
+    AppFunction function = 2;
+    repeated AppUIElement ui_updates = 10;
+
+    // if set the app should disconnect
+    optional DisconnectRequest disconnect_request = 3;
+}
+
+/**
+ * A program variable.
+ * It may contain either:
+ *   - a scalar number
+ *   - joint angles (request from the app, will be transformed to cartesian)
+ *   - a cartesian position (request from the app, will be transformed to joints)
+ *   - both joint angles and cartesian position (coming from the robot control)
+ */
+message ProgramVariable {
+    // Position sub-type
+    message ProgramVariablePosition {
+        message Joints {
+            repeated double joints = 1;
+        }
+        message CartAndJoints {
+            Joints robot_joints = 1;
+            Matrix44 cartesian = 2;
+        }
+
+        oneof value { // only one:
+            Joints robot_joints = 1; // joints only (for set-request, translates to cartesian)
+            Matrix44 cartesian = 2; // cartesian only (for set-request, translates to joints)
+            CartAndJoints both = 3; // joints and cartesian
+        }
+        repeated double external_joints = 4; // external joints: available in all position variables
+    }
+
+    // elements of ProgramVariable
+    string name = 1;
+    oneof value { // only one:
+        double number = 2;
+        ProgramVariablePosition position = 3;
+    }
+}
+
+// This object is used to communicate requests and changes between app and robot control.
+message AppAction {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+    // List of variables to set
+    repeated ProgramVariable set_variables = 2;
+    // List of finished app function call IDs - The app sends these to confirm a function finished, e.g. when called from the robot program.
+    repeated int64 done_functions = 5; // call_id
+    // List of UI updates
+    repeated AppUIElement ui_changes = 10;
+    repeated string request_ui_state = 11;
+}

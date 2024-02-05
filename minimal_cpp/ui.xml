@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<ui>
+	<!-- app ribbon at the top of iRC -->
+	<ribbon label="Sample App"> <!-- Enter the app name here -->
+		<group label="Buttons">
+			<button name="buttonFoo" label="Foo" />
+			<button name="buttonBar" label="Bar" />
+			<toggle name="checkboxBaz" label="Baz" />
+		</group>
+	</ribbon>
+	<!-- main app ui section in iRC -->
+	<main>
+		<group name="group1" label="Some UI elements">
+			<text name="textSample" label="This is a text" />
+			<textbox name="textboxSample" value="Enter something" label="Text Box" />
+			<numberbox name="numberboxSample" value="123.456" label="Number Box" />
+			<combobox name="comboboxSample" value="Choose something" label="Algorithm">
+				<item>Apple</item>
+				<item>Banana</item>
+				<item>Berry</item>
+			</combobox>
+			<horizontal>
+				<button name="buttonMinus" label="minus" />
+				<text name="textLeftRight" label="0" />
+				<button name="buttonPlus" label="plus" />
+			</horizontal>
+			<checkbox name="checkboxSample" label="Check this" />
+		</group>
+	</main>
+</ui>

@@ -1,0 +1,19 @@
+<App name="MinimalApp" label="Minimal App Sample">
+	<!-- Define the executable(s) to call -->
+	<executable path="minimalapp"/>
+
+	<!-- Define the app functions that the robot program can call -->
+	<!-- General example on how to define a function, this one does not do anything. -->
+	<function name="my_function" label="Example app function">
+		<!-- These parameters can be set in the app command, they will be sent to the app when the command is called -->
+		<parameter name="my_text_parameter" type="string" ui-hint="text" label="Enter a text" />
+		<parameter name="my_number_parameter" type="string" ui-hint="number" label="Enter a number" />
+		<parameter name="my_boolean_parameter" type="string" ui-hint="checkbox" label="Check this" />
+	</function>
+	<!-- Example: Calculate <base_number_variable> to the power of <exponent_number> and assign the result to <result_variable> -->
+	<function name="pow" label="Exponentiation">
+		<parameter name="base_variable" type="string" ui-hint="text" label="Base (number variable)" />
+		<parameter name="exponent_number" type="double" ui-hint="number" label="Exponent" />
+		<parameter name="result_variable" type="string" ui-hint="text" label="Result (number variable)" />
+	</function>
+</App>

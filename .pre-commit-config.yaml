@@ -1,0 +1,25 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.3.0
+  hooks:
+  - id: check-case-conflict
+  - id: mixed-line-ending
+    args: ['--fix=lf']
+    exclude: '.*\.bat$'
+  - id: check-merge-conflict
+  - id: check-xml
+  - id: check-yaml
+  - id: trailing-whitespace
+    exclude: '.*\.bat$'
+  - id: end-of-file-fixer
+- repo: https://github.com/pre-commit/mirrors-clang-format
+  rev: "b111689e7b5cba60be3c62d5db2bd1357f4d36ca"
+  hooks:
+  - id: clang-format
+    types_or: [c++, c, cuda]
+- repo: https://github.com/psf/black-pre-commit-mirror
+  rev: 23.12.1
+  hooks:
+  - id: black
+    language_version: python3.10
+    exclude: '.*_pb2.*$'

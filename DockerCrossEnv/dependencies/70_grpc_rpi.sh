@@ -23,13 +23,7 @@ git checkout -- $protoclifile
 cd $builddir/grpc/third_party/abseil-cpp/
 git checkout -- $symbolizefile
 cd $builddir/grpc
-# native
-mkdir out_native
-cd out_native
-cmake -DgRPC_BUILD_TESTS=OFF -DgRPC_BUILD_CSHARP_EXT=OFF -DgRPC_BUILD_GRPC_CSHARP_PLUGIN=OFF -DgRPC_BUILD_GRPC_NODE_PLUGIN=OFF -DgRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN=OFF -DgRPC_BUILD_GRPC_PHP_PLUGIN=OFF -DgRPC_BUILD_GRPC_RUBY_PLUGIN=OFF ..
-make -j 8
-make install
-cd ..
+
 # RPi
 mkdir out_rpi
 cd out_rpi
@@ -42,9 +36,9 @@ mv ${protoclifile}2 $protoclifile
 sed "s/SSIZE_MAX/(SIZE_MAX>>1)/g" $symbolizefile > ${symbolizefile}2
 mv ${symbolizefile}2 $symbolizefile
 # Workaround: HOST_NAME_MAX is not defined (something seems wrong in the includes of the toolchain or the build system)
-sed "s/HOST_NAME_MAX)/64)/g" $gethostnamefile > ${gethostnamefile}2
-mv ${gethostnamefile}2 $gethostnamefile
+#sed "s/HOST_NAME_MAX)/64)/g" $gethostnamefile > ${gethostnamefile}2
+#mv ${gethostnamefile}2 $gethostnamefile
 # compile
-cmake -DgRPC_BUILD_TESTS=OFF -DgRPC_BUILD_CSHARP_EXT=OFF -DgRPC_BUILD_GRPC_CSHARP_PLUGIN=OFF -DgRPC_BUILD_GRPC_NODE_PLUGIN=OFF -DgRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN=OFF -DgRPC_BUILD_GRPC_PHP_PLUGIN=OFF -DgRPC_BUILD_GRPC_RUBY_PLUGIN=OFF -DCMAKE_TOOLCHAIN_FILE=/opt/toolchains/toolchain-raspberrypi.cmake ..
+cmake -DCMAKE_TOOLCHAIN_FILE=/opt/toolchains/toolchain-raspberrypi.cmake -DgRPC_SSL_PROVIDER=package -DgRPC_ZLIB_PROVIDER=package -DgRPC_PROTOBUF_PROVIDER=module -DgRPC_BUILD_CSHARP_EXT=OFF -DgRPC_BUILD_GRPC_CSHARP_PLUGIN=OFF -DgRPC_BUILD_GRPC_NODE_PLUGIN=OFF -DgRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN=OFF -DgRPC_BUILD_GRPC_PHP_PLUGIN=OFF -DgRPC_BUILD_GRPC_RUBY_PLUGIN=OFF -DgRPC_BUILD_GRPC_PYTHON_PLUGIN=OFF ..
 make -j 8
 make install

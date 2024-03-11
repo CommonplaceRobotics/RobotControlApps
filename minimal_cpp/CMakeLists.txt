@@ -66,6 +66,16 @@ target_link_libraries(minimalapp
     Threads::Threads
     ${GRPC_LIBS})
 
+if(UNIX OR MINGW)
+	target_compile_options(minimalapp PRIVATE
+		# More warnings:
+		-Wall -Wextra -pedantic -Werror=parentheses
+		-Werror=return-type
+		# Ignore these warnings:
+		-Wno-unused-parameter -Wno-vla -Wno-psabi)
+elseif(MSVC)
+endif()
+
 ###############################################################################
 # Copy data to binary output folder
 ###############################################################################
@@ -94,7 +104,7 @@ if (BUILD_TESTS)
     FetchContent_Declare(
         googletest
         # Specify the commit you depend on and update it regularly.
-        URL https://github.com/google/googletest/archive/refs/tags/v1.13.0.zip
+        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
     )
 
     enable_testing()
@@ -123,7 +133,17 @@ if (BUILD_TESTS)
         Threads::Threads
         ${GRPC_LIBS})
 
-    if(CMAKE_CROSSCOMPILING) # not when cross compiling, this command tries to execute the binary!
+    if(UNIX OR MINGW)
+        target_compile_options(minimalapp_Tests PRIVATE
+            # More warnings:
+            -Wall -Wextra -pedantic -Werror=parentheses
+            -Werror=return-type
+            # Ignore these warnings:
+            -Wno-unused-parameter -Wno-vla -Wno-psabi)
+    elseif(MSVC)
+    endif()
+
+    if(!CMAKE_CROSSCOMPILING) # not when cross compiling, this command tries to execute the binary!
         gtest_discover_tests(minimalapp_Tests)
     endif()
 endif()

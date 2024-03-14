@@ -75,6 +75,23 @@ Layout elements:
 * horizontal - elements are stacked horizontally
 * vertical - elements are stacked vertically
 
+## Attributes
+Each element has the following attributes, each of them is optional:
+* name - identifier for events and UI updates
+* label - text label, drawn in column to the left of the object
+* value - default value
+
+Note: for text elements you can give the text as ```label``` or ```value```. Consider setting static informational texts as ```value```: If no label is given the text is spread over both left and right columns.
+
+Additional attributes:
+* numberbox - ```min``` and ```max``` define the allowed value range
+* image - ```width``` and ```height``` define the image width within the UI (not the pixels of the image data). If undefined or <= 0 the size is automatic
+
+Comboboxes may contain child elements of type ```item```, these are used as the selectable items.
+```xml
+<item>My Item Text</item>
+```
+
 ## Events
 Elements can send events depending on their type, your app receives them as calls of UiUpdateHandler() if you use AppClient, or via the RecieveActions stream if you use plain gRPC.
 

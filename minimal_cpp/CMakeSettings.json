@@ -1,0 +1,138 @@
+﻿{
+  "configurations": [
+    {
+      "name": "WSL Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\WSL_Debug",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeExecutable": "/usr/bin/cmake",
+      "cmakeCommandArgs": "-Wno-dev",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "wslPath": "${defaultWSLPath}",
+      "addressSanitizerRuntimeFlags": "detect_leaks=0",
+      "intelliSenseMode": "linux-gcc-x64",
+      "remoteCopyAdditionalIncludeDirectories": [ "/usr/include/x86_64-linux-gnu" ],
+      "variables": [
+        {
+          "name": "BUILD_TESTS",
+          "value": "True",
+          "type": "BOOL"
+        }
+      ]
+    },
+    {
+      "name": "WSL Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\out\\build\\WSL_Release",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeExecutable": "/usr/bin/cmake",
+      "cmakeCommandArgs": "-Wno-dev",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "wslPath": "${defaultWSLPath}",
+      "addressSanitizerRuntimeFlags": "detect_leaks=0",
+      "intelliSenseMode": "linux-gcc-x64",
+      "remoteCopyAdditionalIncludeDirectories": [ "/usr/include/x86_64-linux-gnu" ],
+      "variables": [
+      ]
+    },
+    {
+      "name": "Raspberry Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\Raspberry_Debug",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeExecutable": "/usr/bin/cmake",
+      "cmakeCommandArgs": "-Wno-dev",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_arm" ],
+      "wslPath": "${defaultWSLPath}",
+      "addressSanitizerRuntimeFlags": "detect_leaks=0",
+      "cmakeToolchain": "/opt/toolchains/toolchain-raspberrypi.cmake",
+      "intelliSenseMode": "linux-gcc-arm",
+      "variables": [
+        {
+          "name": "BUILD_TESTS",
+          "value": "True",
+          "type": "BOOL"
+        }
+      ]
+    },
+    {
+      "name": "Raspberry Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\out\\build\\Raspberry_Release",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeExecutable": "/usr/bin/cmake",
+      "cmakeCommandArgs": "-Wno-dev",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_arm" ],
+      "wslPath": "${defaultWSLPath}",
+      "addressSanitizerRuntimeFlags": "detect_leaks=0",
+      "cmakeToolchain": "/opt/toolchains/toolchain-raspberrypi.cmake",
+      "intelliSenseMode": "linux-gcc-arm",
+      "variables": [
+        {
+          "name": "BUILD_TESTS",
+          "value": "False",
+          "type": "BOOL"
+        }
+      ]
+    },
+    {
+      "name": "Windows x64 Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64" ],
+      "variables": [
+        {
+          "name": "BUILD_TESTS",
+          "value": "True",
+          "type": "BOOL"
+        },
+        {
+          "name": "ENABLE_MODBUS",
+          "value": "False",
+          "type": "BOOL"
+        }
+      ],
+      "cmakeToolchain": "C:/git/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    },
+    {
+      "name": "Windows x64 Release",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64" ],
+      "variables": [
+        {
+          "name": "BUILD_TESTS",
+          "value": "True",
+          "type": "BOOL"
+        },
+        {
+          "name": "ENABLE_MODBUS",
+          "value": "False",
+          "type": "BOOL"
+        }
+      ],
+      "cmakeToolchain": "C:/git/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    }
+  ]
+}

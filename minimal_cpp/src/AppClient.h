@@ -163,8 +163,8 @@ public:
      * @param e2 position of external axis 2 in degrees, mm or user defined units
      * @param e3 position of external axis 3 in degrees, mm or user defined units
      */
-    void SetPositionVariable(const std::string& name, DataTypes::Matrix44 cartesianPosition, double a1 = 0, double a2 = 0, double a3 = 0, double a4 = 0,
-                             double a5 = 0, double a6 = 0, double e1 = 0, double e2 = 0, double e3 = 0);
+    void SetPositionVariable(const std::string& name, DataTypes::Matrix44 cartesianPosition, double a1, double a2, double a3, double a4, double a5, double a6,
+                             double e1 = 0, double e2 = 0, double e3 = 0);
 
     /**
      * @brief Announces to the robot control that the app function call finished. This allows the robot program to continue with the next command.

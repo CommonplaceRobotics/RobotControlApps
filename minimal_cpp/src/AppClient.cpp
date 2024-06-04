@@ -473,6 +473,21 @@ void AppClient::SendFunctionDone(int64_t callId)
 }
 
 /**
+ * @brief Announces to the robot control that the app function call failed. This will abort the program with an error message.
+ * This is supported from V14-003
+ * @param callId function call ID from the function call request
+ * @param reason error message
+ */
+void AppClient::SendFunctionFailed(int64_t callId, const std::string& reason)
+{
+    robotcontrolapp::AppAction response;
+    robotcontrolapp::FailedFunction& failedFunction = *response.add_failed_functions();
+    failedFunction.set_call_id(callId);
+    failedFunction.set_reason(reason);
+    SendAction(response);
+}
+
+/**
  * @brief Requests the state of a UI element. The robot control will respond with a call of UiUpdateHandler() if the element exists and if it was changed after
  * start up
  * @param elementName ID of the requested UI element

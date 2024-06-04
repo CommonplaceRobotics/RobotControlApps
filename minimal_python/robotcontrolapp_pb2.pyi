@@ -327,16 +327,26 @@ class ProgramVariable(_message.Message):
     position: ProgramVariable.ProgramVariablePosition
     def __init__(self, name: _Optional[str] = ..., number: _Optional[float] = ..., position: _Optional[_Union[ProgramVariable.ProgramVariablePosition, _Mapping]] = ...) -> None: ...
 
+class FailedFunction(_message.Message):
+    __slots__ = ("call_id", "reason")
+    CALL_ID_FIELD_NUMBER: _ClassVar[int]
+    REASON_FIELD_NUMBER: _ClassVar[int]
+    call_id: int
+    reason: str
+    def __init__(self, call_id: _Optional[int] = ..., reason: _Optional[str] = ...) -> None: ...
+
 class AppAction(_message.Message):
-    __slots__ = ("app_name", "set_variables", "done_functions", "ui_changes", "request_ui_state")
+    __slots__ = ("app_name", "set_variables", "done_functions", "failed_functions", "ui_changes", "request_ui_state")
     APP_NAME_FIELD_NUMBER: _ClassVar[int]
     SET_VARIABLES_FIELD_NUMBER: _ClassVar[int]
     DONE_FUNCTIONS_FIELD_NUMBER: _ClassVar[int]
+    FAILED_FUNCTIONS_FIELD_NUMBER: _ClassVar[int]
     UI_CHANGES_FIELD_NUMBER: _ClassVar[int]
     REQUEST_UI_STATE_FIELD_NUMBER: _ClassVar[int]
     app_name: str
     set_variables: _containers.RepeatedCompositeFieldContainer[ProgramVariable]
     done_functions: _containers.RepeatedScalarFieldContainer[int]
+    failed_functions: _containers.RepeatedCompositeFieldContainer[FailedFunction]
     ui_changes: _containers.RepeatedCompositeFieldContainer[AppUIElement]
     request_ui_state: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, app_name: _Optional[str] = ..., set_variables: _Optional[_Iterable[_Union[ProgramVariable, _Mapping]]] = ..., done_functions: _Optional[_Iterable[int]] = ..., ui_changes: _Optional[_Iterable[_Union[AppUIElement, _Mapping]]] = ..., request_ui_state: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, app_name: _Optional[str] = ..., set_variables: _Optional[_Iterable[_Union[ProgramVariable, _Mapping]]] = ..., done_functions: _Optional[_Iterable[int]] = ..., failed_functions: _Optional[_Iterable[_Union[FailedFunction, _Mapping]]] = ..., ui_changes: _Optional[_Iterable[_Union[AppUIElement, _Mapping]]] = ..., request_ui_state: _Optional[_Iterable[str]] = ...) -> None: ...

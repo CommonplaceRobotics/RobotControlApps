@@ -25,7 +25,9 @@ class MinimalApp(AppClient):
 
         # Confirm that the function finished, otherwise the robot program will wait forever.
         # You may send this later if the function call takes some time but it must be sent at some point.
-        self.SendFunctionDone(function.call_id)
+        #self.SendFunctionDone(function.call_id)
+        # Or call this in case the function failed. This stops the robot program.
+        self.SendFunctionFailed(function.call_id, "failure reason")
 
     # Gets called on remote UI update requests received from the robot control
     def _UiUpdateHandler(self, updates):

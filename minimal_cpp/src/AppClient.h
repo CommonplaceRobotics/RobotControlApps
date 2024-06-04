@@ -1,3 +1,9 @@
+/**
+ * @brief This file defines an abstract app client. It provides a simplified API to the GRPC interface.
+ * Derive your app class from AppClient and implement the abstract methods.
+ * @author MAB
+ */
+
 #pragma once
 
 #include <grpc/grpc.h>
@@ -167,6 +173,14 @@ public:
     void SendFunctionDone(int64_t callId);
 
     /**
+     * @brief Announces to the robot control that the app function call failed. This will abort the program with an error message.
+     * This is supported from V14-003
+     * @param callId function call ID from the function call request
+     * @param reason error message
+     */
+    void SendFunctionFailed(int64_t callId, const std::string& reason);
+
+    /**
      * @brief Requests the state of a UI element. The robot control will respond with a call of UiUpdateHandler() if the element exists and if it was changed
      * after start up
      * @param elementName ID of the requested UI element
@@ -246,6 +260,12 @@ protected:
      */
     virtual void UiUpdateHandler(const std::map<std::string, const robotcontrolapp::AppUIElement*>& updates){};
 
+    /**
+     * @brief GRPC client stub: This is the generated GRPC client interface.
+     * It communicates with the server and provides access to actions, streams etc.
+     */
+    std::unique_ptr<robotcontrolapp::RobotControlApp::Stub> m_grpcStub;
+
 private:
     /// Name of the app
     const std::string m_appName;
@@ -276,11 +296,6 @@ private:
      */
     void ActionsWriterThread();
 
-    /**
-     * @brief GRPC client stub: This is the generated GRPC client interface.
-     * It communicates with the server and provides access to actions, streams etc.
-     */
-    std::unique_ptr<robotcontrolapp::RobotControlApp::Stub> m_grpcStub;
     /**
      * @brief GRPC stream: This is used for sending/receiving messages.
      */

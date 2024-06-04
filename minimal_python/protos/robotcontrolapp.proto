@@ -283,6 +283,11 @@ message ProgramVariable {
     }
 }
 
+message FailedFunction {
+    int64 call_id = 1;
+    string reason = 2;
+}
+
 // This object is used to communicate requests and changes between app and robot control.
 message AppAction {
     // Name of the app. Must be equal to the name defined in rcapp.xml
@@ -291,6 +296,8 @@ message AppAction {
     repeated ProgramVariable set_variables = 2;
     // List of finished app function call IDs - The app sends these to confirm a function finished, e.g. when called from the robot program.
     repeated int64 done_functions = 5; // call_id
+    // List of failed app functions - these abort the running program
+    repeated FailedFunction failed_functions = 6;
     // List of UI updates
     repeated AppUIElement ui_changes = 10;
     repeated string request_ui_state = 11;

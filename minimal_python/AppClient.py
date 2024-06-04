@@ -286,6 +286,16 @@ class AppClient:
         response.done_functions.append(callId)
         self.SendAction(response)
 
+    # Announces to the robot control that the app function call failed. This will abort the program with an error message.
+    # This is supported from V14-003
+    def SendFunctionFailed(self, callId: int, reason: str):
+        response = robotcontrolapp_pb2.AppAction()
+        failedFunction = robotcontrolapp_pb2.FailedFunction()
+        failedFunction.call_id = callId
+        failedFunction.reason = reason
+        response.failed_functions.append(failedFunction)
+        self.SendAction(response)
+
     # Requests the state of a UI element. The robot control will respond with a call of UiUpdateHandler() if the element exists and if it was changed after
     def RequestUIElementState(self, elementName: str):
         request = robotcontrolapp_pb2.AppAction()

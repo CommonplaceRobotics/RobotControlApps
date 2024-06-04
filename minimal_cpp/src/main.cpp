@@ -20,7 +20,7 @@ void ExamplePrintTCP(App::AppClient& app)
         std::cout << std::fixed << "TCP: X=" << tcp.GetX() << " Y=" << tcp.GetY() << " Z=" << tcp.GetZ() << " A=" << tcp.GetA() << " B=" << tcp.GetB()
                   << " C=" << tcp.GetC() << std::endl;
     }
-    catch (std::exception ex)
+    catch (std::exception& ex)
     {
         std::cerr << "TCP: exception occured: " << ex.what() << std::endl;
     }
@@ -81,11 +81,11 @@ void ExamplePrintPositionVariable(App::AppClient& app, const std::string& variab
                   << " A=" << positionVariable->GetCartesian().GetA() << " B=" << positionVariable->GetCartesian().GetB()
                   << " C=" << positionVariable->GetCartesian().GetC() << std::endl;
         std::cout << std::fixed << "Position variable \"" << variableName << "\" joint:";
-        for (int i = 0; i < positionVariable->GetRobotAxes().size(); i++)
+        for (size_t i = 0; i < positionVariable->GetRobotAxes().size(); i++)
         {
             std::cout << " A" << (i + 1) << "=" << positionVariable->GetRobotAxes().at(i);
         }
-        for (int i = 0; i < positionVariable->GetExternalAxes().size(); i++)
+        for (size_t i = 0; i < positionVariable->GetExternalAxes().size(); i++)
         {
             std::cout << " E" << (i + 1) << "=" << positionVariable->GetExternalAxes().at(i);
         }

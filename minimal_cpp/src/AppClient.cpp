@@ -91,7 +91,6 @@ void AppClient::Disconnect()
  */
 void AppClient::EventReaderThread()
 {
-    std::cout << "Event reader thread started" << std::endl;
     try
     {
         robotcontrolapp::Event m_Event;
@@ -128,7 +127,6 @@ void AppClient::EventReaderThread()
         std::cerr << "Exception in EventReaderThread: " << ex.what() << std::endl;
     }
     m_stopThreads = true;
-    std::cout << "Event reader thread stopped" << std::endl;
 }
 
 /**
@@ -137,7 +135,6 @@ void AppClient::EventReaderThread()
  */
 void AppClient::ActionsWriterThread()
 {
-    std::cout << "Actions writer thread started" << std::endl;
     try
     {
         while (!m_stopThreads)
@@ -169,7 +166,6 @@ void AppClient::ActionsWriterThread()
         std::cerr << "Exception in ActionsWriterThread: " << ex.what() << std::endl;
     }
     m_stopThreads = true;
-    std::cout << "Actions writer thread stopped" << std::endl;
 }
 
 /**
@@ -200,7 +196,7 @@ DataTypes::Matrix44 AppClient::GetTcp()
     grpc::Status status = m_grpcStub->GetTCP(&context, request, &response);
     if (!status.ok())
     {
-        throw std::runtime_error("request GetTCP failed:" + status.error_message());
+        throw std::runtime_error("request GetTCP failed: " + status.error_message());
     }
 
     return DataTypes::Matrix44(response);
@@ -278,11 +274,11 @@ std::map<std::string, std::shared_ptr<DataTypes::ProgramVariable>> AppClient::Ge
                     {
                         std::array<double, DataTypes::PositionVariable::ROBOT_AXES_COUNT> robotAxes = {0};
                         std::array<double, DataTypes::PositionVariable::EXTERNAL_AXES_COUNT> externalAxes = {0};
-                        for (int i = 0; i < response.position().robot_joints().joints_size() && i < robotAxes.size(); i++)
+                        for (int i = 0; i < response.position().robot_joints().joints_size() && i < (int)robotAxes.size(); i++)
                         {
                             robotAxes[i] = response.position().robot_joints().joints(i);
                         }
-                        for (int i = 0; i < response.position().external_joints_size() && i < externalAxes.size(); i++)
+                        for (int i = 0; i < response.position().external_joints_size() && i < (int)externalAxes.size(); i++)
                         {
                             externalAxes[i] = response.position().external_joints(i);
                         }
@@ -293,11 +289,11 @@ std::map<std::string, std::shared_ptr<DataTypes::ProgramVariable>> AppClient::Ge
                     {
                         std::array<double, DataTypes::PositionVariable::ROBOT_AXES_COUNT> robotAxes = {0};
                         std::array<double, DataTypes::PositionVariable::EXTERNAL_AXES_COUNT> externalAxes = {0};
-                        for (int i = 0; i < response.position().both().robot_joints().joints_size() && i < robotAxes.size(); i++)
+                        for (int i = 0; i < response.position().both().robot_joints().joints_size() && i < (int)robotAxes.size(); i++)
                         {
                             robotAxes[i] = response.position().both().robot_joints().joints(i);
                         }
-                        for (int i = 0; i < response.position().external_joints_size() && i < externalAxes.size(); i++)
+                        for (int i = 0; i < response.position().external_joints_size() && i < (int)externalAxes.size(); i++)
                         {
                             externalAxes[i] = response.position().external_joints(i);
                         }
@@ -308,7 +304,7 @@ std::map<std::string, std::shared_ptr<DataTypes::ProgramVariable>> AppClient::Ge
                     case robotcontrolapp::ProgramVariable_ProgramVariablePosition::kCartesian:
                     {
                         std::array<double, DataTypes::PositionVariable::EXTERNAL_AXES_COUNT> externalAxes = {0};
-                        for (int i = 0; i < response.position().external_joints_size() && i < externalAxes.size(); i++)
+                        for (int i = 0; i < response.position().external_joints_size() && i < (int)externalAxes.size(); i++)
                         {
                             externalAxes[i] = response.position().external_joints(i);
                         }
@@ -316,7 +312,13 @@ std::map<std::string, std::shared_ptr<DataTypes::ProgramVariable>> AppClient::Ge
                         result[response.name()] = std::make_shared<DataTypes::PositionVariable>(response.name(), cartesian, externalAxes);
                     }
                     break;
+                    default:
+                        std::cerr << "received unknown variable value type" << std::endl;
+                        break;
                 }
+                break;
+            default:
+                std::cerr << "received unknown variable type" << std::endl;
                 break;
         }
     }
@@ -342,7 +344,7 @@ void AppClient::SetNumberVariable(const std::string& name, double value)
     grpc::Status status = m_grpcStub->SetProgramVariables(&context, request, &response);
     if (!status.ok())
     {
-        throw std::runtime_error("request SetProgramVariables failed:" + status.error_message());
+        throw std::runtime_error("request SetProgramVariables failed: " + status.error_message());
     }
 }
 
@@ -382,7 +384,7 @@ void AppClient::SetPositionVariable(const std::string& name, double a1, double a
     grpc::Status status = m_grpcStub->SetProgramVariables(&context, request, &response);
     if (!status.ok())
     {
-        throw std::runtime_error("request SetProgramVariables failed:" + status.error_message());
+        throw std::runtime_error("request SetProgramVariables failed: " + status.error_message());
     }
 }
 
@@ -409,7 +411,7 @@ void AppClient::SetPositionVariable(const std::string& name, DataTypes::Matrix44
     grpc::Status status = m_grpcStub->SetProgramVariables(&context, request, &response);
     if (!status.ok())
     {
-        throw std::runtime_error("request SetProgramVariables failed:" + status.error_message());
+        throw std::runtime_error("request SetProgramVariables failed: " + status.error_message());
     }
 }
 

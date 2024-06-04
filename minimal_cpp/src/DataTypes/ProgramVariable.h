@@ -89,7 +89,7 @@ public:
      * @param externalAxes external axes
      */
     PositionVariable(const std::string& name, const Matrix44 cartesian, const std::array<double, EXTERNAL_AXES_COUNT>& externalAxes)
-        : ProgramVariable(name), m_cartesian(cartesian), m_externalAxes(externalAxes)
+        : ProgramVariable(name), m_externalAxes(externalAxes), m_cartesian(cartesian)
     {
         m_robotAxes.fill(0);
     }
@@ -114,7 +114,7 @@ public:
      */
     PositionVariable(const std::string& name, const Matrix44 cartesian, const std::array<double, ROBOT_AXES_COUNT>& robotAxes,
                      const std::array<double, EXTERNAL_AXES_COUNT>& externalAxes)
-        : ProgramVariable(name), m_cartesian(cartesian), m_robotAxes(robotAxes), m_externalAxes(externalAxes)
+        : ProgramVariable(name), m_robotAxes(robotAxes), m_externalAxes(externalAxes), m_cartesian(cartesian)
     {}
 
     /**

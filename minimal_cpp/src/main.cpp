@@ -99,6 +99,26 @@ void ExamplePrintPositionVariable(App::AppClient& app, const std::string& variab
 }
 
 /**
+ * @brief This example reads the current position from variable #position and writes it back to variable "mycurrentposition"
+ * @param app app reference to the app client
+ */
+void ExampleReadWritePositionVariable(App::AppClient& app)
+{
+    try
+    {
+        std::shared_ptr<App::DataTypes::PositionVariable> positionVariable = app.GetPositionVariable("#position");
+        app.SetPositionVariable("mycurrentposition", positionVariable->GetCartesian(), positionVariable->GetRobotAxes()[0], positionVariable->GetRobotAxes()[1],
+                            positionVariable->GetRobotAxes()[2], positionVariable->GetRobotAxes()[3], positionVariable->GetRobotAxes()[4],
+                            positionVariable->GetRobotAxes()[5], positionVariable->GetExternalAxes()[0], positionVariable->GetExternalAxes()[1],
+                            positionVariable->GetExternalAxes()[2]);
+    }
+    catch (std::exception& ex)
+    {
+        std::cerr << "Could not get position variable \"#position\" or set \"mycurrentposition\": " << ex.what();
+    }
+}
+
+/**
  * @brief Main function
  * @param argc argument count
  * @param argv argument vector
@@ -138,6 +158,7 @@ int main(int argc, char* argv[])
                 ExamplePrintPositionVariable(app, "apppos");
                 double value = ExamplePrintNumberVariable(app, "appnum");
                 ExampleSetNumberVariable(app, "appnum", value + 1);
+                ExampleReadWritePositionVariable(app);
             }
         }
     }

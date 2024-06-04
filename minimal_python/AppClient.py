@@ -217,16 +217,16 @@ class AppClient:
         request = robotcontrolapp_pb2.SetProgramVariablesRequest()
         request.app_name = self.GetAppName()
         variable = request.variables.add()
-        variable.SetName(name)
-        variable.joints.a1 = a1
-        variable.joints.a2 = a2
-        variable.joints.a3 = a3
-        variable.joints.a4 = a4
-        variable.joints.a5 = a5
-        variable.joints.a6 = a6
-        variable.externalAxes.e1 = e1
-        variable.externalAxes.e2 = e2
-        variable.externalAxes.e3 = e3
+        variable.name = name
+        variable.position.robot_joints.joints.append(a1)
+        variable.position.robot_joints.joints.append(a2)
+        variable.position.robot_joints.joints.append(a3)
+        variable.position.robot_joints.joints.append(a4)
+        variable.position.robot_joints.joints.append(a5)
+        variable.position.robot_joints.joints.append(a6)
+        variable.position.external_joints.append(e1)
+        variable.position.external_joints.append(e2)
+        variable.position.external_joints.append(e3)
         self.__grpcStub.SetProgramVariables(request)
 
     # Sets a position variable with a cartesian position. The robot control will try to convert this to joint angles
@@ -240,10 +240,44 @@ class AppClient:
         request.app_name = self.GetAppName()
         variable = request.variables.add()
         variable.name = name
-        variable.cartesian = cartesianPosition.ToGrpc()
-        variable.externalAxes.e1 = e1
-        variable.externalAxes.e2 = e2
-        variable.externalAxes.e3 = e3
+        variable.position.cartesian.CopyFrom(cartesianPosition.ToGrpc())
+        variable.position.external_joints.append(e1)
+        variable.position.external_joints.append(e2)
+        variable.position.external_joints.append(e3)
+        self.__grpcStub.SetProgramVariables(request)
+
+    # Sets a position variable with joint angles and cartesian position. Warning: joint angles and cartesian may refer to different positions!
+    def SetPositionVariable(
+        self,
+        name: str,
+        cartesianPosition: Matrix44,
+        a1: float,
+        a2: float,
+        a3: float,
+        a4: float,
+        a5: float,
+        a6: float,
+        e1: float,
+        e2: float,
+        e3: float,
+    ):
+        if not self.IsConnected():
+            raise RuntimeError("not connected")
+
+        request = robotcontrolapp_pb2.SetProgramVariablesRequest()
+        request.app_name = self.GetAppName()
+        variable = request.variables.add()
+        variable.name = name
+        variable.position.cartesian.CopyFrom(cartesianPosition.ToGrpc())
+        variable.position.robot_joints.joints.append(a1)
+        variable.position.robot_joints.joints.append(a2)
+        variable.position.robot_joints.joints.append(a3)
+        variable.position.robot_joints.joints.append(a4)
+        variable.position.robot_joints.joints.append(a5)
+        variable.position.robot_joints.joints.append(a6)
+        variable.position.external_joints.append(e1)
+        variable.position.external_joints.append(e2)
+        variable.position.external_joints.append(e3)
         self.__grpcStub.SetProgramVariables(request)
 
     # Announces to the robot control that the app function call finished. This allows the robot program to continue with the next command.
@@ -341,10 +375,10 @@ class AppClient:
         request = robotcontrolapp_pb2.AppAction()
         uiElement = request.ui_changes.add()
         uiElement.element_name = elementName
-        uiElement.image_state.image_data.height = uiHeight
-        uiElement.image_state.image_data.width = uiWidth
-        uiElement.image_state.image_data.encoding = encoding
-        uiElement.image_state.image_data.data = imageData
+        uiElement.state.image_state.image_data.height = uiHeight
+        uiElement.state.image_state.image_data.width = uiWidth
+        uiElement.state.image_state.image_data.encoding = encoding
+        uiElement.state.image_state.image_data.data = imageData
         self.SendAction(request)
 
     # Gets called on remote app function calls received from the robot control

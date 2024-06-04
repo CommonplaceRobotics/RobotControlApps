@@ -137,8 +137,28 @@ public:
      * @brief Sets a position variable with a cartesian position. The robot control will try to convert this to joint angles.
      * @param name name of the variable
      * @param cartesianPosition cartesian position and orientation
+     * @param e1 position of external axis 1 in degrees, mm or user defined units
+     * @param e2 position of external axis 2 in degrees, mm or user defined units
+     * @param e3 position of external axis 3 in degrees, mm or user defined units
      */
     void SetPositionVariable(const std::string& name, DataTypes::Matrix44 cartesianPosition, double e1 = 0, double e2 = 0, double e3 = 0);
+
+    /**
+     * @brief Sets a position variable with joint angles and cartesian position. Warning: joint angles and cartesian may refer to different positions!
+     * @param name name of the variable
+     * @param cartesianPosition cartesian position and orientation
+     * @param a1 position of robot axis 1 in degrees or mm
+     * @param a2 position of robot axis 2 in degrees or mm
+     * @param a3 position of robot axis 3 in degrees or mm
+     * @param a4 position of robot axis 4 in degrees or mm
+     * @param a5 position of robot axis 5 in degrees or mm
+     * @param a6 position of robot axis 6 in degrees or mm
+     * @param e1 position of external axis 1 in degrees, mm or user defined units
+     * @param e2 position of external axis 2 in degrees, mm or user defined units
+     * @param e3 position of external axis 3 in degrees, mm or user defined units
+     */
+    void SetPositionVariable(const std::string& name, DataTypes::Matrix44 cartesianPosition, double a1 = 0, double a2 = 0, double a3 = 0, double a4 = 0,
+                             double a5 = 0, double a6 = 0, double e1 = 0, double e2 = 0, double e3 = 0);
 
     /**
      * @brief Announces to the robot control that the app function call finished. This allows the robot program to continue with the next command.

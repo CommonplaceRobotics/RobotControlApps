@@ -389,9 +389,12 @@ void AppClient::SetPositionVariable(const std::string& name, double a1, double a
 }
 
 /**
- * @brief Sets a position variable with a cartesian position. The robot control will try to convert this to joint angles
+ * @brief Sets a position variable with a cartesian position. The robot control will try to convert this to joint angles.
  * @param name name of the variable
  * @param cartesianPosition cartesian position and orientation
+ * @param e1 position of external axis 1 in degrees, mm or user defined units
+ * @param e2 position of external axis 2 in degrees, mm or user defined units
+ * @param e3 position of external axis 3 in degrees, mm or user defined units
  */
 void AppClient::SetPositionVariable(const std::string& name, DataTypes::Matrix44 cartesianPosition, double e1, double e2, double e3)
 {
@@ -404,6 +407,49 @@ void AppClient::SetPositionVariable(const std::string& name, DataTypes::Matrix44
     variable->set_name(name);
     auto position = variable->mutable_position();
     *position->mutable_cartesian() = cartesianPosition.ToGrpc();
+    position->add_external_joints(e1);
+    position->add_external_joints(e2);
+    position->add_external_joints(e3);
+    robotcontrolapp::SetProgramVariablesResponse response;
+    grpc::Status status = m_grpcStub->SetProgramVariables(&context, request, &response);
+    if (!status.ok())
+    {
+        throw std::runtime_error("request SetProgramVariables failed: " + status.error_message());
+    }
+}
+
+/**
+ * @brief Sets a position variable with joint angles and cartesian position. Warning: joint angles and cartesian may refer to different positions!
+ * @param name name of the variable
+ * @param cartesianPosition cartesian position and orientation
+ * @param a1 position of robot axis 1 in degrees or mm
+ * @param a2 position of robot axis 2 in degrees or mm
+ * @param a3 position of robot axis 3 in degrees or mm
+ * @param a4 position of robot axis 4 in degrees or mm
+ * @param a5 position of robot axis 5 in degrees or mm
+ * @param a6 position of robot axis 6 in degrees or mm
+ * @param e1 position of external axis 1 in degrees, mm or user defined units
+ * @param e2 position of external axis 2 in degrees, mm or user defined units
+ * @param e3 position of external axis 3 in degrees, mm or user defined units
+ */
+void AppClient::SetPositionVariable(const std::string& name, DataTypes::Matrix44 cartesianPosition, double a1, double a2, double a3, double a4, double a5,
+                                    double a6, double e1, double e2, double e3)
+{
+    if (!IsConnected()) throw std::runtime_error("not connected");
+
+    grpc::ClientContext context;
+    robotcontrolapp::SetProgramVariablesRequest request;
+    request.set_app_name(GetAppName());
+    auto variable = request.add_variables();
+    variable->set_name(name);
+    auto position = variable->mutable_position();
+    *position->mutable_cartesian() = cartesianPosition.ToGrpc();
+    position->mutable_robot_joints()->add_joints(a1);
+    position->mutable_robot_joints()->add_joints(a2);
+    position->mutable_robot_joints()->add_joints(a3);
+    position->mutable_robot_joints()->add_joints(a4);
+    position->mutable_robot_joints()->add_joints(a5);
+    position->mutable_robot_joints()->add_joints(a6);
     position->add_external_joints(e1);
     position->add_external_joints(e2);
     position->add_external_joints(e3);
@@ -500,11 +546,7 @@ void AppClient::SetCheckboxState(const std::string& elementName, bool isChecked)
  */
 void AppClient::SetDropDownState(const std::string& elementName, const std::string& selectedValue)
 {
-    robotcontrolapp::AppAction request;
-    robotcontrolapp::AppUIElement& uiElement = *request.add_ui_changes();
-    uiElement.set_element_name(elementName);
-    uiElement.mutable_state()->mutable_dropdown_state()->set_selected_option(selectedValue);
-    SendAction(request);
+    SetText(elementName, selectedValue);
 }
 
 /**

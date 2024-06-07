@@ -198,7 +198,7 @@ class AppClient:
         self.__grpcStub.SetProgramVariables(request)
 
     # Sets a position variable with joint angles. The robot control will try to convert these to cartesian.
-    def SetPositionVariable(
+    def SetPositionVariableJoints(
         self,
         name: str,
         a1: float,
@@ -230,7 +230,7 @@ class AppClient:
         self.__grpcStub.SetProgramVariables(request)
 
     # Sets a position variable with a cartesian position. The robot control will try to convert this to joint angles
-    def SetPositionVariable(
+    def SetPositionVariableCart(
         self, name: str, cartesianPosition: Matrix44, e1: float, e2: float, e3: float
     ):
         if not self.IsConnected():
@@ -247,7 +247,7 @@ class AppClient:
         self.__grpcStub.SetProgramVariables(request)
 
     # Sets a position variable with joint angles and cartesian position. Warning: joint angles and cartesian may refer to different positions!
-    def SetPositionVariable(
+    def SetPositionVariableBoth(
         self,
         name: str,
         cartesianPosition: Matrix44,

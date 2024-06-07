@@ -87,7 +87,7 @@ def ExampleReadWritePositionVariable(app: AppClient):
         positionVariable = app.GetPositionVariable("#position")
 
         # Send the cartesian position back to position variable "mycurrentposition"
-        app.SetPositionVariable("mycurrentposition", positionVariable.GetCartesian(), positionVariable.GetRobotAxes()[0], positionVariable.GetRobotAxes()[1], positionVariable.GetRobotAxes()[2], positionVariable.GetRobotAxes()[3], positionVariable.GetRobotAxes()[4], positionVariable.GetRobotAxes()[5], positionVariable.GetExternalAxes()[0], positionVariable.GetExternalAxes()[1], positionVariable.GetExternalAxes()[2])
+        app.SetPositionVariableBoth("mycurrentposition", positionVariable.GetCartesian(), positionVariable.GetRobotAxes()[0], positionVariable.GetRobotAxes()[1], positionVariable.GetRobotAxes()[2], positionVariable.GetRobotAxes()[3], positionVariable.GetRobotAxes()[4], positionVariable.GetRobotAxes()[5], positionVariable.GetExternalAxes()[0], positionVariable.GetExternalAxes()[1], positionVariable.GetExternalAxes()[2])
 
     except RuntimeError as ex:
         print(f'Could not get position variable "#position" or set "mycurrentposition":', file=sys.stderr)

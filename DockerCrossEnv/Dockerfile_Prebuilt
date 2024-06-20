@@ -13,7 +13,7 @@ RUN apt-get -y update && apt-get -y upgrade
 RUN apt-get -y install make cmake git g++ libz-dev zip xz-utils wget
 
 # Crossbuild
-COPY crossbuild_environment.tar.xz "/"
+COPY crossbuild_environment_prebuilt.tar.xz "/crossbuild_environment.tar.xz"
 RUN mkdir -p "/opt"
 RUN tar -vxf crossbuild_environment.tar.xz --directory=/opt
 RUN rm /crossbuild_environment.tar.xz
@@ -25,12 +25,12 @@ COPY toolchain-raspberrypi.cmake /opt/toolchains/toolchain-raspberrypi.cmake
 RUN mkdir -p "/dependencies"
 COPY dependencies /dependencies
 RUN chmod +x /dependencies/*.sh
-RUN /dependencies/01_system_fixes.sh
-RUN /dependencies/10_zlib_rpi.sh
-RUN /dependencies/20_openssl_rpi.sh
+#RUN /dependencies/01_system_fixes.sh
+#RUN /dependencies/10_zlib_rpi.sh
+#RUN /dependencies/20_openssl_rpi.sh
 RUN /dependencies/60_protobuf_native.sh
-RUN /dependencies/60_protobuf_rpi.sh
+#RUN /dependencies/60_protobuf_rpi.sh
 RUN /dependencies/70_grpc_native.sh
-RUN /dependencies/70_grpc_rpi.sh
+#RUN /dependencies/70_grpc_rpi.sh
 # Uncomment this if you need OpenCV
 #RUN /dependencies/80_opencv_rpi.sh

@@ -1,1 +1,2 @@
-crossbuild_environment.tar.xz
+crossbuild_environment*.tar.xz
+output

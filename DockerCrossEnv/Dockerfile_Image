@@ -18,6 +18,12 @@ RUN mkdir -p "/opt"
 RUN tar -vxf crossbuild_environment.tar.xz --directory=/opt
 RUN rm /crossbuild_environment.tar.xz
 
+# Remove unnecessary stuff, part 1
+RUN rm -rf /opt/sysroots/cortexa8hf-neon-phytec-linux-gnueabi /opt/sysroots/raspberrypi_zero /opt/sysroots/raspberrypi/opt/vc/src/hello_pi
+RUN rm -rf /opt/sysroots/raspberrypi/lib/modules/* /opt/sysroots/raspberrypi/lib/firmware/* /opt/sysroots/raspberrypi/udev/* /opt/sysroots/raspberrypi/systemd/*
+RUN rm -rf /opt/cross-pi-gcc/arm-linux-gnueabihf/sbin/*
+RUN rm /opt/toolchains/*
+
 # The toolchain file in crossbuild_environment has some incorrect values
 COPY toolchain-raspberrypi.cmake /opt/toolchains/toolchain-raspberrypi.cmake
 
@@ -33,4 +39,15 @@ RUN /dependencies/60_protobuf_rpi.sh
 RUN /dependencies/70_grpc_native.sh
 RUN /dependencies/70_grpc_rpi.sh
 # Uncomment this if you need OpenCV
-#RUN /dependencies/80_opencv_rpi.sh
+RUN /dependencies/80_opencv_rpi.sh
+
+# Remove unnecessary stuff, part 2
+RUN rm -rf /opt/sysroots/raspberrypi/usr/bin/* /opt/sysroots/raspberrypi/usr/share/* /opt/sysroots/raspberrypi/usr/sbin/*
+
+# Make prebuilt image
+WORKDIR /opt
+RUN tar -vcJf crossbuild_environment_prebuilt.tar.xz *
+
+# Copy results to export stage. These files are copied to the output directory.
+FROM scratch AS export
+COPY --from=robotcontrolappcrossenv /opt/crossbuild_environment_prebuilt.tar.xz /crossbuild_environment_prebuilt.tar.xz

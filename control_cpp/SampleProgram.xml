@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Program>
+    <Output Nr="1" Channel="DOut21" State="True" Descr="" />
+    <Wait Nr="2" Type="Time" Seconds="1" Descr="" />
+    <Output Nr="3" Channel="DOut21" State="False" Descr="" />
+    <Wait Nr="4" Type="Time" Seconds="1" Descr="" />
+</Program>

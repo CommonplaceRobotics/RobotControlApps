@@ -2,6 +2,8 @@
 
 This app is intended as a minimal example and as a base for new app development.
 
+The features shown in this sample are available from iRC V14-001 but the API (```AppClient.h```) will be updated for the newest feature set. Check the other samples for other features.
+
 ## Files
 
 ### Base directory

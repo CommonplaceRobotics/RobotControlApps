@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<ui>
+	<!-- app ribbon at the top of iRC -->
+	<ribbon label="Monitor Sample App"> <!-- Enter the app name here -->
+	</ribbon>
+	<!-- main app ui section in iRC -->
+	<main>
+    <group label="System info">
+      <text name="textSoftwareVersion" label="Software version:" value="n/a"/>
+      <text name="textSystemType" label="System type:" value="n/a"/>
+      <text name="textProject" label="Project:" value="n/a"/>
+      <text name="textProjectTitle" label="Project title:" value="n/a"/>
+      <text name="textProjectAuthor" label="Project author:" value="n/a"/>
+      <text name="textRobot" label="Robot:" value="n/a"/>
+      <text name="textVoltage" label="Voltage:" value="n/a"/>
+      <text name="textDeviceID" label="Device ID:" value="n/a"/>
+      <text name="textRobotAxes" label="Robot axes:" value="n/a"/>
+      <text name="textExternalAxes" label="External axes:" value="n/a"/>
+      <text name="textToolAxes" label="Tool axes:" value="n/a"/>
+      <text name="textPlatformAxes" label="Platform axes:" value="n/a"/>
+      <text name="textDigitalIOModules" label="Digital IO modules:" value="n/a"/>
+      <text name="textCycleTarget" label="Cycle time target:" value="n/a"/>
+      <text name="textCycleAvg" label="Cycle time average:" value="n/a"/>
+      <text name="textCycleMin" label="Cycle time minimum:" value="n/a"/>
+      <text name="textCycleMax" label="Cycle time maximum:" value="n/a"/>
+      <text name="textWorkload" label="Workload:" value="n/a"/>
+    </group>
+
+    <group label="Robot state">
+      <text name="textTCPPosition" label="TCP position:" value="n/a"/>
+      <group label="A1">
+        <text name="textA1Name" label="Name:" value="n/a"/>
+        <text name="textA1PosTarget" label="Position target:" value="n/a"/>
+        <text name="textA1PosActual" label="Position actual:" value="n/a"/>
+        <text name="textA1State" label="State:" value="n/a"/>
+        <text name="textA1Referencing" label="Referencing:" value="n/a"/>
+        <text name="textA1TempBoard" label="Temperature board:" value="n/a"/>
+        <text name="textA1TempMotor" label="Temperature motor:" value="n/a"/>
+        <text name="textA1Current" label="Current:" value="n/a"/>
+      </group>
+      <group label="E1">
+        <text name="textE1Name" label="Name:" value="n/a"/>
+        <text name="textE1PosTarget" label="Position target:" value="n/a"/>
+        <text name="textE1PosActual" label="Position actual:" value="n/a"/>
+        <text name="textE1State" label="State:" value="n/a"/>
+        <text name="textE1Referencing" label="Referencing:" value="n/a"/>
+        <text name="textE1TempBoard" label="Temperature board:" value="n/a"/>
+        <text name="textE1TempMotor" label="Temperature motor:" value="n/a"/>
+        <text name="textE1Current" label="Current:" value="n/a"/>
+        <text name="textE1Velocity" label="Velocity target (velocity mode):" value="n/a"/>
+      </group>
+      <text name="textPlatformPosition" label="Platform position:" value="n/a"/>
+      <text name="textDIn21" label="DIn21:" value="n/a"/>
+      <text name="textDOut21" label="DOut21:" value="n/a"/>
+      <text name="textGSig1" label="GSig1:" value="n/a"/>
+      <text name="textHWError" label="Hardware state:" value="n/a"/>
+      <text name="textVelocityOverride" label="Velocity override:" value="n/a"/>
+      <horizontal>
+        <button name="buttonSlower" label="Slower"/>
+        <button name="buttonFaster" label="Faster"/>
+      </horizontal>
+      <text name="textCartVelocity" label="Current velocity:" value="n/a"/>
+      <text name="textTempCPU" label="CPU temperature:" value="n/a"/>
+      <text name="textSupplyVoltage" label="Supply voltage:" value="n/a"/>
+      <text name="textCurrentAll" label="All joints current:" value="n/a"/>
+      <text name="textReferencingState" label="Referencing:" value="n/a"/>
+    </group>
+	</main>
+</ui>

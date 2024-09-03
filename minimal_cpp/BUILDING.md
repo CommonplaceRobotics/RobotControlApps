@@ -23,7 +23,7 @@ Before you can build your app you will need to set up the build environment dock
 ### Building your app
 5. Open a command line or PowerShell in the minimal_cpp folder and run the following command to build the app:
     ```
-    docker build . --tag=minimal --output type=local,dest=output
+    docker build . --output type=local,dest=output
     ```
     This builds the app for both Raspberry Pi and Ubuntu and creates zip archives with all relevant files. The output files are copied to the ```output``` folder.
     If this step fails with ```ERROR: failed to solve: robotcontrolappcrossenv: pull access denied[...]``` either the previous step failed or Docker does not find the previously built image at the tag ```robotcontrolappcrossenv``` for some reason.

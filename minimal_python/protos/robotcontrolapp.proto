@@ -23,6 +23,90 @@ service RobotControlApp {
 
     // Sets one or more program variables
     rpc SetProgramVariables(SetProgramVariablesRequest) returns (SetProgramVariablesResponse) {}
+
+    // Resetting errors, enabling motors, referencing
+    rpc EnableMotors(EnableMotorsRequest) returns (EnableMotorsResponse) {}
+    rpc ResetErrors(ResetErrorsRequest) returns (ResetErrorsResponse) {}
+    rpc ReferenceJoints(ReferenceJointsRequest) returns (ReferenceJointsResponse) {}
+
+    // Program / motion state
+    // Gets the motion source state
+    rpc GetMotionState(GetMotionStateRequest) returns (MotionState) {}
+    // Sets the state of the motion program
+    rpc SetMotionInterpolator(MotionInterpolatorRequest) returns (MotionState) {}
+    // Sets the state of the logic program
+    rpc SetLogicInterpolator(LogicInterpolatorRequest) returns (MotionState) {}
+    // Sets the state of the fast position interface
+    rpc SetPositionInterface(PositionInterfaceRequest) returns (MotionState) {}
+    // Starts or stops a move-to command
+    rpc MoveTo(MoveToRequest) returns (MotionState) {}
+
+    // File operations
+    rpc UploadFile(stream UploadFileRequest) returns (UploadFileResponse) {}
+    rpc DownloadFile(DownloadFileRequest) returns (stream DownloadFileResponse) {}
+    rpc ListFiles(ListFilesRequest) returns (ListFilesResponse) {}
+    rpc RemoveFiles(RemoveFilesRequest) returns (RemoveFilesResponse) {}
+
+    // System info
+    rpc GetSystemInfo(SystemInfoRequest) returns (SystemInfo) {}
+
+    // Velocity override
+    rpc SetVelocityOverride(SetVelocityOverrideRequest) returns (SetVelocityOverrideResponse) {}
+}
+
+message SystemInfoRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+}
+message SystemInfo
+{
+    int32 version_major = 1;
+    int32 version_minor = 2;
+    int32 version_patch = 3;
+    // this may contain further labels, usually for development versions
+    string version = 4;
+
+    enum SystemType {
+        Other = 0;
+        Windows = 1;
+        Raspberry = 2;
+        Linux_x86 = 3;
+    }
+    SystemType system_type = 5;
+
+    // project file name
+    string project_file = 6;
+    // optional title and author as given in the project file
+    string project_title = 7;
+    string project_author = 8;
+    // robot type
+    string robot_type = 9;
+
+    // The voltage is used to select the velocities ("velocity setting")
+    enum Voltage {
+        Voltage24V = 0;
+        Voltage48V = 1;
+    }
+    Voltage voltage = 10;
+
+    // The unique device ID
+    string device_id = 11;
+
+    // configured main loop cycle time in ms
+    float cycle_time_target = 12;
+    // average cycle time
+    float cycle_time_avg = 13;
+    float cycle_time_max = 14;
+    float cycle_time_min = 15;
+    // percentage of the cycle used for calculations (not waiting), 0.0-1.0
+    float workload = 16;
+
+    // axis count
+    uint32 robot_axis_count = 17;
+    uint32 external_axis_count = 18;
+    uint32 tool_axis_count = 19;
+    uint32 platform_axis_count = 20;
+    uint32 digital_io_module_count = 21;
 }
 
 // requests the current robot state (sent by app)
@@ -55,6 +139,12 @@ message GetTCPRequest {
     string app_name = 1;
 }
 
+// requests the current motion state
+message GetMotionStateRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+}
+
 /*******************************************************************************
  * Basic data types
  ******************************************************************************/
@@ -80,48 +170,92 @@ enum DIOState {
 }
 
 // Is a digital input used for a special function, e.g. PLC?
-enum DInSpecialFunction {
-    NORMAL_DIN = 0;
-    PLC_ENABLE = 1;
-}
+//enum DInSpecialFunction {
+//    NORMAL_DIN = 0;
+//    PLC_ENABLE = 1;
+//}
 
 // Is a digital output used for a special function, e.g. PLC?
-enum DOutSpecialFunction {
-    NORMAL_DOUT = 0;
-    PLC_ENABLED = 1;
-}
+//enum DOutSpecialFunction {
+//    NORMAL_DOUT = 0;
+//    PLC_ENABLED = 1;
+//}
 
 // Digital input configuration and state
 message DIn {
+    reserved 2,10;
+
     uint32 id = 1;
-    string name = 2;
+    //string name = 2;
     DIOState state = 3;
-    DInSpecialFunction function = 10;
+    //DInSpecialFunction function = 10;
 }
 
 // Digital output configuration and state
 message DOut {
+    reserved 2,10;
+
     uint32 id = 1;
-    string name = 2;
+    //string name = 2;
     DIOState state = 3;
     DIOState target_state = 4;
-    DOutSpecialFunction function = 10;
+    //DOutSpecialFunction function = 10;
+}
+
+// Global signal state
+message GSig {
+    uint32 id = 1;
+    DIOState state = 3;
+    DIOState target_state = 4;
 }
 
 // Hardware state (i.e. CANv2 error bits)
 enum HardwareState {
-    option allow_alias = true;
-    ERROR_DEAD = 0;
-    ENABLED = 1;
-    OK = 1;
-    ERROR_MOTOR_NOT_ENABLED = 2;
-    ERROR_COMMUNICATION = 4;
-    ERROR_OVERCURRENT = 8;
+    OKAY = 0;
+    ERROR_OVERTEMP = 1;
+    ERROR_ESTOP_LOW_VOLTAGE = 2;
+    ERROR_MOTOR_NOT_ENABLED = 4;
+    ERROR_COMMUNICATION = 8;
     ERROR_POSITION_LAG = 16;
-    ERROR_ESTOP = 32;
-    ERROR_DRIVER = 64;
-    ERROR_ENCODER = 128;
-    ERROR_OVERTEMP = 256;
+    ERROR_ENCODER = 32;
+    ERROR_OVERCURRENT = 64;
+    ERROR_DRIVER = 128;
+    ERROR_BUS_DEAD = 256;
+    ERROR_MODULE_DEAD = 512;
+    ERROR_NOTREADY = 4096;
+}
+
+// Kinematic error states
+enum KinematicState {
+    KINEMATIC_NORMAL = 0;
+    KINEMATIC_ERROR_ErrGeneral = -1;
+    KINEMATIC_ERROR_LINKAGE_LIMITED = 12; // Delta
+    KINEMATIC_ERROR_JOINT_LIMIT_MIN = 13;
+    KINEMATIC_ERROR_JOINT_LIMIT_MAX = 14;
+    KINEMATIC_ERROR_JOINT_DIFF_MIN = 17;
+    KINEMATIC_ERROR_JOINT_DIFF_MAX = 18;
+    KINEMATIC_ERROR_CENTER_SINGULARITY = 21;
+    KINEMATIC_ERROR_OUT_OF_REACH = 22;
+    KINEMATIC_ERROR_WRIST_SINGULARITY = 23;
+    KINEMATIC_ERROR_TRILATERATION = 28; // Delta
+    KINEMATIC_ERROR_VIRTUAL_BOX_X_POS = 30;
+    KINEMATIC_ERROR_VIRTUAL_BOX_X_NEG = 31;
+    KINEMATIC_ERROR_VIRTUAL_BOX_Y_POS = 32;
+    KINEMATIC_ERROR_VIRTUAL_BOX_Y_NEG = 33;
+    KINEMATIC_ERROR_VIRTUAL_BOX_Z_POS = 34;
+    KINEMATIC_ERROR_VIRTUAL_BOX_Z_NEG = 35;
+    KINEMATIC_ERROR_JOINT_NAN = 50;
+    KINEMATIC_ERROR_VELOCITY_LIMIT_EXCEEDED = 51;
+    KINEMATIC_ERROR_VARIABLE_NOT_FOUND = 61;
+    KINEMATIC_ERROR_BRAKE_ACTIVE = 98;
+    KINEMATIC_ERROR_MOTION_NOT_ALLOWED = 99;
+}
+
+// Referencing state
+enum ReferencingState {
+    NOT_REFERENCED = 0;
+    IS_REFERENCING = 1;
+    IS_REFERENCED = 2;
 }
 
 // Joint configuration, position and state
@@ -129,19 +263,354 @@ message Joint {
     uint32 id = 1;
     string name = 2;
     message JointPosition {
+        // actual hardware position
         double position = 1;
+        // target position - this should be used in most situations!
         double target_position = 2;
     }
     JointPosition position = 3;
+    // Hardware error state
     HardwareState state = 5;
+
+    ReferencingState referencing_state = 6;
+
+    float temperature_board = 7; // in °C
+    float temperature_motor = 8; // in °C
+    float current = 9; // in mA
+
+    // target velocity in velocity mode (not available in position mode)
+    float target_velocity = 10;
+}
+
+// Position and orientation in platform space
+message PlatformPose
+{
+    Vector3 position = 1;
+    float heading = 2;
 }
 
 // Robot state
 message RobotState {
+    // Position and orientation of the TCP in cartesian space
     Matrix44 tcp = 3;
-    repeated Joint joints = 4;
+    // Position and orientation of the mobile platform in platform space, if available
+    optional PlatformPose platform_pose = 20;
+    // Joint angles/positions in degrees or mm
+    repeated Joint joints = 4; // 6 robot joints + 3 ext joints (at indices 6,7,8)
+
+    // inputs, outputs and global signals
     repeated DIn DIns = 5;
     repeated DOut DOuts = 6;
+    repeated GSig GSigs = 7;
+
+    // hardware error state
+    string hardware_state_string = 11;
+    // kinematic error state
+    KinematicState kinematic_state = 12;
+
+    // velocity override in percent (0.0 - 1.0)
+    float velocity_override = 13;
+    // Current velocity of the TCP in mm/s
+    float cartesian_velocity = 14;
+
+    // temperature of the control computer's CPU
+    float temperature_cpu = 15;
+    // supply voltage for the motors in mV
+    float supply_voltage = 16;
+    // current of all motors and DIO in mA (available for some robot types only)
+    float current_all = 17;
+
+    // combined referencing state
+    ReferencingState referencing_state = 19;
+}
+
+// Is a program running or paused?
+enum RunState
+{
+    NOT_RUNNING = 0;
+    RUNNING = 1;
+    PAUSED = 2;
+}
+
+// Repeat the program?
+enum ReplayMode
+{
+    SINGLE = 0; // run once
+    REPEAT = 1; // repeat
+    STEP = 2; // pause after each step
+}
+
+// State of the motion sources
+message MotionState
+{
+    enum MotionSource
+    {
+        JOG = 0;
+        IPO = 1;
+        MOVE_TO = 2;
+        POSITION_INTERFACE = 3;
+        PLATFORM = 4;
+    }
+
+    // which of the position sources below is currently controlling the robot?
+    MotionSource current_source = 1;
+
+    // State of a program interpolator
+    message InterpolatorState {
+        // is this interpolator running?
+        RunState runstate = 1;
+        // Repeat the program?
+        ReplayMode replay_mode = 2;
+        // the loaded main program
+        string main_program_name = 3;
+        // the (sub-)program that is currently being run
+        string current_program_name = 4;
+        // the program index: 0 is the main program, positive numbers are sub-programs
+        int32 current_program_idx = 5;
+        // total number of loaded programs: 1 means main program only, 2 is main plus a sub-program etc.
+        uint32 program_count = 6;
+        // the command index of the (sub-)program currently being rung
+        int32 current_command_idx = 7;
+        // the total number of commands in the current (sub-)program
+        uint32 command_count = 8;
+    }
+
+    // State of the position interface
+    message PositionInterfaceState
+    {
+        // is the position interface enabled?
+        bool is_enabled = 1;
+        // is the position interface being used as position source?
+        bool is_in_use = 2;
+        // the TCP port that the interface uses for accepting clients
+        uint32 port = 3;
+    }
+
+    // interpolator for motion programs
+    InterpolatorState motion_ipo = 2;
+    // interpolator for logic programs
+    InterpolatorState logic_ipo = 3;
+    // interpolator for Move-To commands
+    InterpolatorState move_to_ipo = 4;
+    // position interface
+    PositionInterfaceState position_interface = 5;
+}
+
+// Changes the state of the robot program
+message MotionInterpolatorRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // starts / stops / pauses the program
+    optional RunState runstate = 2;
+    // Repeat the program?
+    optional ReplayMode replay_mode = 3;
+    // (re-)loads a program, set empty to unload the program
+    optional string main_program = 4;
+
+    message StartAt
+    {
+        // (sub-)program
+        optional string program = 1;
+        // command index to start at
+        uint32 command = 2;
+    }
+    // selects the command to start at
+    optional StartAt start_at = 5;
+}
+
+// Changes the state of the logic program
+message LogicInterpolatorRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // (re-)loads a program, set empty to unload the program
+    optional string main_program = 2;
+}
+
+// Changes the state of the position interface
+message PositionInterfaceRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    bool is_enabled = 2;
+    bool is_in_use = 3;
+}
+
+// Starts or stops a move-to motion
+message MoveToRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // Starts a joint Move-To command
+    message MoveToJoint {
+        repeated float robot_joints = 1;
+        repeated float external_joints = 2;
+        // velocity in percent (0.0-1.0)
+        float velocity = 3;
+        // acceleration in percent
+        float acceleration = 4;
+    }
+    // Starts a linear Move-To command
+    message MoveToCart {
+        Vector3 position = 1;
+        Vector3 orientation = 2;
+        repeated float external_joints = 3;
+        // velocity in mm/s
+        float velocity = 4;
+        // acceleration in percent
+        float acceleration = 5;
+        // user frame, leave empty for base frame
+        optional string frame = 6;
+    }
+    // stops a running Move-To command
+    message MoveToStop {}
+
+    oneof type
+    {
+        MoveToJoint joint = 2;
+        MoveToJoint joint_relative = 3;
+        MoveToCart cart = 4;
+        MoveToCart cart_relative_base = 5;
+        MoveToCart cart_relative_tool = 6;
+        MoveToStop stop = 7;
+    }
+}
+
+// Enables or disables the motors
+message EnableMotorsRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // enable or disable
+    bool enable = 2;
+}
+message EnableMotorsResponse {}
+
+// Resets the hardware errors
+message ResetErrorsRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+}
+message ResetErrorsResponse {}
+
+// Starts referencing axes
+message ReferenceJointsRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // if true all joints will be referenced. The lists below will be ignored.
+    bool reference_all = 2;
+    // if true all joints the referencing program is run, then all joints are referenced. Can be combined with reference_all to reference all joints first.
+    bool referencing_program = 3;
+    // set the robot axes to reference to true
+    repeated uint32 reference_robot_joints = 4;
+    // set the external axes to reference to true
+    repeated uint32 reference_external_joints = 5;
+}
+message ReferenceJointsResponse {}
+
+// Sets the velocity override (multiplier)
+message SetVelocityOverrideRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // target value in percent (0.0-100.0)
+    float velocity_override = 2;
+}
+message SetVelocityOverrideResponse {
+    // actual value in percent (0.0-100.0)
+    float velocity_override = 1;
+}
+
+/*******************************************************************************
+ * File transfer
+ ******************************************************************************/
+message UploadFileRequest{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // file name, relative to the "Data" directory
+    string filename = 2;
+    // data chunk
+    bytes data = 4;
+    // binary or text mode
+    bool binary_mode = 5;
+}
+message UploadFileResponse {
+    // was the file written successfully?
+    bool success = 1;
+    // error message
+    optional string error = 2;
+}
+
+message DownloadFileRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // file name, relative to the "Data" directory
+    string filename = 2;
+}
+message DownloadFileResponse {
+    // true if the file was read successfully
+    bool success = 1;
+    // error message
+    optional string error = 2;
+    // data chunk
+    bytes data = 3;
+}
+
+message ListFilesRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // directory to list, relative to the "Data" directory
+    string path = 2;
+}
+message ListFilesResponse {
+    // true if the file was read successfully
+    bool success = 1;
+    // error message
+    optional string error = 2;
+
+    message DirectoryEntry {
+        string name = 1;
+
+        enum Type {
+            Other = 0;
+            File = 1;
+            Directory = 2;
+        }
+        Type type = 2;
+    }
+
+    // Directory entries
+    repeated DirectoryEntry entries = 3;
+}
+
+message RemoveFilesRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // files to remove, relative to the "Data" directory
+    repeated string files = 2;
+}
+message RemoveFilesResponse {
+    // true if all files are removed
+    bool success = 1;
+
+    message DirectoryEntry {
+        string name = 1;
+        bool success = 2;
+        optional string error = 3;
+    }
+    // Detailed success / errors
+    repeated DirectoryEntry results = 3;
 }
 
 /*******************************************************************************
@@ -283,6 +752,7 @@ message ProgramVariable {
     }
 }
 
+// Feedback for a failed app function
 message FailedFunction {
     int64 call_id = 1;
     string reason = 2;

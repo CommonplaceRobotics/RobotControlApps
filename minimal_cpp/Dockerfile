@@ -16,10 +16,7 @@ RUN cmake --build .
 
 # package
 WORKDIR /app/package
-RUN cp ../Licenses_MinimalApp.pdf .
-RUN cp ../rcapp.xml .
-RUN cp ../ui.xml .
-RUN cp ../out_rpi/minimalapp .
+RUN cp ../Licenses_SampleApps.pdf ../rcapp.xml ../ui.xml ../out_rpi/minimalapp .
 RUN zip minimalapp *
 
 
@@ -36,10 +33,7 @@ CMD ./minimalapp
 
 # package
 WORKDIR /app/package
-RUN cp ../Licenses_MinimalApp.pdf .
-RUN cp ../rcapp.xml .
-RUN cp ../ui.xml .
-RUN cp ../out_native/minimalapp .
+RUN cp ../Licenses_SampleApps.pdf ../rcapp.xml ../ui.xml ../out_native/minimalapp .
 RUN zip minimalapp *
 
 

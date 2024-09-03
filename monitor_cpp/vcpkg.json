@@ -1,0 +1,19 @@
+{
+  "name": "robotcontrol",
+  "version-string": "1.0.0",
+  "dependencies": [
+    "grpc",
+    "gtest"
+  ],
+  "overrides": [
+    {
+      "name": "grpc",
+      "version": "1.51.1"
+    },
+    {
+      "name": "gtest",
+      "version": "1.13.0"
+    }
+  ],
+  "builtin-baseline": "e69c9817d28e0ad37a79b5623c17c2b87df8939f"
+}

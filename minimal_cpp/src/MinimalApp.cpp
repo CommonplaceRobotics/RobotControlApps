@@ -1,7 +1,6 @@
 #include "MinimalApp.h"
 
 #include <math.h>
-
 #include <sstream>
 
 #include "DataTypes/Matrix44.h"

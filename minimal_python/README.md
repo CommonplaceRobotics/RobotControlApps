@@ -1,6 +1,8 @@
 # MinimalApp Python
 This is the minimal example and simple API for Python.
 
+The features shown in this sample are available from iRC V14-001 but the API (```AppClient.h```) will be updated for the newest feature set. Check the other samples for other features.
+
 # Structure
 * ```rcapp.xml``` - app definition file, this tells RobotControl all it needs to start and integrate your app.
 * ```ui.xml``` - the UI definition, this is optional if your app does not need user input

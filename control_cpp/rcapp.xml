@@ -1,0 +1,4 @@
+<App name="ControlApp" label="Control App Sample">
+	<!-- Define the executable(s) to call -->
+	<executable path="controlapp"/>
+</App>

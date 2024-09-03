@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<ui>
+	<!-- app ribbon at the top of iRC -->
+	<ribbon label="Control Sample App"> <!-- Enter the app name here -->
+	</ribbon>
+	<!-- main app ui section in iRC -->
+	<main>
+    <group label="Initializing">
+      <text name="textHardwareState" label="State:" value="n/a"/>
+      <horizontal>
+        <button name="buttonReset" label="Reset Errors"/>
+        <button name="buttonEnable" label="Enable Motors"/>
+        <button name="buttonDisable" label="Disable Motors"/>
+      </horizontal>
+      <text name="textReferencingStateAll" value="All referenced:"></text>
+      <text name="textReferencingStateA1" label="A1 referenced:" value="n/a"></text>
+      <horizontal>
+        <button name="buttonReferenceAll" label="Reference all joints"/>
+        <button name="buttonReferenceA1" label="Reference A1"/>
+        <button name="buttonReferenceProgram" label="Start Referencing Program"/>
+      </horizontal>
+      <text name="textVelocityOverride" label="Velocity override:" value="n/a"/>
+      <horizontal>
+        <button name="buttonSlower" label="Slower"/>
+        <button name="buttonFaster" label="Faster"/>
+      </horizontal>
+    </group>
+
+    <group label="Motion program">
+      <text name="textMotionProgramStatus" label="Status:" value="n/a"/>
+      <horizontal>
+        <button name="buttonProgramStart" label="Start"/>
+        <button name="buttonProgramStop" label="Stop"/>
+        <button name="buttonProgramPause" label="Pause"/>
+      </horizontal>
+      <horizontal>
+        <button name="buttonProgramSingle" label="Single"/>
+        <button name="buttonProgramRepeat" label="Repeat"/>
+        <button name="buttonProgramStep" label="Step"/>
+      </horizontal>
+      <horizontal>
+        <textbox name="textboxMotionProgramFile" label="Program file:"/>
+        <button name="buttonMotionProgramLoad" label="Load"/>
+        <button name="buttonMotionProgramUnload" label="Unload"/>
+      </horizontal>
+    </group>
+
+    <group label="Logic program">
+      <text name="textLogicProgramStatus" label="Status:" value="n/a"/>
+      <horizontal>
+        <textbox name="textboxLogicProgramFile" label="Program file:"/>
+        <button name="buttonLogicProgramLoad" label="Load"/>
+        <button name="buttonLogicProgramUnload" label="Unload"/>
+      </horizontal>
+    </group>
+
+    <group label="Move To">
+      <button name="buttonMoveToStop" label="Stop" />
+      
+      <group label="Joint">
+        <numberbox name="numberboxMoveToJointA1" label="A1:"/>
+        <numberbox name="numberboxMoveToJointE1" label="E1:"/>
+        <numberbox name="numberboxMoveToJointSpeed" label="Speed:" value="100"/>
+        <button name="buttonMoveToJoint" label="Move joints"/>
+        <button name="buttonMoveToJointRelative" label="Move joints relative"/>
+      </group>
+
+      <group label="Linear">
+        <numberbox name="numberboxMoveToLinearX" label="X:"/>
+        <numberbox name="numberboxMoveToLinearE1" label="E1:"/>
+        <numberbox name="numberboxMoveToLinearSpeed" label="Speed:" value="100"/>
+        <button name="buttonMoveToCart" label="Move linear"/>
+        <button name="buttonMoveToCartBaseRelative" label="Move linear, relative base"/>
+        <button name="buttonMoveToCartToolRelative" label="Move linear, relative tool"/>
+      </group>
+    </group>
+
+    <group label="File access">
+      <button name="buttonProgramUploadSampleFile" label="Upload sample from file"/>
+      <button name="buttonProgramUploadSampleMemory" label="Upload sample from memory"/>
+      <button name="buttonProgramDownloadSampleFile" label="Download sample to file"/>
+      <button name="buttonProgramDownloadSampleMemory" label="Download sample to memory"/>
+      <button name="buttonProgramList" label="List programs directory (see log)"/>
+    </group>
+	</main>
+</ui>

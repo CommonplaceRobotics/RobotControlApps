@@ -10,7 +10,7 @@ LABEL description="RobotControl C++ app development environment"
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get -y update && apt-get -y upgrade
-RUN apt-get -y install make cmake git g++ libz-dev zip xz-utils wget
+RUN apt-get -y install make cmake git g++ libz-dev zip xz-utils wget pkg-config
 
 # Crossbuild
 COPY crossbuild_environment_prebuilt.tar.xz "/crossbuild_environment.tar.xz"

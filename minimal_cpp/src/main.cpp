@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
         app.Connect();
 
         // time of the last example run
-        std::chrono::steady_clock::time_point lastUpdate = std::chrono::steady_clock::now();
+        std::chrono::steady_clock::time_point lastUpdate = std::chrono::steady_clock::now() - std::chrono::seconds(60);
 
         // wait forever or do things
         while (app.IsConnected())

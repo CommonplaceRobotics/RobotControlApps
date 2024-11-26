@@ -4,7 +4,7 @@ The ```rcapp.xml``` file is used to register the features of your app at the rob
 
 The following example shows the file structure:
 ```xml
-<App name="MinimalApp" label="Minimal App Sample">
+<App name="MinimalApp" label="Minimal App Sample" vendor="My Company" version="1.0.0">
     <!-- Define the executable(s) to call -->
 	<executable path="minimalapp"/>
 
@@ -17,8 +17,10 @@ The following example shows the file structure:
 </App>
 ```
 
-# App name and label
+# App name, label, vendor and version
 The first line, starting with ```<App...``` defines the name and label of the app. The name is used internally for identifying your app and should not contain spaces. The label is the human readable name that is shown to the user in iRC / CPRog.
+
+Vendor and version are optional infos. These are shown when the user opens the app info dialog via the ribbon above the app UI. The app version is also logged by the RobotControl Core so that different versions of an app can be distinguished.
 
 # Executables
 The line ```<executable path="minimalapp"/>``` defines an executable to start. You may enter 0 or more of these lines. If your executable runs on a different device do not enter any executable entry.

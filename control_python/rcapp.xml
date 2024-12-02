@@ -1,0 +1,4 @@
+<App name="ControlApp-Python" label="Python Control App Sample" vendor="" version="1.0.0">
+	<!-- Define the executable(s) to call -->
+	<executable path="app.py"/>
+</App>

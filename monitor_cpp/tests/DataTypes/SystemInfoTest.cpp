@@ -16,9 +16,10 @@ TEST(SystemInfoTest, ConstructorDefault)
     EXPECT_TRUE(sysInfo.projectTitle.empty());
     EXPECT_TRUE(sysInfo.projectAuthor.empty());
     EXPECT_TRUE(sysInfo.robotType.empty());
-
+    
     EXPECT_EQ(robotcontrolapp::SystemInfo_Voltage_Voltage24V, sysInfo.voltage);
     EXPECT_EQ(robotcontrolapp::SystemInfo_SystemType_Other, sysInfo.systemType);
+    EXPECT_FALSE(sysInfo.isSimulation);
 
     EXPECT_TRUE(sysInfo.deviceID.empty());
 
@@ -51,6 +52,7 @@ TEST(SystemInfoTest, ConstructorGRPC)
 
     sysInfoGrpc.set_voltage(robotcontrolapp::SystemInfo_Voltage_Voltage48V);
     sysInfoGrpc.set_system_type(robotcontrolapp::SystemInfo_SystemType_Raspberry);
+    sysInfoGrpc.set_is_simulation(true);
 
     sysInfoGrpc.set_device_id("ABCDEF012345657");
 
@@ -81,6 +83,7 @@ TEST(SystemInfoTest, ConstructorGRPC)
 
     EXPECT_EQ(robotcontrolapp::SystemInfo_Voltage_Voltage48V, sysInfo.voltage);
     EXPECT_EQ(robotcontrolapp::SystemInfo_SystemType_Raspberry, sysInfo.systemType);
+    EXPECT_TRUE(sysInfo.isSimulation);
 
     EXPECT_STREQ("ABCDEF012345657", sysInfo.deviceID.c_str());
 

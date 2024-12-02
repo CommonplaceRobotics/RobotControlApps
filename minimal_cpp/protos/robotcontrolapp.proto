@@ -11,16 +11,13 @@ service RobotControlApp {
 
     // Requests the current tool center point
     rpc GetTCP(GetTCPRequest) returns (Matrix44) {}
-
     // streams the robot state
     rpc GetRobotStateStream(RobotStateRequest) returns (stream RobotState) {}
-
     // Requests the current robot state
     rpc GetRobotState(RobotStateRequest) returns (RobotState) {}
 
     // Requests one or more program variables
     rpc GetProgramVariables(ProgramVariablesRequest) returns (stream ProgramVariable) {}
-
     // Sets one or more program variables
     rpc SetProgramVariables(SetProgramVariablesRequest) returns (SetProgramVariablesResponse) {}
 
@@ -40,6 +37,13 @@ service RobotControlApp {
     rpc SetPositionInterface(PositionInterfaceRequest) returns (MotionState) {}
     // Starts or stops a move-to command
     rpc MoveTo(MoveToRequest) returns (MotionState) {}
+
+    // Kinematics
+    rpc TranslateJointToCart(JointToCartRequest) returns (JointToCartResponse) {}
+    rpc TranslateCartToJoint(CartToJointRequest) returns (CartToJointResponse) {}
+
+    // IO
+    rpc SetIOState(IOStateRequest) returns (IOStateResponse) {}
 
     // File operations
     rpc UploadFile(stream UploadFileRequest) returns (UploadFileResponse) {}
@@ -73,6 +77,9 @@ message SystemInfo
         Linux_x86 = 3;
     }
     SystemType system_type = 5;
+
+    // Is this robot simulated?
+    bool is_simulation = 22;
 
     // project file name
     string project_file = 6;
@@ -447,8 +454,8 @@ message MoveToRequest
 
     // Starts a joint Move-To command
     message MoveToJoint {
-        repeated float robot_joints = 1;
-        repeated float external_joints = 2;
+        repeated double robot_joints = 1;
+        repeated double external_joints = 2;
         // velocity in percent (0.0-1.0)
         float velocity = 3;
         // acceleration in percent
@@ -458,7 +465,7 @@ message MoveToRequest
     message MoveToCart {
         Vector3 position = 1;
         Vector3 orientation = 2;
-        repeated float external_joints = 3;
+        repeated double external_joints = 3;
         // velocity in mm/s
         float velocity = 4;
         // acceleration in percent
@@ -527,6 +534,59 @@ message SetVelocityOverrideResponse {
     // actual value in percent (0.0-100.0)
     float velocity_override = 1;
 }
+
+// Requests a change of IOs
+message IOStateRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // inputs, outputs and global signals to change
+    repeated DIn DIns = 2;
+    repeated DOut DOuts = 3;
+    repeated GSig GSigs = 4;
+}
+
+// Response to the IOStateRequest
+message IOStateResponse {}
+
+/*******************************************************************************
+ * Kinematics
+ ******************************************************************************/
+ message JointToCartRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // Up to 6 robot and 3 external joints to convert
+    repeated double joints = 2;
+ }
+
+ message CartToJointRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // Up to 6 robot and 3 external joints to convert, this is used for the initial configuration
+    repeated double joints = 2;
+    // Requested TCP position
+    Vector3 position = 3;
+    // Requested TCP orientation
+    Vector3 orientation = 4;
+ }
+
+ message JointToCartResponse {
+    // 0 if the result is valid or error code
+    KinematicState kinematicState = 1;
+
+    // Calculated position
+    Matrix44 position = 2;
+ }
+
+ message CartToJointResponse {
+    // 0 if the result is valid or error code
+    KinematicState kinematicState = 1;
+
+    // Result: 6 robot joints and 3 external joints
+    repeated double joints = 2;
+ }
 
 /*******************************************************************************
  * File transfer

@@ -1,17 +1,19 @@
 import sys
 from AppClient import AppClient
 from DataTypes.Matrix44 import Matrix44
-from robotcontrolapp_pb2 import ButtonState, CheckboxState
+from robotcontrolapp_pb2 import AppFunction, AppUIElement, ButtonState, CheckboxState
+from google.protobuf.internal import containers as protobufContainers
 
 
 class MinimalApp(AppClient):
-    # Initializes the app. Pass the app name (as defined in rcapp.xml) and socket to connect to (default: "localhost:5000")
+    """This is an example app implementation"""
+    
     def __init__(self, appName: str, target: str):
+        """Initializes the app. Pass the app name (as defined in rcapp.xml) and socket to connect to (default: "localhost:5000")"""
         AppClient.__init__(self, appName, target)
 
-        # Gets called on remote app function calls received from the robot control
-
-    def _AppFunctionHandler(self, function):
+    def _AppFunctionHandler(self, function: AppFunction):
+        """Gets called on remote app function calls received from the robot control"""
         # This prints the received function data
         print("Received app function:")
         print(function)
@@ -29,8 +31,8 @@ class MinimalApp(AppClient):
         # Or call this in case the function failed. This stops the robot program.
         self.SendFunctionFailed(function.call_id, "failure reason")
 
-    # Gets called on remote UI update requests received from the robot control
-    def _UiUpdateHandler(self, updates):
+    def _UiUpdateHandler(self, updates: protobufContainers.RepeatedCompositeFieldContainer[AppUIElement]):
+        """Gets called on remote UI update requests received from the robot control"""
         # This prints the received UI updates:
         print("Received UI updates: ")
         print(updates)
@@ -41,8 +43,8 @@ class MinimalApp(AppClient):
         # Example on how to handle UI events (button clicked, value changed etc)
         self.ExampleUIElementClicked(updates)
 
-    # This example prints all app functions contained in an AppFunction request (e.g. coming from the App program command)
     def ExamplePrintAppFunctionParameters(self, function):
+        """This example prints all app functions contained in an AppFunction request (e.g. coming from the App program command)"""
         print(
             f"App function '{function.name}' called with call ID {function.call_id}, label = '{function.label}', ui hint = '{function.ui_hint}', number of parameters = {len(function.parameters)}"
         )
@@ -81,8 +83,8 @@ class MinimalApp(AppClient):
                     f"\tparameter '{parameter.name}', type 'cartesian' X={matrix.GetX():.2f}, Y={matrix.GetY():.2f}, Z={matrix.GetZ():.2f}, A={matrix.GetA():.2f}, B={matrix.GetB():.2f}, C={matrix.GetC():.2f}"
                 )
 
-    # This example exponentiates the value of a number variable by a given exponent and assigns the result to a different number variable
     def ExampleExponentiation(self, function):
+        """This example exponentiates the value of a number variable by a given exponent and assigns the result to a different number variable"""
         # Get the function parameters by iterating over the list
         for parameter in function.parameters:
             if parameter.name == "base_variable" and parameter.HasField("string_value"):
@@ -114,8 +116,8 @@ class MinimalApp(AppClient):
             print(f'Function call "exponentiation" failed', file=sys.stderr)
             print(ex, file=sys.stderr)
 
-    # This example prints all UI events contained in a UI update
     def ExamplePrintUIEvents(self, updates):
+        """This example prints all UI events contained in a UI update"""
         for update in updates:
             if update.state.HasField("button_state"):
                 # button clicked
@@ -157,8 +159,8 @@ class MinimalApp(AppClient):
     # Counting variable for ExampleUIElementClicked()
     _examplePlusMinusValue = 0
 
-    # This example handles the plus/minus buttons to increase a text element in the app UI
     def ExampleUIElementClicked(self, updates):
+        """This example handles the plus/minus buttons to increase a text element in the app UI"""
         for update in updates:
             # The following sample will increase/decrease a value if the plus/minus button is pressed and send it back to the UI.
             if update.element_name == "buttonMinus":  # button minus pressed

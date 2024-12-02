@@ -32,6 +32,7 @@ void ControlApp::UiUpdateHandler(const std::map<std::string, const robotcontrola
             bool isClicked = update.second->state().button_state() == robotcontrolapp::ButtonState::CLICKED;
             if (isClicked)
             {
+                // Init
                 if (update.first == "buttonReset")
                     ResetErrors();
                 else if (update.first == "buttonEnable")
@@ -44,10 +45,14 @@ void ControlApp::UiUpdateHandler(const std::map<std::string, const robotcontrola
                     ReferenceRobotJoint(0);
                 else if (update.first == "buttonReferenceProgram")
                     ReferenceAllJoints(true);
+
+                // Velocity override
                 else if (update.first == "buttonFaster")
                     ExampleFaster();
                 else if (update.first == "buttonSlower")
                     ExampleSlower();
+
+                // Programs
                 else if (update.first == "buttonProgramStart")
                     StartMotionProgram();
                 else if (update.first == "buttonProgramStop")
@@ -68,6 +73,8 @@ void ControlApp::UiUpdateHandler(const std::map<std::string, const robotcontrola
                     LoadLogicProgram(m_logicProgramFile);
                 else if (update.first == "buttonLogicProgramUnload")
                     UnloadLogicProgram();
+
+                // Move To
                 else if (update.first == "buttonMoveToStop")
                     MoveToStop();
                 else if (update.first == "buttonMoveToJoint")
@@ -90,6 +97,20 @@ void ControlApp::UiUpdateHandler(const std::map<std::string, const robotcontrola
                     ExampleDownloadSampleProgramToMemory();
                 else if (update.first == "buttonProgramList")
                     ExampleListPrograms();
+
+                // Digital IO
+                else if (update.first == "buttonDIn22True")
+                    SetDigitalInput(21, true);
+                else if (update.first == "buttonDIn22False")
+                    SetDigitalInput(21, false);
+                else if (update.first == "buttonDOut22True")
+                    SetDigitalOutput(21, true);
+                else if (update.first == "buttonDOut22False")
+                    SetDigitalOutput(21, false);
+                else if (update.first == "buttonGSig2True")
+                    SetGlobalSignal(1, true);
+                else if (update.first == "buttonGSig2False")
+                    SetGlobalSignal(1, false);
             }
         }
         // Handle text boxes
@@ -160,6 +181,7 @@ std::string translateReferencingState(App::DataTypes::RobotState::ReferencingSta
     switch (state)
     {
         default:
+            return "n/a";
         case App::DataTypes::RobotState::ReferencingState::NOT_REFERENCED:
             return "not referenced";
         case App::DataTypes::RobotState::ReferencingState::IS_REFERENCED:
@@ -200,6 +222,11 @@ void ControlApp::UpdateUI()
     QueueSetText("textReferencingStateAll", translateReferencingState(robotState.referencingState));
     QueueSetText("textReferencingStateA1", translateReferencingState(robotState.joints[0].referencingState));
     QueueSetText("textVelocityOverride", std::to_string((int)robotState.velocityOverride) + " %");
+
+    // Section digital IO
+    QueueSetText("textDIn22", robotState.digitalInputs.at(21) ? "ON" : "OFF"); // DIn22
+    QueueSetText("textDOut22", robotState.digitalOutputs.at(21) ? "ON" : "OFF"); // DOut22
+    QueueSetText("textGSig2", robotState.globalSignals.at(1) ? "ON" : "OFF"); // GSig2
 
     // Section Motion Program
     auto programState = GetMotionState();
@@ -400,11 +427,12 @@ void ControlApp::ExampleDownloadSampleProgramToMemory()
  */
 void ControlApp::ExampleListPrograms()
 {
-    AppClient::DirectoryContent files = ListFiles("Programs");
+    std::string directoryName = "Programs";
+    AppClient::DirectoryContent files = ListFiles(directoryName);
 
     if (files.success)
     {
-        std::cout << "Content of directory 'Programs' (" << files.entries.size() << " entries):" << std::endl;
+        std::cout << "Content of directory '" << directoryName << "' (" << files.entries.size() << " entries):" << std::endl;
         for (const auto& entry : files.entries)
         {
             switch (entry.type)
@@ -427,6 +455,6 @@ void ControlApp::ExampleListPrograms()
     }
     else
     {
-        std::cerr << "Could not read directory 'Programs': " << files.errorMessage << std::endl;
+        std::cerr << "Could not read directory '" << directoryName << "': " << files.errorMessage << std::endl;
     }
 }

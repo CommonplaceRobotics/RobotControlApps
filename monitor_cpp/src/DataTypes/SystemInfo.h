@@ -44,6 +44,9 @@ public:
     // System type of the robot control
     robotcontrolapp::SystemInfo::SystemType systemType = robotcontrolapp::SystemInfo_SystemType_Other;
 
+    // Is this robot simulated?
+    bool isSimulation = false;
+
     // unique device ID
     std::string deviceID;
     

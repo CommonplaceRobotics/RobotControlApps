@@ -74,6 +74,7 @@ void MonitorApp::UpdateSystemInfo() {
     QueueSetText("textRobot", info.robotType);
     QueueSetText("textVoltage", info.voltage == robotcontrolapp::SystemInfo_Voltage_Voltage48V ? "48V" : "24V");
     QueueSetText("textDeviceID", info.deviceID);
+    QueueSetText("textIsSimulation", info.isSimulation ? "Yes" : "No");
     QueueSetText("textRobotAxes", std::to_string(info.robotAxisCount));
     QueueSetText("textExternalAxes", std::to_string(info.externalAxisCount));
     QueueSetText("textToolAxes", std::to_string(info.toolAxisCount));
@@ -105,6 +106,11 @@ std::string translateReferencingState(App::DataTypes::RobotState::ReferencingSta
     }
 }
 
+/**
+ * @brief Translates a hardware state to a human readable string
+ * @param state 
+ * @return 
+ */
 std::string translateHardwareState(App::DataTypes::RobotState::HardwareState state) {
     std::stringstream ss;
     ss << std::hex << "0x" << ((int)state);

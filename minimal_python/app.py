@@ -8,16 +8,16 @@ from MinimalApp import MinimalApp
 # Also check MinimalApp.py for examples on how to handle requests from the robot control (e.g. user interface and program commands)
 
 
-# Example: Requests and prints the tool center point (cartesian) position.
 def ExamplePrintTCP(app: AppClient):
+    """Example: Requests and prints the tool center point (cartesian) position."""
     tcp = app.GetTcp()
     print(
         f"TCP: X={tcp.GetX():.2f} Y={tcp.GetY():.2f} Z={tcp.GetZ():.2f} A={tcp.GetA():.2f} B={tcp.GetB():.2f} C={tcp.GetC():.2f}"
     )
 
 
-# Example: Requests and prints a number variable. This variable must be defined in a m_running robot program.
 def ExamplePrintNumberVariable(app: AppClient, variableName: str) -> float:
+    """Example: Requests and prints a number variable. This variable must be defined in a m_running robot program."""
     try:
         numberVariable = app.GetNumberVariable(variableName)
 
@@ -33,8 +33,8 @@ def ExamplePrintNumberVariable(app: AppClient, variableName: str) -> float:
         return 0
 
 
-# Example: Sets a number variable. The value increases with each call.
 def ExampleSetNumberVariable(app: AppClient, variableName: str, value: float):
+    """Example: Sets a number variable. The value increases with each call."""
     try:
         app.SetNumberVariable(variableName, value)
     except RuntimeError as ex:
@@ -46,8 +46,8 @@ def ExampleSetNumberVariable(app: AppClient, variableName: str, value: float):
         print(ex, file=sys.stderr)
 
 
-# Example: Requests and prints a position variable. This variable must be defined in a m_running robot program.
 def ExamplePrintPositionVariable(app: AppClient, variableName: str):
+    """Example: Requests and prints a position variable. This variable must be defined in a m_running robot program."""
     try:
         positionVariable = app.GetPositionVariable(variableName)
 
@@ -80,8 +80,8 @@ def ExamplePrintPositionVariable(app: AppClient, variableName: str):
         )
         print(ex, file=sys.stderr)
 
-# This example reads the current position from variable #position and writes it back to variable "mycurrentposition"
 def ExampleReadWritePositionVariable(app: AppClient):
+    """This example reads the current position from variable #position and writes it back to variable "mycurrentposition"""
     try:
         # Read the current position from the system variable "#position"
         positionVariable = app.GetPositionVariable("#position")

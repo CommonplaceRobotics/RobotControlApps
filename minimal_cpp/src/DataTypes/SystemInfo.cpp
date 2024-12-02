@@ -17,6 +17,7 @@ SystemInfo::SystemInfo(const robotcontrolapp::SystemInfo& info)
     version = info.version();
 
     systemType = info.system_type();
+    isSimulation = info.is_simulation();
 
     projectFile = info.project_file();
     projectTitle = info.project_title();

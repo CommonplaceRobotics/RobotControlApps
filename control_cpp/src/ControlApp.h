@@ -115,4 +115,9 @@ private:
      * @brief Example: List the files in the Programs directory
      */
     void ExampleListPrograms();
+
+    /**
+     * @brief Sets DIn22, DOut22 and GSig2 at once
+     */
+    void SetMultipleIOs();
 };

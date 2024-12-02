@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<ui>
+	<!-- app ribbon at the top of iRC -->
+	<ribbon label="Math Tools">
+	</ribbon>
+	<!-- main app ui section in iRC -->
+	<main>
+	</main>
+</ui>

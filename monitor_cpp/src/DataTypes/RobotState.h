@@ -7,6 +7,7 @@
 
 #include "Matrix44.h"
 #include <robotcontrolapp.grpc.pb.h>
+#include <vector>
 
 namespace App
 {
@@ -56,6 +57,9 @@ public:
         IS_REFERENCING
     };
 
+    /**
+     * @brief This class describes the state of a joint
+     */
     struct Joint
     {
         /**
@@ -78,7 +82,7 @@ public:
         double targetPosition = 0;
 
         /**
-         * @brief 
+         * @brief Hardware state
          */
         HardwareState hardwareState = HardwareState::OKAY;
 
@@ -174,8 +178,8 @@ public:
      */
     RobotState();
     /**
-     * @brief Constructor from GRPC Joint
-     * @param joint
+     * @brief Constructor from GRPC RobotState
+     * @param state GRPC RobotState
      */
     RobotState(const robotcontrolapp::RobotState& state);
 };

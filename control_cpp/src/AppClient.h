@@ -12,6 +12,7 @@
 #include <memory>
 #include <mutex>
 #include <queue>
+#include <utility>
 #include <set>
 #include <string>
 #include <string_view>
@@ -253,6 +254,42 @@ public:
     virtual void OnRobotStateUpdated(const DataTypes::RobotState& state){};
 
     /**
+     * @brief Sets the state of a digital input (only in simulation)
+     * @param number input number (0-63)
+     * @param state target state
+     */
+    void SetDigitalInput(unsigned number, bool state);
+    /**
+     * @brief Sets the states of the digital inputs (only in simulation)
+     * @param inputs set of digital inputs to set
+     */
+    void SetDigitalInputs(const std::set<std::pair<unsigned, bool>>& inputs);
+
+    /**
+     * @brief Sets the state of a digital output
+     * @param number output number (0-63)
+     * @param state target state
+     */
+    void SetDigitalOutput(unsigned number, bool state);
+    /**
+     * @brief Sets the states of the digital outputs
+     * @param outputs set of digital outputs to set
+     */
+    void SetDigitalOutputs(const std::set<std::pair<unsigned, bool>>& outputs);
+
+    /**
+     * @brief Sets the state of a global signal
+     * @param number global signal number (0-99)
+     * @param state target state
+     */
+    void SetGlobalSignal(unsigned number, bool state);
+    /**
+     * @brief Sets the states of the global signals
+     * @param outputs set of global signals to set
+     */
+    void SetGlobalSignals(const std::set<std::pair<unsigned, bool>>& signals);
+
+    /**
      * @brief Gets the current motion state (program execution etc)
      * @return
      */
@@ -326,8 +363,9 @@ public:
      * @param e2 E2 target in degrees, mm or user defined units
      * @param e3 E3 target in degrees, mm or user defined units
      */
-    DataTypes::MotionState MoveToJoint(float velocityPercent, float acceleration = 40, float a1 = 0, float a2 = 0, float a3 = 0, float a4 = 0, float a5 = 0,
-                                       float a6 = 0, float e1 = 0, float e2 = 0, float e3 = 0);
+    DataTypes::MotionState MoveToJoint(float velocityPercent, float acceleration = 40, double a1 = 0, double a2 = 0, double a3 = 0, double a4 = 0,
+                                       double a5 = 0,
+                                       double a6 = 0, double e1 = 0, double e2 = 0, double e3 = 0);
     /**
      * @brief Starts a relative joint motion to the given position
      * @param velocityPercent velocity in percent, 0.0..100.0
@@ -342,8 +380,8 @@ public:
      * @param e2 E2 target in degrees, mm or user defined units
      * @param e3 E3 target in degrees, mm or user defined units
      */
-    DataTypes::MotionState MoveToJointRelative(float velocityPercent, float acceleration = 40, float a1 = 0, float a2 = 0, float a3 = 0, float a4 = 0,
-                                               float a5 = 0, float a6 = 0, float e1 = 0, float e2 = 0, float e3 = 0);
+    DataTypes::MotionState MoveToJointRelative(float velocityPercent, float acceleration = 40, double a1 = 0, double a2 = 0, double a3 = 0, double a4 = 0,
+                                               double a5 = 0, double a6 = 0, double e1 = 0, double e2 = 0, double e3 = 0);
     /**
      * @brief Starts a linear motion to the given position
      * @param velocityMms velocity in mm/s
@@ -359,8 +397,8 @@ public:
      * @param e3 E3 target in degrees, mm or user defined units
      * @param frame user frame or empty for base frame
      */
-    DataTypes::MotionState MoveToLinear(float velocityMms, float acceleration = 40, float x = 0, float y = 0, float z = 0, float a = 0, float b = 0,
-                                        float c = 0, float e1 = 0, float e2 = 0, float e3 = 0, const std::string& frame = "");
+    DataTypes::MotionState MoveToLinear(float velocityMms, float acceleration = 40, double x = 0, double y = 0, double z = 0, double a = 0, double b = 0,
+                                        double c = 0, double e1 = 0, double e2 = 0, double e3 = 0, const std::string& frame = "");
     /**
      * @brief Starts a linear motion to the given position
      * @param velocityMms velocity in mm/s
@@ -376,8 +414,9 @@ public:
      * @param e3 E3 target in degrees, mm or user defined units
      * @param frame user frame or empty for base frame
      */
-    DataTypes::MotionState MoveToLinearRelativeBase(float velocityMms, float acceleration = 40, float x = 0, float y = 0, float z = 0, float a = 0, float b = 0,
-                                                    float c = 0, float e1 = 0, float e2 = 0, float e3 = 0, const std::string& frame = "");
+    DataTypes::MotionState MoveToLinearRelativeBase(float velocityMms, float acceleration = 40, double x = 0, double y = 0, double z = 0, double a = 0,
+                                                    double b = 0,
+                                                    double c = 0, double e1 = 0, double e2 = 0, double e3 = 0, const std::string& frame = "");
     /**
      * @brief Starts a linear motion to the given position
      * @param velocityMms velocity in mm/s
@@ -392,8 +431,9 @@ public:
      * @param e2 E2 target in degrees, mm or user defined units
      * @param e3 E3 target in degrees, mm or user defined units
      */
-    DataTypes::MotionState MoveToLinearRelativeTool(float velocityMms, float acceleration = 40, float x = 0, float y = 0, float z = 0, float a = 0, float b = 0,
-                                                    float c = 0, float e1 = 0, float e2 = 0, float e3 = 0);
+    DataTypes::MotionState MoveToLinearRelativeTool(float velocityMms, float acceleration = 40, double x = 0, double y = 0, double z = 0, double a = 0,
+                                                    double b = 0,
+                                                    double c = 0, double e1 = 0, double e2 = 0, double e3 = 0);
     /**
      * @brief Stops a move-to motion
      */
@@ -421,6 +461,51 @@ public:
      * @return actual velocity multiplier in percent 0.0..1.0
      */
     float SetVelocity(float velocityPercent);
+
+    // =========================================================================
+    // Kinematics
+    // =========================================================================
+    /**
+     * @brief Translates a cartesian position to joint positions
+     * @param x X coordinate of the TCP in mm
+     * @param y Y coordinate of the TCP in mm
+     * @param z Z coordinate of the TCP in mm
+     * @param a A orientation of the TCP in degrees
+     * @param b B orientation of the TCP in degrees
+     * @param c C orientation of the TCP in degrees
+     * @param initialJoints 6 robot joints and 3 external joints. These are used to derive the initial joint configuration, e.g. whether the elbow points left
+     * or right. Set them to 0 if not relevant.
+     * @param resultJoints 6 robot joints and 3 external joints. The result is written here
+     * @param resultState the result state is written here. 0 on success, other value on error
+     * return true on success
+     */
+    bool TranslateCartToJoint(double x, double y, double z, double a, double b, double c, const std::array<double, 9>& initialJoints,
+                              std::array<double, 9>& resultJoints, robotcontrolapp::KinematicState& resultState);
+
+    /**
+     * @brief Translates joint positions to a cartesian position
+     * @param joints joint positions to translate
+     * @param x result X coordinate of the TCP in mm
+     * @param y result Y coordinate of the TCP in mm
+     * @param z result Z coordinate of the TCP in mm
+     * @param a result A orientation of the TCP in degrees
+     * @param b result B orientation of the TCP in degrees
+     * @param c result C orientation of the TCP in degrees
+     * @param resultState the result state is written here. 0 on success, other value on error
+     * @return true on success
+     */
+    bool TranslateJointToCart(const std::array<double, 9>& joints, double& x, double& y, double& z, double& a, double& b, double& c,
+                              robotcontrolapp::KinematicState& resultState);
+
+    /**
+     * @brief Translates joint positions to a cartesian position
+     * @param joints joint positions to translate
+     * @param tcp the matrix defining position and orientation of the TCP is written here
+     * @param resultState the result state is written here. 0 on success, other value on error
+     * @return true on success
+     */
+    bool TranslateJointToCart(const std::array<double, 9>& joints, DataTypes::Matrix44& tcp,
+                              robotcontrolapp::KinematicState& resultState);
 
     // =========================================================================
     // File access

@@ -1,0 +1,71 @@
+<App name="MathTools" label="Math Tools" vendor="" version="1.0.0">
+	<executable path="app.py"/>
+	
+	<function name="jointToCart" label="Convert Joint To Cart">
+		<parameter name="source_variable" type="string" ui-hint="text" label="Source position variable"/>
+		<parameter name="target_variable" type="string" ui-hint="text" label="Target position variable"/>
+		<parameter name="abort_on_error" type="bool" ui-hint="checkbox" label="Abort on error"/>
+		<parameter name="success_gsig" type="int" ui-hint="number" label="Success GSig"/>
+	</function>
+	<function name="cartToJoint" label="Convert Cart To Joint">
+		<parameter name="source_variable" type="string" ui-hint="text" label="Source position variable"/>
+		<parameter name="target_variable" type="string" ui-hint="text" label="Target position variable"/>
+		<parameter name="abort_on_error" type="bool" ui-hint="checkbox" label="Abort program on error"/>
+		<parameter name="success_gsig" type="int" ui-hint="number" label="Success GSig"/>
+	</function>
+
+	<function name="xyz_distance" label="XYZ distance">
+		<parameter name="position_a" type="string" ui-hint="text" label="Position variable A"/>
+		<parameter name="position_b" type="string" ui-hint="text" label="Position variable B"/>
+		<parameter name="target_variable" type="string" ui-hint="text" label="Target number variable"/>
+	</function>
+
+	<function name="is_near" label="XYZ distance check">
+		<parameter name="position_a" type="string" ui-hint="text" label="Position variable A"/>
+		<parameter name="position_b" type="string" ui-hint="text" label="Position variable B"/>
+		<parameter name="dist_max" type="int" ui-hint="number" label="Max. distance"/>
+		<parameter name="success_gsig" type="int" ui-hint="number" label="Result GSig"/>
+	</function>
+
+	<function name="sqrt" label="Square Root">
+		<parameter name="number" type="string" ui-hint="text" label="Number"/>
+		<parameter name="result" type="string" ui-hint="text" label="Result"/>
+	</function>
+
+	<function name="pow" label="Exponentiation">
+		<parameter name="base" type="string" ui-hint="text" label="Base"/>
+		<parameter name="exponent" type="string" ui-hint="text" label="Exponent"/>
+		<parameter name="result" type="string" ui-hint="text" label="Result"/>
+	</function>
+
+	<function name="min" label="Minimum">
+		<parameter name="value_a" type="string" ui-hint="text" label="Number A"/>
+		<parameter name="value_b" type="string" ui-hint="text" label="Number B"/>
+		<parameter name="result" type="string" ui-hint="text" label="Result"/>
+	</function>
+	<function name="max" label="Maximum">
+		<parameter name="value_a" type="string" ui-hint="text" label="Number A"/>
+		<parameter name="value_b" type="string" ui-hint="text" label="Number B"/>
+		<parameter name="result" type="string" ui-hint="text" label="Result"/>
+	</function>
+
+	<function name="copy_position" label="Copy Position">
+		<parameter name="from" type="string" ui-hint="text" label="From variable"/>
+		<parameter name="to" type="string" ui-hint="text" label="From variable"/>
+		<parameter name="copy_x" type="bool" ui-hint="checkbox" label="Copy X" value="true"/>
+		<parameter name="copy_y" type="bool" ui-hint="checkbox" label="Copy Y" value="true"/>
+		<parameter name="copy_z" type="bool" ui-hint="checkbox" label="Copy Z" value="true"/>
+		<parameter name="copy_a" type="bool" ui-hint="checkbox" label="Copy A" value="true"/>
+		<parameter name="copy_b" type="bool" ui-hint="checkbox" label="Copy B" value="true"/>
+		<parameter name="copy_c" type="bool" ui-hint="checkbox" label="Copy C" value="true"/>
+		<parameter name="copy_a1" type="bool" ui-hint="checkbox" label="Copy A1" value="true"/>
+		<parameter name="copy_a2" type="bool" ui-hint="checkbox" label="Copy A2" value="true"/>
+		<parameter name="copy_a3" type="bool" ui-hint="checkbox" label="Copy A3" value="true"/>
+		<parameter name="copy_a4" type="bool" ui-hint="checkbox" label="Copy A4" value="true"/>
+		<parameter name="copy_a5" type="bool" ui-hint="checkbox" label="Copy A5" value="true"/>
+		<parameter name="copy_a6" type="bool" ui-hint="checkbox" label="Copy A6" value="true"/>
+		<parameter name="copy_e1" type="bool" ui-hint="checkbox" label="Copy E1" value="true"/>
+		<parameter name="copy_e2" type="bool" ui-hint="checkbox" label="Copy E2" value="true"/>
+		<parameter name="copy_e3" type="bool" ui-hint="checkbox" label="Copy E3" value="true"/>
+	</function>
+</App>

@@ -12,8 +12,8 @@
         <button name="buttonEnable" label="Enable Motors"/>
         <button name="buttonDisable" label="Disable Motors"/>
       </horizontal>
-      <text name="textReferencingStateAll" value="All referenced:"></text>
-      <text name="textReferencingStateA1" label="A1 referenced:" value="n/a"></text>
+      <text name="textReferencingStateAll" value="All referenced:"/>
+      <text name="textReferencingStateA1" label="A1 referenced:" value="n/a"/>
       <horizontal>
         <button name="buttonReferenceAll" label="Reference all joints"/>
         <button name="buttonReferenceA1" label="Reference A1"/>
@@ -26,6 +26,25 @@
       </horizontal>
     </group>
 
+    <group label="Digital IO">
+      <text text="Note: Digital inputs can only be set in simulation."/>
+      <horizontal>
+        <text name="textDIn22" label="DIn22" text="n/a"/>
+        <button name="buttonDIn22True" label="On"/>
+        <button name="buttonDIn22False" label="Off"/>
+      </horizontal>
+      <horizontal>
+        <text name="textDOut22" label="DOut22" text="n/a"/>
+        <button name="buttonDOut22True" label="On"/>
+        <button name="buttonDOut22False" label="Off"/>
+      </horizontal>
+      <horizontal>
+        <text name="textGSig2" label="GSig2" text="n/a"/>
+        <button name="buttonGSig2True" label="On"/>
+        <button name="buttonGSig2False" label="Off"/>
+      </horizontal>
+    </group>
+    
     <group label="Motion program">
       <text name="textMotionProgramStatus" label="Status:" value="n/a"/>
       <horizontal>

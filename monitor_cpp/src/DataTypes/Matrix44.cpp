@@ -28,7 +28,8 @@ Matrix44::Matrix44()
  */
 Matrix44::Matrix44(const robotcontrolapp::Matrix44& other)
 {
-    if (other.data().size() != (int)m_data.size()) throw std::runtime_error("could not initialize Matrix44, GRPC matrix had invalid element count " + std::to_string(m_data.size()));
+    if (other.data().size() != (int)m_data.size())
+        throw std::runtime_error("could not initialize Matrix44, GRPC matrix had invalid element count " + std::to_string(m_data.size()));
     std::copy_n(other.data().data(), m_data.size(), m_data.data());
 }
 

@@ -16,7 +16,7 @@ void ExamplePrintTCP(App::AppClient& app)
 {
     try
     {
-        App::DataTypes::Matrix44 tcp = app.GetTcp();
+        App::DataTypes::Matrix44 tcp = app.GetTCP();
         std::cout << std::fixed << "TCP: X=" << tcp.GetX() << " Y=" << tcp.GetY() << " Z=" << tcp.GetZ() << " A=" << tcp.GetA() << " B=" << tcp.GetB()
                   << " C=" << tcp.GetC() << std::endl;
     }

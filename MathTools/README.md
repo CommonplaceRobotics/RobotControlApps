@@ -18,6 +18,11 @@ Currently the following features are included:
 * Kinematics
   * Convert joint position to cartesian position
   * Convert cartesian position to joint position
+* Timing
+  * Get seconds since start of the app
+  * Get minutes since start of the app
+  * Get hours since start of the app
+  * Wait by duration from variable
 
 # Adding your own functions
 * Add the function and its parameters in rcapp.xml

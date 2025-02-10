@@ -26,9 +26,9 @@ class MonitorApp(AppClient):
                 if isClicked:
                     # Init
                     if update.element_name == "buttonFaster":
-                        self.SetVelocity(min(100, self.GetVelocity() + 10))
+                        self.SetVelocityOverride(min(100, self.GetVelocityOverride() + 10))
                     if update.element_name == "buttonSlower":
-                        self.ResetErrors(max(0, self.GetVelocity() - 10))
+                        self.SetVelocityOverride(max(0, self.GetVelocityOverride() - 10))
 
     def UpdateSystemInfo(self):
         """Updates the system info UI"""
@@ -47,22 +47,23 @@ class MonitorApp(AppClient):
             self.QueueSetText("textSystemType", "unknown")
 
         self.QueueSetText("textProject", info.projectFile)
-        self.QueueSetText("textProjectTitle", info.projectFile)
+        self.QueueSetText("textProjectTitle", info.projectTitle)
         self.QueueSetText("textProjectAuthor", info.projectAuthor)
         self.QueueSetText("textRobot", info.robotType)
-        self.QueueSetText("textVoltage", info.voltage)
+        self.QueueSetText("textVoltage", str(info.voltage))
         self.QueueSetText("textDeviceID", info.deviceID)
-        self.QueueSetText("textIsSimulation", info.isSimulation)
-        self.QueueSetText("textRobotAxes", info.robotAxisCount)
-        self.QueueSetText("textExternalAxes", info.externalAxisCount)
-        self.QueueSetText("textToolAxes", info.toolAxisCount)
-        self.QueueSetText("textPlatformAxes", info.platformAxisCount)
-        self.QueueSetText("textDigitalIOModules", info.digitalIOModuleCount)
-        self.QueueSetText("textCycleTarget", info.cycleTimeTarget + " ms")
-        self.QueueSetText("textCycleAvg", info.cycleTimeAverage + " ms")
-        self.QueueSetText("textCycleMin", info.cycleTimeMin + " ms")
-        self.QueueSetText("textCycleMax", info.cycleTimeMax + " ms")
-        self.QueueSetText("textWorkload", info.workload + " %")
+        self.QueueSetText("textIsSimulation", str(info.isSimulation))
+        self.QueueSetText("textRobotAxes", str(info.robotAxisCount))
+        self.QueueSetText("textExternalAxes", str(info.externalAxisCount))
+        self.QueueSetText("textToolAxes", str(info.toolAxisCount))
+        self.QueueSetText("textPlatformAxes", str(info.platformAxisCount))
+        self.QueueSetText("textDigitalIOModules", str(info.digitalIOModuleCount))
+        self.QueueSetText("textCycleTarget", f"{info.cycleTimeTarget} ms")
+        self.QueueSetText("textCycleAvg", f"{info.cycleTimeAverage} ms")
+        self.QueueSetText("textCycleMin", f"{info.cycleTimeMin} ms")
+        self.QueueSetText("textCycleMax", f"{info.cycleTimeMax} ms")
+        self.QueueSetText("textWorkload", f"{info.workload} %")
+        self.SendQueuedUIUpdates()
     
     def translateReferencingState(self, state: ReferencingState) -> str:
         """Translates a referencing state to a human readable string"""
@@ -81,29 +82,29 @@ class MonitorApp(AppClient):
     
     def UpdateRobotState(self, state: RobotState):
         """Updates the robot state UI"""
-        tcpStr = "X=" + state.tcp.GetX() + ", Y=" + state.tcp.GetY() + ", Z=" + state.tcp.GetZ()+ ", A=" + state.tcp.GetA() + ", B=" + state.tcp.GetB() + ", C=" + state.tcp.GetC()
+        tcpStr = f"X={state.tcp.GetX()}, Y={state.tcp.GetY()}, Z={state.tcp.GetZ()}, A={state.tcp.GetA()}, B={state.tcp.GetB()}, C={state.tcp.GetC()}"
         self.QueueSetText("textTCPPosition", tcpStr)
 
         self.QueueSetText("textA1Name", state.joints[0].name)
-        self.QueueSetText("textA1PosTarget", state.joints[0].targetPosition)
-        self.QueueSetText("textA1PosActual", state.joints[0].actualPosition)
-        self.QueueSetText("textA1State", state.joints[0].hardwareState)
-        self.QueueSetText("textA1Referencing", state.joints[0].referencingState)
-        self.QueueSetText("textA1TempBoard", state.joints[0].temperatureBoard + " °C")
-        self.QueueSetText("textA1TempMotor", state.joints[0].temperatureMotor + " °C")
-        self.QueueSetText("textA1Current", state.joints[0].current + " mA")
+        self.QueueSetText("textA1PosTarget", str(state.joints[0].targetPosition))
+        self.QueueSetText("textA1PosActual", str(state.joints[0].actualPosition))
+        self.QueueSetText("textA1State", self.translateHardwareState(state.joints[0].hardwareState))
+        self.QueueSetText("textA1Referencing", self.translateReferencingState(state.joints[0].referencingState))
+        self.QueueSetText("textA1TempBoard", f"{state.joints[0].temperatureBoard} °C")
+        self.QueueSetText("textA1TempMotor", f"{state.joints[0].temperatureMotor} °C")
+        self.QueueSetText("textA1Current", f"{state.joints[0].current} mA")
 
         self.QueueSetText("textE1Name", state.joints[6].name)
-        self.QueueSetText("textE1PosTarget", state.joints[6].targetPosition)
-        self.QueueSetText("textE1PosActual", state.joints[6].actualPosition)
-        self.QueueSetText("textE1State", state.joints[6].hardwareState)
-        self.QueueSetText("textE1Referencing", state.joints[6].referencingState)
-        self.QueueSetText("textE1TempBoard", state.joints[6].temperatureBoard + " °C")
-        self.QueueSetText("textE1TempMotor", state.joints[6].temperatureMotor + " °C")
-        self.QueueSetText("textE1Current", state.joints[6].current + " mA")
-        self.QueueSetText("textE1Velocity", state.joints[6].targetVelocity)
+        self.QueueSetText("textE1PosTarget", str(state.joints[6].targetPosition))
+        self.QueueSetText("textE1PosActual", str(state.joints[6].actualPosition))
+        self.QueueSetText("textE1State", self.translateHardwareState(state.joints[6].hardwareState))
+        self.QueueSetText("textE1Referencing", self.translateReferencingState(state.joints[6].referencingState))
+        self.QueueSetText("textE1TempBoard", f"{state.joints[6].temperatureBoard} °C")
+        self.QueueSetText("textE1TempMotor", f"{state.joints[6].temperatureMotor} °C")
+        self.QueueSetText("textE1Current", f"{state.joints[6].current} mA")
+        self.QueueSetText("textE1Velocity", str(state.joints[6].targetVelocity))
 
-        platformStr = "X=" + state.platformX + ", Y=" + state.platformY + ", Z=" + state.platformHeading
+        platformStr = f"X={state.platformX}, Y={state.platformY}, Z={state.platformHeading}"
         self.QueueSetText("textPlatformPosition", platformStr)
         if state.digitalInputs[20]:
             self.QueueSetText("textDIn21", "High")    
@@ -118,12 +119,12 @@ class MonitorApp(AppClient):
         else:
             self.QueueSetText("textGSig1", "Low")
         self.QueueSetText("textHWError", state.hardwareState)
-        self.QueueSetText("textVelocityOverride", state.velocityOverride + " %")
-        self.QueueSetText("textCartVelocity", state.cartesianVelocity + " mm/s")
-        self.QueueSetText("textTempCPU", state.temperatureCPU + " °C")
-        self.QueueSetText("textSupplyVoltage", state.supplyVoltage + " V")
-        self.QueueSetText("textCurrentAll", state.currentAll + " mA")
-        self.QueueSetText("textReferencingState", state.referencingState)
+        self.QueueSetText("textVelocityOverride", f"{state.velocityOverride} %")
+        self.QueueSetText("textCartVelocity", f"{state.cartesianVelocity} mm/s")
+        self.QueueSetText("textTempCPU", f"{state.temperatureCPU} °C")
+        self.QueueSetText("textSupplyVoltage", f"{state.supplyVoltage} V")
+        self.QueueSetText("textCurrentAll", f"{state.currentAll} mA")
+        self.QueueSetText("textReferencingState", self.translateReferencingState(state.referencingState))
         self.SendQueuedUIUpdates()
     
     def ReadAndUpdateRobotState(self):

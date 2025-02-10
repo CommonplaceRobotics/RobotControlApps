@@ -8,17 +8,18 @@
 
 #include <grpc/grpc.h>
 
+#include <atomic>
 #include <map>
 #include <memory>
 #include <mutex>
 #include <queue>
-#include <utility>
 #include <set>
 #include <string>
 #include <string_view>
 #include <thread>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 
 #include "DataTypes/Matrix44.h"
 #include "DataTypes/MotionState.h"
@@ -31,12 +32,33 @@ namespace App
 {
 
 /**
+ * @brief This exception is thrown when trying to call a RPC while the app is not connected
+ */
+class NotConnectedException : public std::runtime_error
+{
+public:
+    NotConnectedException() : std::runtime_error("not connected") {}
+};
+
+/**
  * @brief This class is the interface between GRPC and the app logic.
  */
 class AppClient
 {
 public:
     static constexpr std::string_view TARGET_LOCALHOST = "localhost:5000";
+
+    // Minimum required major version of the RobotControl Core
+    static constexpr int VERSION_MAJOR_MIN = 14;
+    // Minimum required minor version of the RobotControl Core
+    static constexpr int VERSION_MINOR_MIN = 4;
+    // Minimum required patch version of the RobotControl Core
+    static constexpr int VERSION_PATCH_MIN = 0;
+
+    /**
+     * @brief If set true additional output is written to stdout
+     */
+    bool logDebug = false;
 
     /**
      * @brief Constructor, sets up the connection
@@ -215,7 +237,7 @@ public:
     void ReferencingProgram();
     /**
      * @brief Starts referencing a robot joint
-     * @param n joint number 0..6
+     * @param n joint number 0..5
      */
     void ReferenceRobotJoint(unsigned n);
     /**
@@ -242,16 +264,16 @@ public:
     /**
      * @brief Starts streaming the robot state
      */
-    void StartRobotStateStream();
+    // void StartRobotStateStream();
     /**
      * @brief Stops streaming the robot state
      */
-    void StopRobotStateStream();
+    // void StopRobotStateStream();
     /**
      * @brief Is called when the robot state is updated (usually each 10 or 20ms). Override this method, start the stream by calling StartRobotStateStream().
      * @param state new robot state
      */
-    virtual void OnRobotStateUpdated(const DataTypes::RobotState& state){};
+    // virtual void OnRobotStateUpdated(const DataTypes::RobotState& state){};
 
     /**
      * @brief Sets the state of a digital input (only in simulation)
@@ -260,10 +282,10 @@ public:
      */
     void SetDigitalInput(unsigned number, bool state);
     /**
-     * @brief Sets the states of the digital inputs (only in simulation)
+     * @brief Sets the states of the digital inputs (only in simulation). This bundles all changes in one request.
      * @param inputs set of digital inputs to set
      */
-    void SetDigitalInputs(const std::set<std::pair<unsigned, bool>>& inputs);
+    void SetDigitalInputs(const std::map<unsigned, bool>& inputs);
 
     /**
      * @brief Sets the state of a digital output
@@ -272,10 +294,10 @@ public:
      */
     void SetDigitalOutput(unsigned number, bool state);
     /**
-     * @brief Sets the states of the digital outputs
+     * @brief Sets the states of the digital outputs. This bundles all changes in one request.
      * @param outputs set of digital outputs to set
      */
-    void SetDigitalOutputs(const std::set<std::pair<unsigned, bool>>& outputs);
+    void SetDigitalOutputs(const std::map<unsigned, bool>& outputs);
 
     /**
      * @brief Sets the state of a global signal
@@ -284,68 +306,76 @@ public:
      */
     void SetGlobalSignal(unsigned number, bool state);
     /**
-     * @brief Sets the states of the global signals
+     * @brief Sets the states of the global signals. This bundles all changes in one request.
      * @param outputs set of global signals to set
      */
-    void SetGlobalSignals(const std::set<std::pair<unsigned, bool>>& signals);
+    void SetGlobalSignals(const std::map<unsigned, bool>& signals);
 
     /**
      * @brief Gets the current motion state (program execution etc)
-     * @return
+     * @return motion state
      */
     DataTypes::MotionState GetMotionState();
 
     /**
-     * @brief Loads a motion program
+     * @brief Loads a motion program synchronously
      * @param program program to load, relative to the Data/Programs directory
+     * @return motion state, check request_successful and motionProgram.mainProgram for success
      */
     DataTypes::MotionState LoadMotionProgram(const std::string& program);
     /**
      * @brief Unloads the motion program
+     * @return motion state
      */
     DataTypes::MotionState UnloadMotionProgram();
     /**
      * @brief Starts or continues the motion program
+     * @return motion state
      */
     DataTypes::MotionState StartMotionProgram();
     /**
-     * @brief Starts or continues the motion program at a specific command
+     * @brief Pauses the motion program at a specific command. Note: if you pass a program that is not loaded as main or sub-program it will be loaded as main
+     * program.
      * @param commandIdx command index within the current (sub-)program
      * @param subProgram sub-program or empty for main program
      */
-    DataTypes::MotionState StartMotionProgramAt(unsigned commandIdx = 0, const std::string& subProgram = "");
+    // DataTypes::MotionState StartMotionProgramAt(unsigned commandIdx = 0, const std::string& subProgram = "");
     /**
      * @brief Pauses the motion program
+     * @return motion state
      */
     DataTypes::MotionState PauseMotionProgram();
     /**
      * @brief Stops the motion program
+     * @return motion state
      */
     DataTypes::MotionState StopMotionProgram();
 
     /**
      * @brief Sets the motion program to run once
-     * @return 
+     * @return motion state
      */
     DataTypes::MotionState SetMotionProgramSingle();
     /**
      * @brief Sets the motion program to repeat
-     * @return 
+     * @return motion state
      */
     DataTypes::MotionState SetMotionProgramRepeat();
     /**
      * @brief Sets the motion program to pause after each step
-     * @return 
+     * @return motion state
      */
     DataTypes::MotionState SetMotionProgramStep();
 
     /**
-     * @brief Loads and starts a logic program
+     * @brief Loads and starts a logic program synchronously
      * @param program program to load, relative to the Data/Programs directory
+     * @return motion state, check request_successful and logicProgram.mainProgram for success
      */
     DataTypes::MotionState LoadLogicProgram(const std::string& program);
     /**
      * @brief Unloads the logic program
+     * @return motion state
      */
     DataTypes::MotionState UnloadLogicProgram();
 
@@ -362,10 +392,10 @@ public:
      * @param e1 E1 target in degrees, mm or user defined units
      * @param e2 E2 target in degrees, mm or user defined units
      * @param e3 E3 target in degrees, mm or user defined units
+     * @return motion state
      */
     DataTypes::MotionState MoveToJoint(float velocityPercent, float acceleration = 40, double a1 = 0, double a2 = 0, double a3 = 0, double a4 = 0,
-                                       double a5 = 0,
-                                       double a6 = 0, double e1 = 0, double e2 = 0, double e3 = 0);
+                                       double a5 = 0, double a6 = 0, double e1 = 0, double e2 = 0, double e3 = 0);
     /**
      * @brief Starts a relative joint motion to the given position
      * @param velocityPercent velocity in percent, 0.0..100.0
@@ -379,6 +409,7 @@ public:
      * @param e1 E1 target in degrees, mm or user defined units
      * @param e2 E2 target in degrees, mm or user defined units
      * @param e3 E3 target in degrees, mm or user defined units
+     * @return motion state
      */
     DataTypes::MotionState MoveToJointRelative(float velocityPercent, float acceleration = 40, double a1 = 0, double a2 = 0, double a3 = 0, double a4 = 0,
                                                double a5 = 0, double a6 = 0, double e1 = 0, double e2 = 0, double e3 = 0);
@@ -396,6 +427,7 @@ public:
      * @param e2 E2 target in degrees, mm or user defined units
      * @param e3 E3 target in degrees, mm or user defined units
      * @param frame user frame or empty for base frame
+     * @return motion state
      */
     DataTypes::MotionState MoveToLinear(float velocityMms, float acceleration = 40, double x = 0, double y = 0, double z = 0, double a = 0, double b = 0,
                                         double c = 0, double e1 = 0, double e2 = 0, double e3 = 0, const std::string& frame = "");
@@ -413,10 +445,10 @@ public:
      * @param e2 E2 target in degrees, mm or user defined units
      * @param e3 E3 target in degrees, mm or user defined units
      * @param frame user frame or empty for base frame
+     * @return motion state
      */
     DataTypes::MotionState MoveToLinearRelativeBase(float velocityMms, float acceleration = 40, double x = 0, double y = 0, double z = 0, double a = 0,
-                                                    double b = 0,
-                                                    double c = 0, double e1 = 0, double e2 = 0, double e3 = 0, const std::string& frame = "");
+                                                    double b = 0, double c = 0, double e1 = 0, double e2 = 0, double e3 = 0, const std::string& frame = "");
     /**
      * @brief Starts a linear motion to the given position
      * @param velocityMms velocity in mm/s
@@ -430,14 +462,31 @@ public:
      * @param e1 E1 target in degrees, mm or user defined units
      * @param e2 E2 target in degrees, mm or user defined units
      * @param e3 E3 target in degrees, mm or user defined units
+     * @return motion state
      */
     DataTypes::MotionState MoveToLinearRelativeTool(float velocityMms, float acceleration = 40, double x = 0, double y = 0, double z = 0, double a = 0,
-                                                    double b = 0,
-                                                    double c = 0, double e1 = 0, double e2 = 0, double e3 = 0);
+                                                    double b = 0, double c = 0, double e1 = 0, double e2 = 0, double e3 = 0);
     /**
      * @brief Stops a move-to motion
+     * @return motion state
      */
     DataTypes::MotionState MoveToStop();
+
+    /**
+     * @brief Returns true if the robot moves automatically. This does not indicate other motion types, like jog motion!
+     * @return true if a Move To command is being executed, if a motion program is running or if the position interface is used.
+     */
+    bool IsAutomaticMotion();
+
+    /**
+     * @brief Waits until the Move-To command or motion program is done. See the criteria given for IsAutomaticMotion().
+     * @param timeout The function returns when the motion is done or when this timeout is exceeded. Default: Effectively infinitely.
+     * @param precision Sleep duration between checks. 20 ms is one cycle for most robots and two for fast ones. There is no benefit in going faster than once
+     * per cycle.
+     * @return true if motion is done, false on timeout
+     */
+    bool WaitMotionDone(std::chrono::steady_clock::duration timeout = std::chrono::hours(9999999),
+                        std::chrono::steady_clock::duration precision = std::chrono::milliseconds(20));
 
     /**
      * @brief Gets the system information
@@ -448,19 +497,19 @@ public:
      * @brief Gets the tool center point position and orientation
      * @return TCP matrix
      */
-    DataTypes::Matrix44 GetTcp();
+    DataTypes::Matrix44 GetTCP();
 
     /**
      * @brief Gets the current velocity override
-     * @return velocity multiplier in percent 0.0..1.0
+     * @return velocity multiplier in percent 0.0..100.0
      */
-    float GetVelocity();
+    float GetVelocityOverride();
     /**
      * @brief Sets the velocity override
-     * @param velocityPercent requested velocity multiplier in percent 0.0..1.0
-     * @return actual velocity multiplier in percent 0.0..1.0
+     * @param velocityPercent requested velocity multiplier in percent 0.0..100.0
+     * @return actual velocity multiplier in percent 0.0..100.0
      */
-    float SetVelocity(float velocityPercent);
+    float SetVelocityOverride(float velocityPercent);
 
     // =========================================================================
     // Kinematics
@@ -504,8 +553,7 @@ public:
      * @param resultState the result state is written here. 0 on success, other value on error
      * @return true on success
      */
-    bool TranslateJointToCart(const std::array<double, 9>& joints, DataTypes::Matrix44& tcp,
-                              robotcontrolapp::KinematicState& resultState);
+    bool TranslateJointToCart(const std::array<double, 9>& joints, DataTypes::Matrix44& tcp, robotcontrolapp::KinematicState& resultState);
 
     // =========================================================================
     // File access
@@ -543,6 +591,14 @@ public:
      * @return true on success
      */
     bool DownloadFile(const std::string& sourceFile, std::vector<uint8_t>& data, std::string& error);
+
+    /**
+     * @brief Removes a file from the robot control
+     * @param file file on the robot control, relative to the Data directory
+     * @param error if an error occurs the reason is written here
+     * @return true on success
+     */
+    bool RemoveFile(const std::string& file, std::string& error);
 
     /**
      * @brief Description of a directory's content
@@ -588,8 +644,8 @@ public:
      */
     void RequestUIElementState(const std::string& elementName);
     /**
-     * @brief Queues a request of the state of a UI element. The robot control will respond with a call of UiUpdateHandler() if the element exists and if it was changed
-     * after start up
+     * @brief Queues a request of the state of a UI element. The robot control will respond with a call of UiUpdateHandler() if the element exists and if it was
+     * changed after start up
      * @param elementName ID of the requested UI element
      */
     void QueueRequestUIElementState(const std::string& elementName);
@@ -601,8 +657,8 @@ public:
      */
     void RequestUIElementStates(const std::unordered_set<std::string>& elementNames);
     /**
-     * @brief Queues a request of the state of several UI elements. The robot control will respond with a call of UiUpdateHandler() if the element exists and if it was
-     * changed after start up
+     * @brief Queues a request of the state of several UI elements. The robot control will respond with a call of UiUpdateHandler() if the element exists and if
+     * it was changed after start up
      * @param elementNames set of UI element names
      */
     void QueueRequestUIElementStates(const std::unordered_set<std::string>& elementNames);
@@ -701,25 +757,63 @@ public:
     /**
      * @brief Sets the image of an image element in the UI
      * @param elementName ID of the UI element
-     * @param uiWidth width of the image UI element (does not need to be equal to the image width, image will be scaled)
-     * @param uiHeight height of the image UI element (does not need to be equal to the image height, image will be scaled)
+     * @param uiWidth width of the image UI element (does not need to be equal to the image width, image will be scaled) - currently not used yet
+     * @param uiHeight height of the image UI element (does not need to be equal to the image height, image will be scaled) - currently not used yet
      * @param imageData binary image data
-     * @param imageDataLength length of the image data
+     * @param imageDataLength length of the image data. All shown images combined must be less than 290kB, otherwise the UI may fail to load after reconnect!
      * @param encoding image format
      */
-    void SetImage(const std::string& elementName, unsigned uiWidth, unsigned uiHeight, uint8_t* imageData, size_t imageDataLength,
+    void SetImage(const std::string& elementName, unsigned uiWidth, unsigned uiHeight, const uint8_t* imageData, size_t imageDataLength,
                   robotcontrolapp::ImageState::ImageData::ImageEncoding encoding = robotcontrolapp::ImageState_ImageData_ImageEncoding_JPEG);
+
     /**
-     * @brief Queues setting the image of an image element in the UI
+     * @brief Sets the image of an image element in the UI
      * @param elementName ID of the UI element
      * @param uiWidth width of the image UI element (does not need to be equal to the image width, image will be scaled)
      * @param uiHeight height of the image UI element (does not need to be equal to the image height, image will be scaled)
+     * @param imageFile file name and path of the image file to load. All shown images combined must be less than 290kB, otherwise the UI may fail to load after
+     * reconnect!
+     */
+    void SetImage(const std::string& elementName, unsigned uiWidth, unsigned uiHeight, const std::string& imageFile);
+
+    /**
+     * @brief Queues setting the image of an image element in the UI
+     * @param elementName ID of the UI element
+     * @param uiWidth width of the image UI element (does not need to be equal to the image width, image will be scaled) - currently not used yet
+     * @param uiHeight height of the image UI element (does not need to be equal to the image height, image will be scaled) - currently not used yet
      * @param imageData binary image data
      * @param imageDataLength length of the image data
      * @param encoding image format
      */
     void QueueSetImage(const std::string& elementName, unsigned uiWidth, unsigned uiHeight, uint8_t* imageData, size_t imageDataLength,
-                  robotcontrolapp::ImageState::ImageData::ImageEncoding encoding = robotcontrolapp::ImageState_ImageData_ImageEncoding_JPEG);
+                       robotcontrolapp::ImageState::ImageData::ImageEncoding encoding = robotcontrolapp::ImageState_ImageData_ImageEncoding_JPEG);
+
+    /**
+     * @brief Shows an info dialog window to the user.
+     * Note: If iRC is not connected or older than V14-004 the dialog will never be shown. Currently there is no way for the app to find out whether this is the
+     * case. than V14-004 only error messages are shown.
+     * @param message The message to be displayed
+     * @param title The dialog title
+     */
+    void ShowInfoDialog(const std::string& message, const std::string& title);
+
+    /**
+     * @brief Shows a warning dialog window to the user.
+     * Note: If iRC is not connected or older than V14-004 the dialog will never be shown. Currently there is no way for the app to find out whether this is the
+     * case. than V14-004 only error messages are shown.
+     * @param message The message to be displayed
+     * @param title The dialog title
+     */
+    void ShowWarningDialog(const std::string& message, const std::string& title);
+
+    /**
+     * @brief Shows an error dialog window to the user.
+     * Note: If iRC is not connected the dialog will never be shown. Currently there is no way for the app to find out whether this is the case.
+     * than V14-004 only error messages are shown.
+     * @param message The message to be displayed
+     * @param title The dialog title
+     */
+    void ShowErrorDialog(const std::string& message, const std::string& title);
 
 protected:
     /**
@@ -749,7 +843,7 @@ private:
     std::mutex m_actionsMutex;
 
     /// Set this to true to request the threads to Stop
-    std::atomic<bool> m_stopThreads = false;
+    std::atomic<bool> m_stopThreads = true;
     /// Mutex for starting and stopping the threads
     std::recursive_mutex m_threadMutex;
 
@@ -761,7 +855,7 @@ private:
     /// This thread streams robot state updates
     std::thread m_robotStateThread;
     /// Set to false to stop streaming the robot state
-    bool m_robotStateStreamActive = false;
+    std::atomic<bool> m_robotStateStreamActive = false;
 
     /// UI updates are queued here
     robotcontrolapp::AppAction m_queuedUIUpdates;
@@ -781,7 +875,7 @@ private:
     /**
      * @brief Thread method for the RobotState reader
      */
-    void RobotStateThread();
+    // void RobotStateThread();
 
     /**
      * @brief GRPC stream: This is used for sending/receiving messages.
@@ -791,6 +885,41 @@ private:
      * @brief GRPC context. This context is only for the grpcStream, create temporary contexts for other requests!
      */
     grpc::ClientContext m_grpcStreamContext;
+
+    /**
+     * @brief Sets the replay mode (single / repeat / step) of the motion program
+     * @param replayMode replay mode to set
+     * @return motion state after executing the command
+     */
+    DataTypes::MotionState SetMotionProgramReplayMode(robotcontrolapp::ReplayMode replayMode);
+    /**
+     * @brief Sets the run state (start / stop / pause) of the motion program
+     * @param replayMode replay mode to set
+     * @return motion state after executing the command
+     */
+    DataTypes::MotionState SetMotionProgramRunState(robotcontrolapp::RunState runState);
+
+    /**
+     * @brief Shows a dialog window to the user.
+     * Note: If iRC is not connected the dialog will never be shown. Currently there is no way for the app to find out whether this is the case. If iRC is older
+     * than V14-004 only error messages are shown.
+     * @param message The message to be displayed
+     * @param title The dialog title
+     * @param type the dialog type (Info, Error, Warning)
+     */
+    void ShowDialog(const std::string& message, const std::string& title, robotcontrolapp::ShowDialogRequest_DialogType type);
+
+    /**
+     * @brief Checks whether the connected robot supports all features of this AppClient
+     * @param sysInfo system info
+     * @return true if all features are supported
+     */
+    static bool CheckCoreVersion(const DataTypes::SystemInfo& sysInfo);
+
+    /**
+     * @brief Sends the apps capabilities / API version to the server
+     */
+    void SendCapabilities();
 };
 
 } // namespace App

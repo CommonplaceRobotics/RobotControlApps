@@ -1,29 +1,29 @@
 <App name="MathTools" label="Math Tools" vendor="" version="1.0.0">
 	<executable path="app.py"/>
 	
-	<function name="jointToCart" label="Convert Joint To Cart">
+	<function name="jointToCart" label="Convert Joint to Cart">
 		<parameter name="source_variable" type="string" ui-hint="text" label="Source position variable"/>
 		<parameter name="target_variable" type="string" ui-hint="text" label="Target position variable"/>
 		<parameter name="abort_on_error" type="bool" ui-hint="checkbox" label="Abort on error"/>
 		<parameter name="success_gsig" type="int" ui-hint="number" label="Success GSig"/>
 	</function>
-	<function name="cartToJoint" label="Convert Cart To Joint">
+	<function name="cartToJoint" label="Convert Cart to Joint">
 		<parameter name="source_variable" type="string" ui-hint="text" label="Source position variable"/>
 		<parameter name="target_variable" type="string" ui-hint="text" label="Target position variable"/>
 		<parameter name="abort_on_error" type="bool" ui-hint="checkbox" label="Abort program on error"/>
 		<parameter name="success_gsig" type="int" ui-hint="number" label="Success GSig"/>
 	</function>
 
-	<function name="xyz_distance" label="XYZ distance">
+	<function name="xyz_distance" label="Calculate XYZ Distance">
 		<parameter name="position_a" type="string" ui-hint="text" label="Position variable A"/>
 		<parameter name="position_b" type="string" ui-hint="text" label="Position variable B"/>
 		<parameter name="target_variable" type="string" ui-hint="text" label="Target number variable"/>
 	</function>
 
-	<function name="is_near" label="XYZ distance check">
+	<function name="is_near" label="Check XYZ Distance">
 		<parameter name="position_a" type="string" ui-hint="text" label="Position variable A"/>
 		<parameter name="position_b" type="string" ui-hint="text" label="Position variable B"/>
-		<parameter name="dist_max" type="int" ui-hint="number" label="Max. distance"/>
+		<parameter name="dist_max" type="string" ui-hint="text" label="Max. distance"/>
 		<parameter name="success_gsig" type="int" ui-hint="number" label="Result GSig"/>
 	</function>
 
@@ -67,5 +67,21 @@
 		<parameter name="copy_e1" type="bool" ui-hint="checkbox" label="Copy E1" value="true"/>
 		<parameter name="copy_e2" type="bool" ui-hint="checkbox" label="Copy E2" value="true"/>
 		<parameter name="copy_e3" type="bool" ui-hint="checkbox" label="Copy E3" value="true"/>
+	</function>
+
+	<function name="get_time_seconds" label="Get Seconds">
+		<parameter name="target" type="string" ui-hint="text" label="Target variable"/>
+	</function>
+
+	<function name="get_time_minutes" label="Get Minutes">
+		<parameter name="target" type="string" ui-hint="text" label="Target variable"/>
+	</function>
+
+	<function name="get_time_hours" label="Get Hours">
+		<parameter name="target" type="string" ui-hint="text" label="Target variable"/>
+	</function>
+
+	<function name="wait_by_variable" label="Wait by variable">
+		<parameter name="duration" type="string" ui-hint="text" label="Duration variable (seconds)"/>
 	</function>
 </App>

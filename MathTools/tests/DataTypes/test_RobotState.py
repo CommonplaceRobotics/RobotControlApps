@@ -97,7 +97,7 @@ class RobotStateTest(unittest.TestCase):
 
         self.assertEqual(0, state.velocityOverride)
         self.assertEqual(0, state.cartesianVelocity)
-        
+
         self.assertEqual(0, state.temperatureCPU)
         self.assertEqual(0, state.supplyVoltage)
         self.assertEqual(0, state.currentAll)
@@ -114,11 +114,11 @@ class RobotStateTest(unittest.TestCase):
         matrixGrpc = matrix.ToGrpc()
         for i in range(0, len(matrixGrpc.data)):
             grpc.tcp.data.append(matrixGrpc.data[i])
-        
+
         grpc.platform_pose.position.x = 1234.5
         grpc.platform_pose.position.y = -567.8
         grpc.platform_pose.heading = 95.6
-        
+
         a1 = grpc.joints.add()
         a1.id = 0
         a1.name = "A1"
@@ -137,7 +137,7 @@ class RobotStateTest(unittest.TestCase):
         e3.id = 8
         e3.name = "E3"
         e3.position.position = 546
-        
+
         grpc.DIns.add().state = robotcontrolapp_pb2.DIOState.HIGH
         grpc.DIns.add().state = robotcontrolapp_pb2.DIOState.LOW
         grpc.DOuts.add().state = robotcontrolapp_pb2.DIOState.LOW
@@ -149,7 +149,7 @@ class RobotStateTest(unittest.TestCase):
 
         grpc.hardware_state_string = "MNE_ENC"
         grpc.kinematic_state = robotcontrolapp_pb2.KINEMATIC_ERROR_JOINT_LIMIT_MAX
-        
+
         grpc.velocity_override = 0.34
         grpc.cartesian_velocity = 45.6
 
@@ -199,7 +199,7 @@ class RobotStateTest(unittest.TestCase):
 
         self.assertAlmostEqual(0.34, state.velocityOverride, 4)
         self.assertAlmostEqual(45.6, state.cartesianVelocity, 4)
-        
+
         self.assertAlmostEqual(46.8, state.temperatureCPU, 4)
         self.assertAlmostEqual(24.5, state.supplyVoltage, 4)
         self.assertAlmostEqual(1267.8, state.currentAll, 4)

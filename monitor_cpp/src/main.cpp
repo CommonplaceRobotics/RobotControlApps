@@ -24,7 +24,6 @@ int main(int argc, char* argv[])
     {
         // connect to the robot control
         app.Connect();
-        app.StartRobotStateStream();
 
         // time of the last example run
         std::chrono::steady_clock::time_point lastUpdate = std::chrono::steady_clock::now() - std::chrono::seconds(60);
@@ -35,7 +34,7 @@ int main(int argc, char* argv[])
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
             // Request robot state updates manually (remove app.StartRobotStateStream() above!)
-            //app.UpdateRobotState();
+            app.UpdateRobotState();
 
             // Run some examples every few seconds
             auto now = std::chrono::steady_clock::now();

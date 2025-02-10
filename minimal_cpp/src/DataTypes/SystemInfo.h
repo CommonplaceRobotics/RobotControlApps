@@ -4,8 +4,9 @@
  */
 #pragma once
 
-#include <string>
 #include <robotcontrolapp.grpc.pb.h>
+
+#include <string>
 
 #include "Matrix44.h"
 
@@ -49,7 +50,7 @@ public:
 
     // unique device ID
     std::string deviceID;
-    
+
     // Robot main loop cycle time (hardware IO, kinematics, program execution) target in ms
     float cycleTimeTarget = 0;
     // Average robot main loop cycle time average in ms
@@ -78,10 +79,10 @@ public:
     SystemInfo() = default;
     /**
      * @brief Constructor from GRPC SystemInfo
-     * @param info 
+     * @param info
      */
     SystemInfo(const robotcontrolapp::SystemInfo& info);
 };
 
-}
+} // namespace DataTypes
 } // namespace App

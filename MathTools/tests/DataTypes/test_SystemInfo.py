@@ -10,7 +10,7 @@ class SystemInfoTest(unittest.TestCase):
         self.assertEqual(0, sysInfo.versionMinor)
         self.assertEqual(0, sysInfo.versionPatch)
         self.assertEqual("", sysInfo.version)
-        
+
         self.assertEqual("", sysInfo.projectFile)
         self.assertEqual("", sysInfo.projectTitle)
         self.assertEqual("", sysInfo.projectAuthor)
@@ -65,7 +65,7 @@ class SystemInfoTest(unittest.TestCase):
         self.assertEqual(4, sysInfo.versionMinor)
         self.assertEqual(1, sysInfo.versionPatch)
         self.assertEqual("14-004-1-test", sysInfo.version)
-        
+
         self.assertEqual("Foo", sysInfo.projectFile)
         self.assertEqual("Bar", sysInfo.projectTitle)
         self.assertEqual("Baz", sysInfo.projectAuthor)

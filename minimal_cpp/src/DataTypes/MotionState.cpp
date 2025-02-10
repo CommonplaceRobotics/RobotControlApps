@@ -9,7 +9,8 @@ namespace DataTypes
  * @brief Constructor from GRPC InterpolatorState
  * @param state
  */
-MotionState::InterpolatorState::InterpolatorState(const robotcontrolapp::MotionState_InterpolatorState& state) {
+MotionState::InterpolatorState::InterpolatorState(const robotcontrolapp::MotionState_InterpolatorState& state)
+{
     switch (state.runstate())
     {
         default:
@@ -50,10 +51,13 @@ MotionState::InterpolatorState::InterpolatorState(const robotcontrolapp::MotionS
  * @brief Constructor from GRPC MotionState
  * @param state
  */
-MotionState::MotionState(const robotcontrolapp::MotionState& state) :motionProgram(state.motion_ipo()), logicProgram(state.logic_ipo()), moveTo(state.move_to_ipo()) {
+MotionState::MotionState(const robotcontrolapp::MotionState& state)
+    : motionProgram(state.motion_ipo()), logicProgram(state.logic_ipo()), moveTo(state.move_to_ipo())
+{
     positionInterface.isEnabled = state.position_interface().is_enabled();
     positionInterface.isInUse = state.position_interface().is_in_use();
     positionInterface.port = state.position_interface().port();
+    if (state.has_request_successful()) requestSuccessful = state.request_successful();
 }
 
 } // namespace DataTypes

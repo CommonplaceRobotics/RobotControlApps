@@ -128,6 +128,22 @@ CLICKED: ButtonState
 UNCHECKED: CheckboxState
 CHECKED: CheckboxState
 
+class CapabilitiesRequest(_message.Message):
+    __slots__ = ("app_name", "api_version_major", "api_version_minor", "api_version_patch")
+    APP_NAME_FIELD_NUMBER: _ClassVar[int]
+    API_VERSION_MAJOR_FIELD_NUMBER: _ClassVar[int]
+    API_VERSION_MINOR_FIELD_NUMBER: _ClassVar[int]
+    API_VERSION_PATCH_FIELD_NUMBER: _ClassVar[int]
+    app_name: str
+    api_version_major: int
+    api_version_minor: int
+    api_version_patch: int
+    def __init__(self, app_name: _Optional[str] = ..., api_version_major: _Optional[int] = ..., api_version_minor: _Optional[int] = ..., api_version_patch: _Optional[int] = ...) -> None: ...
+
+class CapabilitiesResponse(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
+
 class SystemInfoRequest(_message.Message):
     __slots__ = ("app_name",)
     APP_NAME_FIELD_NUMBER: _ClassVar[int]
@@ -350,7 +366,7 @@ class RobotState(_message.Message):
     def __init__(self, tcp: _Optional[_Union[Matrix44, _Mapping]] = ..., platform_pose: _Optional[_Union[PlatformPose, _Mapping]] = ..., joints: _Optional[_Iterable[_Union[Joint, _Mapping]]] = ..., DIns: _Optional[_Iterable[_Union[DIn, _Mapping]]] = ..., DOuts: _Optional[_Iterable[_Union[DOut, _Mapping]]] = ..., GSigs: _Optional[_Iterable[_Union[GSig, _Mapping]]] = ..., hardware_state_string: _Optional[str] = ..., kinematic_state: _Optional[_Union[KinematicState, str]] = ..., velocity_override: _Optional[float] = ..., cartesian_velocity: _Optional[float] = ..., temperature_cpu: _Optional[float] = ..., supply_voltage: _Optional[float] = ..., current_all: _Optional[float] = ..., referencing_state: _Optional[_Union[ReferencingState, str]] = ...) -> None: ...
 
 class MotionState(_message.Message):
-    __slots__ = ("current_source", "motion_ipo", "logic_ipo", "move_to_ipo", "position_interface")
+    __slots__ = ("current_source", "motion_ipo", "logic_ipo", "move_to_ipo", "position_interface", "request_successful")
     class MotionSource(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
         __slots__ = ()
         JOG: _ClassVar[MotionState.MotionSource]
@@ -396,12 +412,14 @@ class MotionState(_message.Message):
     LOGIC_IPO_FIELD_NUMBER: _ClassVar[int]
     MOVE_TO_IPO_FIELD_NUMBER: _ClassVar[int]
     POSITION_INTERFACE_FIELD_NUMBER: _ClassVar[int]
+    REQUEST_SUCCESSFUL_FIELD_NUMBER: _ClassVar[int]
     current_source: MotionState.MotionSource
     motion_ipo: MotionState.InterpolatorState
     logic_ipo: MotionState.InterpolatorState
     move_to_ipo: MotionState.InterpolatorState
     position_interface: MotionState.PositionInterfaceState
-    def __init__(self, current_source: _Optional[_Union[MotionState.MotionSource, str]] = ..., motion_ipo: _Optional[_Union[MotionState.InterpolatorState, _Mapping]] = ..., logic_ipo: _Optional[_Union[MotionState.InterpolatorState, _Mapping]] = ..., move_to_ipo: _Optional[_Union[MotionState.InterpolatorState, _Mapping]] = ..., position_interface: _Optional[_Union[MotionState.PositionInterfaceState, _Mapping]] = ...) -> None: ...
+    request_successful: bool
+    def __init__(self, current_source: _Optional[_Union[MotionState.MotionSource, str]] = ..., motion_ipo: _Optional[_Union[MotionState.InterpolatorState, _Mapping]] = ..., logic_ipo: _Optional[_Union[MotionState.InterpolatorState, _Mapping]] = ..., move_to_ipo: _Optional[_Union[MotionState.InterpolatorState, _Mapping]] = ..., position_interface: _Optional[_Union[MotionState.PositionInterfaceState, _Mapping]] = ..., request_successful: bool = ...) -> None: ...
 
 class MotionInterpolatorRequest(_message.Message):
     __slots__ = ("app_name", "runstate", "replay_mode", "main_program", "start_at")
@@ -813,6 +831,35 @@ class Event(_message.Message):
     ui_updates: _containers.RepeatedCompositeFieldContainer[AppUIElement]
     disconnect_request: Event.DisconnectRequest
     def __init__(self, function: _Optional[_Union[AppFunction, _Mapping]] = ..., ui_updates: _Optional[_Iterable[_Union[AppUIElement, _Mapping]]] = ..., disconnect_request: _Optional[_Union[Event.DisconnectRequest, _Mapping]] = ...) -> None: ...
+
+class ShowDialogRequest(_message.Message):
+    __slots__ = ("app_name", "message_dialog")
+    class DialogType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+        __slots__ = ()
+        INFO: _ClassVar[ShowDialogRequest.DialogType]
+        WARNING: _ClassVar[ShowDialogRequest.DialogType]
+        ERROR: _ClassVar[ShowDialogRequest.DialogType]
+    INFO: ShowDialogRequest.DialogType
+    WARNING: ShowDialogRequest.DialogType
+    ERROR: ShowDialogRequest.DialogType
+    class MessageDialog(_message.Message):
+        __slots__ = ("type", "title", "message")
+        TYPE_FIELD_NUMBER: _ClassVar[int]
+        TITLE_FIELD_NUMBER: _ClassVar[int]
+        MESSAGE_FIELD_NUMBER: _ClassVar[int]
+        type: ShowDialogRequest.DialogType
+        title: str
+        message: str
+        def __init__(self, type: _Optional[_Union[ShowDialogRequest.DialogType, str]] = ..., title: _Optional[str] = ..., message: _Optional[str] = ...) -> None: ...
+    APP_NAME_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_DIALOG_FIELD_NUMBER: _ClassVar[int]
+    app_name: str
+    message_dialog: ShowDialogRequest.MessageDialog
+    def __init__(self, app_name: _Optional[str] = ..., message_dialog: _Optional[_Union[ShowDialogRequest.MessageDialog, _Mapping]] = ...) -> None: ...
+
+class ShowDialogResponse(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
 
 class ProgramVariable(_message.Message):
     __slots__ = ("name", "number", "position")

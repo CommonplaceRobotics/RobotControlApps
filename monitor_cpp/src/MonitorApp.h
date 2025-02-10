@@ -50,10 +50,4 @@ public:
      * @param state new robot state
      */
     void UpdateRobotState();
-
-    /**
-     * @brief Is called when the robot state is updated (usually each 10 or 20ms). Override this method, start the stream by calling StartRobotStateStream().
-     * @param state new robot state
-     */
-    virtual void OnRobotStateUpdated(const App::DataTypes::RobotState& state) override;
 };

@@ -3,6 +3,7 @@
 #include <grpcpp/create_channel.h>
 
 #include <exception>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -34,9 +35,9 @@ AppClient::~AppClient()
 void AppClient::Connect()
 {
     std::unique_lock<std::recursive_mutex> threadLock(m_threadMutex);
-    if (!m_stopThreads)
+    if (m_stopThreads)
     {
-        std::cout << "Connecting app '" << GetAppName() << '\'' << std::endl;
+        if (logDebug) std::cout << "Connecting app '" << GetAppName() << '\'' << std::endl;
         m_stopThreads = false;
 
         // clear queue
@@ -52,6 +53,15 @@ void AppClient::Connect()
             std::shared_ptr<grpc::ClientReaderWriter<robotcontrolapp::AppAction, robotcontrolapp::Event>>(m_grpcStub->RecieveActions(&m_grpcStreamContext));
         m_eventReaderThread = std::thread(&AppClient::EventReaderThread, this);
         m_actionsWriterThread = std::thread(&AppClient::ActionsWriterThread, this);
+
+        SendCapabilities();
+        auto systemInfo = GetSystemInfo();
+        if (!CheckCoreVersion(systemInfo))
+        {
+            std::cerr << "WARNING: The connected robot does not support all features of this app API (" << 'V' << systemInfo.versionMajor << '.'
+                      << systemInfo.versionMinor << '.' << systemInfo.versionPatch << " < V" << VERSION_MAJOR_MIN << '.' << VERSION_MINOR_MIN << '.'
+                      << VERSION_PATCH_MIN << "). This app may not work correctly." << std::endl;
+        }
     }
     else
     {
@@ -67,9 +77,9 @@ void AppClient::Disconnect()
     std::unique_lock<std::recursive_mutex> lock(m_threadMutex);
     if (m_grpcStream)
     {
-        std::cout << "Disconnecting app '" << GetAppName() << '\'' << std::endl;
+        if (logDebug) std::cout << "Disconnecting app '" << GetAppName() << '\'' << std::endl;
         m_stopThreads = true;
-        StopRobotStateStream();
+        // StopRobotStateStream();
         if (m_eventReaderThread.joinable()) m_eventReaderThread.join();
         if (m_actionsWriterThread.joinable()) m_actionsWriterThread.join();
         if (m_grpcStream)
@@ -83,7 +93,7 @@ void AppClient::Disconnect()
             }
         }
         m_grpcStream = nullptr;
-        std::cout << "App '" << GetAppName() << "' disconnected" << std::endl;
+        if (logDebug) std::cout << "App '" << GetAppName() << "' disconnected" << std::endl;
     }
 }
 
@@ -119,7 +129,7 @@ void AppClient::EventReaderThread()
             }
             else
             {
-                std::cout << "Read stream closed" << std::endl;
+                if (logDebug) std::cout << "Read stream closed" << std::endl;
                 m_stopThreads = true;
             }
         }
@@ -151,7 +161,7 @@ void AppClient::ActionsWriterThread()
                 actionToSend.set_app_name(GetAppName());
                 if (!m_grpcStream->Write(actionToSend))
                 {
-                    std::cout << "Write stream closed" << std::endl;
+                    if (logDebug) std::cout << "Write stream closed" << std::endl;
                     m_stopThreads = true;
                 }
             }
@@ -184,12 +194,62 @@ void AppClient::SendAction(const robotcontrolapp::AppAction& action)
 }
 
 /**
+ * @brief Checks whether the connected robot supports all features of this AppClient
+ * @param sysInfo system info
+ * @return true if all features are supported
+ */
+bool AppClient::CheckCoreVersion(const DataTypes::SystemInfo& sysInfo)
+{
+    if (sysInfo.versionMajor > VERSION_MAJOR_MIN)
+    {
+        return true;
+    }
+    else if (sysInfo.versionMajor == VERSION_MAJOR_MIN)
+    {
+        if (sysInfo.versionMinor > VERSION_MINOR_MIN)
+        {
+            return true;
+        }
+        else if (sysInfo.versionMinor == VERSION_MINOR_MIN)
+        {
+            if (sysInfo.versionPatch >= VERSION_PATCH_MIN)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * @brief Sends the apps capabilities / API version to the server
+ */
+void AppClient::SendCapabilities()
+{
+    if (!IsConnected()) throw NotConnectedException();
+
+    grpc::ClientContext context;
+    robotcontrolapp::CapabilitiesRequest request;
+    request.set_app_name(GetAppName());
+    request.set_api_version_major(VERSION_MAJOR_MIN);
+    request.set_api_version_minor(VERSION_MINOR_MIN);
+    request.set_api_version_patch(VERSION_PATCH_MIN);
+
+    robotcontrolapp::CapabilitiesResponse response;
+    grpc::Status status = m_grpcStub->SetCapabilities(&context, request, &response);
+    if (!status.ok())
+    {
+        throw std::runtime_error("request SetCapabilities failed: " + status.error_message());
+    }
+}
+
+/**
  * @brief Gets the tool center point position and orientation
  * @return TCP matrix
  */
-DataTypes::Matrix44 AppClient::GetTcp()
+DataTypes::Matrix44 AppClient::GetTCP()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     grpc::ClientContext context;
     robotcontrolapp::GetTCPRequest request;
@@ -251,7 +311,7 @@ std::shared_ptr<DataTypes::PositionVariable> AppClient::GetPositionVariable(cons
  */
 std::map<std::string, std::shared_ptr<DataTypes::ProgramVariable>> AppClient::GetProgramVariables(const std::unordered_set<std::string>& variableNames)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     std::map<std::string, std::shared_ptr<DataTypes::ProgramVariable>> result;
 
@@ -335,7 +395,9 @@ std::map<std::string, std::shared_ptr<DataTypes::ProgramVariable>> AppClient::Ge
  */
 void AppClient::SetNumberVariable(const std::string& name, double value)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
+    if (name.empty()) throw std::runtime_error("empty variable name");
+    if (name.find(' ') != std::string::npos) throw std::runtime_error("space in variable name");
 
     grpc::ClientContext context;
     robotcontrolapp::SetProgramVariablesRequest request;
@@ -367,7 +429,9 @@ void AppClient::SetNumberVariable(const std::string& name, double value)
  */
 void AppClient::SetPositionVariable(const std::string& name, double a1, double a2, double a3, double a4, double a5, double a6, double e1, double e2, double e3)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
+    if (name.empty()) throw std::runtime_error("empty variable name");
+    if (name.find(' ') != std::string::npos) throw std::runtime_error("space in variable name");
 
     grpc::ClientContext context;
     robotcontrolapp::SetProgramVariablesRequest request;
@@ -403,7 +467,9 @@ void AppClient::SetPositionVariable(const std::string& name, double a1, double a
  */
 void AppClient::SetPositionVariable(const std::string& name, DataTypes::Matrix44 cartesianPosition, double e1, double e2, double e3)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
+    if (name.empty()) throw std::runtime_error("empty variable name");
+    if (name.find(' ') != std::string::npos) throw std::runtime_error("space in variable name");
 
     grpc::ClientContext context;
     robotcontrolapp::SetProgramVariablesRequest request;
@@ -441,7 +507,9 @@ void AppClient::SetPositionVariable(const std::string& name, DataTypes::Matrix44
 void AppClient::SetPositionVariable(const std::string& name, DataTypes::Matrix44 cartesianPosition, double a1, double a2, double a3, double a4, double a5,
                                     double a6, double e1, double e2, double e3)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
+    if (name.empty()) throw std::runtime_error("empty variable name");
+    if (name.find(' ') != std::string::npos) throw std::runtime_error("space in variable name");
 
     grpc::ClientContext context;
     robotcontrolapp::SetProgramVariablesRequest request;
@@ -449,13 +517,13 @@ void AppClient::SetPositionVariable(const std::string& name, DataTypes::Matrix44
     auto variable = request.add_variables();
     variable->set_name(name);
     auto position = variable->mutable_position();
-    *position->mutable_cartesian() = cartesianPosition.ToGrpc();
-    position->mutable_robot_joints()->add_joints(a1);
-    position->mutable_robot_joints()->add_joints(a2);
-    position->mutable_robot_joints()->add_joints(a3);
-    position->mutable_robot_joints()->add_joints(a4);
-    position->mutable_robot_joints()->add_joints(a5);
-    position->mutable_robot_joints()->add_joints(a6);
+    *position->mutable_both()->mutable_cartesian() = cartesianPosition.ToGrpc();
+    position->mutable_both()->mutable_robot_joints()->add_joints(a1);
+    position->mutable_both()->mutable_robot_joints()->add_joints(a2);
+    position->mutable_both()->mutable_robot_joints()->add_joints(a3);
+    position->mutable_both()->mutable_robot_joints()->add_joints(a4);
+    position->mutable_both()->mutable_robot_joints()->add_joints(a5);
+    position->mutable_both()->mutable_robot_joints()->add_joints(a6);
     position->add_external_joints(e1);
     position->add_external_joints(e2);
     position->add_external_joints(e3);
@@ -471,8 +539,9 @@ void AppClient::SetPositionVariable(const std::string& name, DataTypes::Matrix44
 /**
  * @brief Resets hardware errors and disables the motors
  */
-void AppClient::ResetErrors() {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+void AppClient::ResetErrors()
+{
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::ResetErrorsRequest request;
     request.set_app_name(GetAppName());
@@ -491,7 +560,7 @@ void AppClient::ResetErrors() {
  */
 void AppClient::EnableMotors()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::EnableMotorsRequest request;
     request.set_app_name(GetAppName());
@@ -511,7 +580,7 @@ void AppClient::EnableMotors()
  */
 void AppClient::DisableMotors()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::EnableMotorsRequest request;
     request.set_app_name(GetAppName());
@@ -532,7 +601,7 @@ void AppClient::DisableMotors()
  */
 void AppClient::ReferenceAllJoints(bool withReferencingProgram)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::ReferenceJointsRequest request;
     request.set_app_name(GetAppName());
@@ -553,7 +622,7 @@ void AppClient::ReferenceAllJoints(bool withReferencingProgram)
  */
 void AppClient::ReferencingProgram()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::ReferenceJointsRequest request;
     request.set_app_name(GetAppName());
@@ -575,7 +644,7 @@ void AppClient::ReferencingProgram()
  */
 void AppClient::ReferenceRobotJoint(unsigned n)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::ReferenceJointsRequest request;
     request.set_app_name(GetAppName());
@@ -598,7 +667,7 @@ void AppClient::ReferenceRobotJoint(unsigned n)
  */
 void AppClient::ReferenceExternalJoint(unsigned n)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::ReferenceJointsRequest request;
     request.set_app_name(GetAppName());
@@ -622,7 +691,7 @@ void AppClient::ReferenceExternalJoint(unsigned n)
  */
 void AppClient::ReferenceJoints(std::set<int> robotJoints, std::set<int> externalJoints)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::ReferenceJointsRequest request;
     request.set_app_name(GetAppName());
@@ -640,61 +709,64 @@ void AppClient::ReferenceJoints(std::set<int> robotJoints, std::set<int> externa
     }
 }
 
-/**
- * @brief Starts streaming the robot state
- */
-void AppClient::StartRobotStateStream() {
-    if (!IsConnected()) throw std::runtime_error("not connected");
-
-    std::unique_lock<std::recursive_mutex> lock(m_threadMutex);
-    if (m_robotStateThread.joinable()) StopRobotStateStream();
-    m_robotStateStreamActive = true;
-    m_robotStateThread = std::thread(&AppClient::RobotStateThread, this);
-}
-
-/**
- * @brief Stops streaming the robot state
- */
-void AppClient::StopRobotStateStream() {
-    std::unique_lock<std::recursive_mutex> lock(m_threadMutex);
-    m_robotStateStreamActive = true;
-    if (m_robotStateThread.joinable()) m_robotStateThread.join();
-}
-
-/**
- * @brief Thread method for the RobotState reader
- */
-void AppClient::RobotStateThread()
-{
-    try
-    {
-        grpc::ClientContext context;
-        robotcontrolapp::RobotStateRequest request;
-        request.set_app_name(GetAppName());
-
-        auto reader = m_grpcStub->GetRobotStateStream(&context, request);
-        robotcontrolapp::RobotState response;
-
-        while (m_robotStateStreamActive && IsConnected())
-        {
-            if (reader->Read(&response))
-            {
-                OnRobotStateUpdated(response);
-            }
-            else
-            {
-                std::cerr << "RobotState read stream closed" << std::endl;
-                m_stopThreads = true;
-                break;
-            }
-        }
-    }
-    catch (std::exception& ex)
-    {
-        std::cerr << "Exception in RobotStateThread: " << ex.what() << std::endl;
-    }
-    m_robotStateStreamActive = false;
-}
+///**
+// * @brief Starts streaming the robot state
+// */
+// void AppClient::StartRobotStateStream()
+//{
+//    if (!IsConnected()) throw NotConnectedException();
+//
+//    std::unique_lock<std::recursive_mutex> lock(m_threadMutex);
+//    if (m_robotStateThread.joinable()) StopRobotStateStream();
+//    m_robotStateStreamActive = true;
+//    m_robotStateThread = std::thread(&AppClient::RobotStateThread, this);
+//}
+//
+///**
+// * @brief Stops streaming the robot state
+// */
+// void AppClient::StopRobotStateStream()
+//{
+//    std::unique_lock<std::recursive_mutex> lock(m_threadMutex);
+//    m_robotStateStreamActive = true;
+//    if (m_robotStateThread.joinable()) m_robotStateThread.join();
+//}
+//
+///**
+// * @brief Thread method for the RobotState reader
+// */
+// void AppClient::RobotStateThread()
+//{
+//    try
+//    {
+//        grpc::ClientContext context;
+//        robotcontrolapp::RobotStateRequest request;
+//        request.set_app_name(GetAppName());
+//
+//        auto reader = m_grpcStub->GetRobotStateStream(&context, request);
+//        robotcontrolapp::RobotState response;
+//
+//        while (m_robotStateStreamActive && IsConnected())
+//        {
+//            if (reader->Read(&response))
+//            {
+//                OnRobotStateUpdated(response);
+//            }
+//            else
+//            {
+//                std::cerr << "RobotState read stream closed" << std::endl;
+//                m_stopThreads = true;
+//                break;
+//            }
+//        }
+//        reader->Finish();
+//    }
+//    catch (std::exception& ex)
+//    {
+//        std::cerr << "Exception in RobotStateThread: " << ex.what() << std::endl;
+//    }
+//    m_robotStateStreamActive = false;
+//}
 
 /**
  * @brief Gets the current state
@@ -702,11 +774,11 @@ void AppClient::RobotStateThread()
  */
 DataTypes::RobotState AppClient::GetRobotState()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::RobotStateRequest request;
     request.set_app_name(GetAppName());
-    
+
     robotcontrolapp::RobotState response;
     grpc::ClientContext context;
     auto status = m_grpcStub->GetRobotState(&context, request, &response);
@@ -723,7 +795,10 @@ DataTypes::RobotState AppClient::GetRobotState()
  * @param number input number (0-63)
  * @param state target state
  */
-void AppClient::SetDigitalInput(unsigned number, bool state) {
+void AppClient::SetDigitalInput(unsigned number, bool state)
+{
+    if (!IsConnected()) throw NotConnectedException();
+
     robotcontrolapp::IOStateRequest request;
     request.set_app_name(GetAppName());
 
@@ -741,11 +816,13 @@ void AppClient::SetDigitalInput(unsigned number, bool state) {
 }
 
 /**
- * @brief Sets the states of the digital inputs (only in simulation)
- * @param inputs set of digital inputs to set
+ * @brief Sets the states of the digital inputs (only in simulation). This bundles all changes in one request.
+ * @param inputs map of digital inputs to set
  */
-void AppClient::SetDigitalInputs(const std::set<std::pair<unsigned, bool>>& inputs) 
+void AppClient::SetDigitalInputs(const std::map<unsigned, bool>& inputs)
 {
+    if (!IsConnected()) throw NotConnectedException();
+
     robotcontrolapp::IOStateRequest request;
     request.set_app_name(GetAppName());
 
@@ -770,7 +847,10 @@ void AppClient::SetDigitalInputs(const std::set<std::pair<unsigned, bool>>& inpu
  * @param number output number (0-63)
  * @param state target state
  */
-void AppClient::SetDigitalOutput(unsigned number, bool state) {
+void AppClient::SetDigitalOutput(unsigned number, bool state)
+{
+    if (!IsConnected()) throw NotConnectedException();
+
     robotcontrolapp::IOStateRequest request;
     request.set_app_name(GetAppName());
 
@@ -788,10 +868,13 @@ void AppClient::SetDigitalOutput(unsigned number, bool state) {
 }
 
 /**
- * @brief Sets the states of the digital outputs
- * @param outputs set of digital outputs to set
+ * @brief Sets the states of the digital outputs. This bundles all changes in one request.
+ * @param outputs map of digital outputs to set
  */
-void AppClient::SetDigitalOutputs(const std::set<std::pair<unsigned, bool>>& outputs) {
+void AppClient::SetDigitalOutputs(const std::map<unsigned, bool>& outputs)
+{
+    if (!IsConnected()) throw NotConnectedException();
+
     robotcontrolapp::IOStateRequest request;
     request.set_app_name(GetAppName());
 
@@ -816,7 +899,10 @@ void AppClient::SetDigitalOutputs(const std::set<std::pair<unsigned, bool>>& out
  * @param number global signal number (0-99)
  * @param state target state
  */
-void AppClient::SetGlobalSignal(unsigned number, bool state) {
+void AppClient::SetGlobalSignal(unsigned number, bool state)
+{
+    if (!IsConnected()) throw NotConnectedException();
+
     robotcontrolapp::IOStateRequest request;
     request.set_app_name(GetAppName());
 
@@ -834,10 +920,13 @@ void AppClient::SetGlobalSignal(unsigned number, bool state) {
 }
 
 /**
- * @brief Sets the states of the global signals
- * @param outputs set of global signals to set
+ * @brief Sets the states of the global signals. This bundles all changes in one request.
+ * @param signals map of global signals to set
  */
-void AppClient::SetGlobalSignals(const std::set<std::pair<unsigned, bool>>& signals) {
+void AppClient::SetGlobalSignals(const std::map<unsigned, bool>& signals)
+{
+    if (!IsConnected()) throw NotConnectedException();
+
     robotcontrolapp::IOStateRequest request;
     request.set_app_name(GetAppName());
 
@@ -859,11 +948,11 @@ void AppClient::SetGlobalSignals(const std::set<std::pair<unsigned, bool>>& sign
 
 /**
  * @brief Gets the current motion state (program execution etc)
- * @return
+ * @return motion state
  */
 DataTypes::MotionState AppClient::GetMotionState()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::GetMotionStateRequest request;
     request.set_app_name(GetAppName());
@@ -880,12 +969,13 @@ DataTypes::MotionState AppClient::GetMotionState()
 }
 
 /**
- * @brief Loads a motion program
+ * @brief Loads a motion program synchronously
  * @param program program to load, relative to the Data/Programs directory
+ * @return motion state, check request_successful and motionProgram.mainProgram for success
  */
 DataTypes::MotionState AppClient::LoadMotionProgram(const std::string& program)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::MotionInterpolatorRequest request;
     request.set_app_name(GetAppName());
@@ -904,6 +994,7 @@ DataTypes::MotionState AppClient::LoadMotionProgram(const std::string& program)
 
 /**
  * @brief Unloads the motion program
+ * @return motion state
  */
 DataTypes::MotionState AppClient::UnloadMotionProgram()
 {
@@ -911,178 +1002,146 @@ DataTypes::MotionState AppClient::UnloadMotionProgram()
 }
 
 /**
+ * @brief Sets the run state (start / stop / pause) of the motion program
+ * @param replayMode replay mode to set
+ * @return motion state after executing the command
+ */
+DataTypes::MotionState AppClient::SetMotionProgramRunState(robotcontrolapp::RunState replayMode)
+{
+    if (!IsConnected()) throw NotConnectedException();
+
+    robotcontrolapp::MotionInterpolatorRequest request;
+    request.set_app_name(GetAppName());
+    request.set_runstate(replayMode);
+
+    robotcontrolapp::MotionState response;
+    grpc::ClientContext context;
+    auto status = m_grpcStub->SetMotionInterpolator(&context, request, &response);
+    if (!status.ok())
+    {
+        throw std::runtime_error("request SetMotionInterpolator failed: " + status.error_message());
+    }
+
+    return DataTypes::MotionState(response);
+}
+
+/**
  * @brief Starts or continues the motion program
+ * @return motion state
  */
 DataTypes::MotionState AppClient::StartMotionProgram()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
-
-    robotcontrolapp::MotionInterpolatorRequest request;
-    request.set_app_name(GetAppName());
-    request.set_runstate(robotcontrolapp::RunState::RUNNING);
-
-    robotcontrolapp::MotionState response;
-    grpc::ClientContext context;
-    auto status = m_grpcStub->SetMotionInterpolator(&context, request, &response);
-    if (!status.ok())
-    {
-        throw std::runtime_error("request SetMotionInterpolator failed: " + status.error_message());
-    }
-
-    return DataTypes::MotionState(response);
+    return SetMotionProgramRunState(robotcontrolapp::RunState::RUNNING);
 }
 
 /**
- * @brief Starts or continues the motion program at a specific command
+ * @brief Pauses the motion program at a specific command. Note: if you pass a program that is not loaded as main or sub-program it will be loaded as main
+ * program.
  * @param commandIdx command index within the current (sub-)program
  * @param subProgram sub-program or empty for main program
  */
-DataTypes::MotionState AppClient::StartMotionProgramAt(unsigned commandIdx, const std::string& subProgram)
-{
-    if (!IsConnected()) throw std::runtime_error("not connected");
-
-    robotcontrolapp::MotionInterpolatorRequest request;
-    request.set_app_name(GetAppName());
-    request.set_runstate(robotcontrolapp::RunState::RUNNING);
-    if (!subProgram.empty()) request.mutable_start_at()->set_program(subProgram);
-    request.mutable_start_at()->set_command(commandIdx);
-
-    robotcontrolapp::MotionState response;
-    grpc::ClientContext context;
-    auto status = m_grpcStub->SetMotionInterpolator(&context, request, &response);
-    if (!status.ok())
-    {
-        throw std::runtime_error("request SetMotionInterpolator failed: " + status.error_message());
-    }
-
-    return DataTypes::MotionState(response);
-}
+// DataTypes::MotionState AppClient::StartMotionProgramAt(unsigned commandIdx, const std::string& subProgram)
+//{
+//     if (!IsConnected()) throw NotConnectedException();
+//
+//     robotcontrolapp::MotionInterpolatorRequest request;
+//     request.set_app_name(GetAppName());
+//     request.set_runstate(robotcontrolapp::RunState::RUNNING);
+//     if (!subProgram.empty()) request.mutable_start_at()->set_program(subProgram);
+//     request.mutable_start_at()->set_command(commandIdx);
+//
+//     robotcontrolapp::MotionState response;
+//     grpc::ClientContext context;
+//     auto status = m_grpcStub->SetMotionInterpolator(&context, request, &response);
+//     if (!status.ok())
+//     {
+//         throw std::runtime_error("request SetMotionInterpolator failed: " + status.error_message());
+//     }
+//
+//     return DataTypes::MotionState(response);
+// }
 
 /**
  * @brief Pauses the motion program
+ * @return motion state
  */
 DataTypes::MotionState AppClient::PauseMotionProgram()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
-
-    robotcontrolapp::MotionInterpolatorRequest request;
-    request.set_app_name(GetAppName());
-    request.set_runstate(robotcontrolapp::RunState::PAUSED);
-
-    robotcontrolapp::MotionState response;
-    grpc::ClientContext context;
-    auto status = m_grpcStub->SetMotionInterpolator(&context, request, &response);
-    if (!status.ok())
-    {
-        throw std::runtime_error("request SetMotionInterpolator failed: " + status.error_message());
-    }
-
-    return DataTypes::MotionState(response);
+    return SetMotionProgramRunState(robotcontrolapp::RunState::PAUSED);
 }
 
 /**
  * @brief Stops the motion program
+ * @return motion state
  */
 DataTypes::MotionState AppClient::StopMotionProgram()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    return SetMotionProgramRunState(robotcontrolapp::RunState::NOT_RUNNING);
+}
+
+/**
+ * @brief Sets the replay mode (single / repeat / step) of the motion program
+ * @param replayMode replay mode to set
+ * @return motion state after executing the command
+ */
+DataTypes::MotionState AppClient::SetMotionProgramReplayMode(robotcontrolapp::ReplayMode replayMode)
+{
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::MotionInterpolatorRequest request;
     request.set_app_name(GetAppName());
-    request.set_runstate(robotcontrolapp::RunState::NOT_RUNNING);
+    request.set_replay_mode(replayMode);
 
     robotcontrolapp::MotionState response;
     grpc::ClientContext context;
-    auto status =m_grpcStub->SetMotionInterpolator(&context, request, &response);
+    auto status = m_grpcStub->SetMotionInterpolator(&context, request, &response);
     if (!status.ok())
     {
         throw std::runtime_error("request SetMotionInterpolator failed: " + status.error_message());
     }
-
     return DataTypes::MotionState(response);
 }
 
 /**
  * @brief Sets the motion program to run once
- * @return
+ * @return motion state
  */
 DataTypes::MotionState AppClient::SetMotionProgramSingle()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
-
-    robotcontrolapp::MotionInterpolatorRequest request;
-    request.set_app_name(GetAppName());
-    request.set_replay_mode(robotcontrolapp::ReplayMode::SINGLE);
-
-    robotcontrolapp::MotionState response;
-    grpc::ClientContext context;
-    auto status = m_grpcStub->SetMotionInterpolator(&context, request, &response);
-    if (!status.ok())
-    {
-        throw std::runtime_error("request SetMotionInterpolator failed: " + status.error_message());
-
-    }
-    return DataTypes::MotionState(response);
+    return SetMotionProgramReplayMode(robotcontrolapp::ReplayMode::SINGLE);
 }
 
 /**
  * @brief Sets the motion program to repeat
- * @return
+ * @return motion state
  */
 DataTypes::MotionState AppClient::SetMotionProgramRepeat()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
-
-    robotcontrolapp::MotionInterpolatorRequest request;
-    request.set_app_name(GetAppName());
-    request.set_replay_mode(robotcontrolapp::ReplayMode::REPEAT);
-
-    robotcontrolapp::MotionState response;
-    grpc::ClientContext context;
-    auto status = m_grpcStub->SetMotionInterpolator(&context, request, &response);
-    if (!status.ok())
-    {
-        throw std::runtime_error("request SetMotionInterpolator failed: " + status.error_message());
-    }
-
-    return DataTypes::MotionState(response);
+    return SetMotionProgramReplayMode(robotcontrolapp::ReplayMode::REPEAT);
 }
 
 /**
  * @brief Sets the motion program to pause after each step
- * @return
+ * @return motion state
  */
 DataTypes::MotionState AppClient::SetMotionProgramStep()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
-
-    robotcontrolapp::MotionInterpolatorRequest request;
-    request.set_app_name(GetAppName());
-    request.set_replay_mode(robotcontrolapp::ReplayMode::STEP);
-
-    robotcontrolapp::MotionState response;
-    grpc::ClientContext context;
-    auto status = m_grpcStub->SetMotionInterpolator(&context, request, &response);
-    if (!status.ok())
-    {
-        throw std::runtime_error("request SetMotionInterpolator failed: " + status.error_message());
-    }
-
-    return DataTypes::MotionState(response);
+    return SetMotionProgramReplayMode(robotcontrolapp::ReplayMode::STEP);
 }
 
 /**
- * @brief Loads and starts a logic program
+ * @brief Loads and starts a logic program synchronously
  * @param program program to load, relative to the Data/Programs directory
+ * @return motion state, check request_successful and logicProgram.mainProgram for success
  */
 DataTypes::MotionState AppClient::LoadLogicProgram(const std::string& program)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::LogicInterpolatorRequest request;
     request.set_app_name(GetAppName());
     request.set_main_program(program);
-    
+
     robotcontrolapp::MotionState response;
     grpc::ClientContext context;
     auto status = m_grpcStub->SetLogicInterpolator(&context, request, &response);
@@ -1096,6 +1155,7 @@ DataTypes::MotionState AppClient::LoadLogicProgram(const std::string& program)
 
 /**
  * @brief Unloads the logic program
+ * @return motion state
  */
 DataTypes::MotionState AppClient::UnloadLogicProgram()
 {
@@ -1115,12 +1175,12 @@ DataTypes::MotionState AppClient::UnloadLogicProgram()
  * @param e1 E1 target in degrees, mm or user defined units
  * @param e2 E2 target in degrees, mm or user defined units
  * @param e3 E3 target in degrees, mm or user defined units
+ * @return motion state
  */
 DataTypes::MotionState AppClient::MoveToJoint(float velocityPercent, float acceleration, double a1, double a2, double a3, double a4, double a5, double a6,
-                                              double e1,
-                                              double e2, double e3)
+                                              double e1, double e2, double e3)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::MoveToRequest request;
     request.set_app_name(GetAppName());
@@ -1162,12 +1222,12 @@ DataTypes::MotionState AppClient::MoveToJoint(float velocityPercent, float accel
  * @param e1 E1 target in degrees, mm or user defined units
  * @param e2 E2 target in degrees, mm or user defined units
  * @param e3 E3 target in degrees, mm or user defined units
+ * @return motion state
  */
 DataTypes::MotionState AppClient::MoveToJointRelative(float velocityPercent, float acceleration, double a1, double a2, double a3, double a4, double a5,
-                                                      double a6,
-                                                      double e1, double e2, double e3)
+                                                      double a6, double e1, double e2, double e3)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::MoveToRequest request;
     request.set_app_name(GetAppName());
@@ -1210,12 +1270,12 @@ DataTypes::MotionState AppClient::MoveToJointRelative(float velocityPercent, flo
  * @param e2 E2 target in degrees, mm or user defined units
  * @param e3 E3 target in degrees, mm or user defined units
  * @param frame user frame or empty for base frame
+ * @return motion state
  */
 DataTypes::MotionState AppClient::MoveToLinear(float velocityMms, float acceleration, double x, double y, double z, double a, double b, double c, double e1,
-                                               double e2,
-                                               double e3, const std::string& frame)
+                                               double e2, double e3, const std::string& frame)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::MoveToRequest request;
     request.set_app_name(GetAppName());
@@ -1259,11 +1319,12 @@ DataTypes::MotionState AppClient::MoveToLinear(float velocityMms, float accelera
  * @param e2 E2 target in degrees, mm or user defined units
  * @param e3 E3 target in degrees, mm or user defined units
  * @param frame user frame or empty for base frame
+ * @return motion state
  */
 DataTypes::MotionState AppClient::MoveToLinearRelativeBase(float velocityMms, float acceleration, double x, double y, double z, double a, double b, double c,
                                                            double e1, double e2, double e3, const std::string& frame)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::MoveToRequest request;
     request.set_app_name(GetAppName());
@@ -1305,11 +1366,12 @@ DataTypes::MotionState AppClient::MoveToLinearRelativeBase(float velocityMms, fl
  * @param e1 E1 target in degrees, mm or user defined units
  * @param e2 E2 target in degrees, mm or user defined units
  * @param e3 E3 target in degrees, mm or user defined units
+ * @return motion state
  */
 DataTypes::MotionState AppClient::MoveToLinearRelativeTool(float velocityMms, float acceleration, double x, double y, double z, double a, double b, double c,
                                                            double e1, double e2, double e3)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::MoveToRequest request;
     request.set_app_name(GetAppName());
@@ -1339,10 +1401,11 @@ DataTypes::MotionState AppClient::MoveToLinearRelativeTool(float velocityMms, fl
 
 /**
  * @brief Stops a move-to motion
+ * @return motion state
  */
 DataTypes::MotionState AppClient::MoveToStop()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::MoveToRequest request;
     request.set_app_name(GetAppName());
@@ -1360,11 +1423,41 @@ DataTypes::MotionState AppClient::MoveToStop()
 }
 
 /**
+ * @brief Returns true if the robot moves automatically. This does not indicate other motion types, like jog motion!
+ * @return true if a Move To command is being executed, if a motion program is running or if the position interface is used.
+ */
+bool AppClient::IsAutomaticMotion()
+{
+    auto motionState = GetMotionState();
+    return motionState.motionProgram.runState == App::DataTypes::MotionState::RunState::RUNNING ||
+           motionState.moveTo.runState == App::DataTypes::MotionState::RunState::RUNNING ||
+           (motionState.positionInterface.isEnabled && motionState.positionInterface.isInUse);
+}
+
+/**
+ * @brief Waits until the Move-To command or motion program is done. See the criteria given for IsAutomaticMotion().
+ * @param timeout The function returns when the motion is done or when this timeout is exceeded
+ * @param precision Sleep duration between checks. 20 ms is one cycle for most robots and two for fast ones. There is no benefit in going faster than once per
+ * cycle.
+ * @return true if motion is done, false on timeout
+ */
+bool AppClient::WaitMotionDone(std::chrono::steady_clock::duration timeout, std::chrono::steady_clock::duration precision)
+{
+    std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
+    do {
+        if (!IsAutomaticMotion()) return true;
+        std::this_thread::sleep_for(precision);
+    }
+    while (std::chrono::steady_clock::now() - startTime > timeout);
+    return false;
+}
+
+/**
  * @brief Gets the system information
  */
 DataTypes::SystemInfo AppClient::GetSystemInfo()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::SystemInfoRequest request;
     request.set_app_name(GetAppName());
@@ -1381,16 +1474,16 @@ DataTypes::SystemInfo AppClient::GetSystemInfo()
 }
 
 /**
- * @brief Gets the current velocity override
- * @return velocity multiplier in percent 0.0..1.0
+ * @brief Gets the current velocity override. This requests the whole RobotState.
+ * @return velocity multiplier in percent 0.0..100.0
  */
-float AppClient::GetVelocity()
+float AppClient::GetVelocityOverride()
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::RobotStateRequest request;
     request.set_app_name(GetAppName());
-    
+
     robotcontrolapp::RobotState response;
     grpc::ClientContext context;
     auto status = m_grpcStub->GetRobotState(&context, request, &response);
@@ -1404,17 +1497,17 @@ float AppClient::GetVelocity()
 
 /**
  * @brief Sets the velocity override
- * @param velocityPercent requested velocity multiplier in percent 0.0..1.0
- * @return actual velocity multiplier in percent 0.0..1.0
+ * @param velocityPercent requested velocity multiplier in percent 0.0..100.0
+ * @return actual velocity multiplier in percent 0.0..100.0
  */
-float AppClient::SetVelocity(float velocityPercent)
+float AppClient::SetVelocityOverride(float velocityPercent)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::SetVelocityOverrideRequest request;
     request.set_app_name(GetAppName());
     request.set_velocity_override(velocityPercent);
-    
+
     robotcontrolapp::SetVelocityOverrideResponse response;
     grpc::ClientContext context;
     auto status = m_grpcStub->SetVelocityOverride(&context, request, &response);
@@ -1443,7 +1536,7 @@ float AppClient::SetVelocity(float velocityPercent)
 bool AppClient::TranslateCartToJoint(double x, double y, double z, double a, double b, double c, const std::array<double, 9>& initialJoints,
                                      std::array<double, 9>& resultJoints, robotcontrolapp::KinematicState& resultState)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::CartToJointRequest request;
     request.set_app_name(GetAppName());
@@ -1481,9 +1574,9 @@ bool AppClient::TranslateCartToJoint(double x, double y, double z, double a, dou
  * @return true on success
  */
 bool AppClient::TranslateJointToCart(const std::array<double, 9>& joints, double& x, double& y, double& z, double& a, double& b, double& c,
-    robotcontrolapp::KinematicState& resultState)
+                                     robotcontrolapp::KinematicState& resultState)
 {
-    DataTypes::Matrix44 resultPosition; 
+    DataTypes::Matrix44 resultPosition;
     bool result = TranslateJointToCart(joints, resultPosition, resultState);
     x = resultPosition.GetX();
     y = resultPosition.GetY();
@@ -1493,7 +1586,8 @@ bool AppClient::TranslateJointToCart(const std::array<double, 9>& joints, double
 }
 
 /**
- * @brief Translates joint positions to a cartesian position
+ * @brief Translates joint positions to a cartesian position. Note that out-of-range joint values may give you a successful result that may not be reachable or
+ * could cause collisions.
  * @param joints joint positions to translate
  * @param tcp the matrix defining position and orientation of the TCP is written here
  * @param resultState the result state is written here. 0 on success, other value on error
@@ -1501,7 +1595,7 @@ bool AppClient::TranslateJointToCart(const std::array<double, 9>& joints, double
  */
 bool AppClient::TranslateJointToCart(const std::array<double, 9>& joints, DataTypes::Matrix44& tcp, robotcontrolapp::KinematicState& resultState)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::JointToCartRequest request;
     request.set_app_name(GetAppName());
@@ -1529,6 +1623,8 @@ bool AppClient::TranslateJointToCart(const std::array<double, 9>& joints, DataTy
  */
 bool AppClient::UploadFile(const std::string& sourceFile, const std::string targetFile, std::string& error)
 {
+    if (!IsConnected()) throw NotConnectedException();
+
     std::ifstream file(sourceFile, std::ios::binary);
     if (!file.good())
     {
@@ -1540,7 +1636,7 @@ bool AppClient::UploadFile(const std::string& sourceFile, const std::string targ
     robotcontrolapp::UploadFileResponse response;
     auto writer = m_grpcStub->UploadFile(&context, &response);
 
-    while (!file.good())
+    while (file.good())
     {
         static const size_t CHUNK_SIZE = 8 * 1024;
         char buffer[CHUNK_SIZE] = {0};
@@ -1553,13 +1649,14 @@ bool AppClient::UploadFile(const std::string& sourceFile, const std::string targ
             writer->Finish();
             return false;
         }
-        if (readCount == 0) break;
 
         robotcontrolapp::UploadFileRequest request;
         request.set_app_name(GetAppName());
         request.set_filename(targetFile);
         request.set_binary_mode(true);
-        std::string dataStr(buffer, buffer + readCount);
+        std::string dataStr;
+        if (readCount > 0) dataStr = std::string(buffer, buffer + readCount);
+
         request.set_data(dataStr);
         if (!writer->Write(request))
         {
@@ -1568,6 +1665,8 @@ bool AppClient::UploadFile(const std::string& sourceFile, const std::string targ
             writer->Finish();
             return false;
         }
+
+        if (readCount == 0) break;
     }
 
     writer->WritesDone();
@@ -1594,24 +1693,44 @@ bool AppClient::UploadFile(const std::string& sourceFile, const std::string targ
  */
 bool AppClient::UploadFile(uint8_t* data, size_t length, const std::string targetFile, std::string& error)
 {
+    if (!IsConnected()) throw NotConnectedException();
+    if (data == nullptr && length > 0) throw std::runtime_error("data is null");
+
     grpc::ClientContext context;
     robotcontrolapp::UploadFileResponse response;
     auto writer = m_grpcStub->UploadFile(&context, &response);
 
-    static const size_t CHUNK_SIZE = 8 * 1024;
-    for (size_t i = 0; i < length; i += CHUNK_SIZE)
+    if (length == 0)
     {
         robotcontrolapp::UploadFileRequest request;
         request.set_app_name(GetAppName());
         request.set_filename(targetFile);
         request.set_binary_mode(true);
-        size_t currentChunkSize = std::min(CHUNK_SIZE, (length - i));
-        std::string dataStr(data + i, data + i + currentChunkSize);
-        request.set_data(dataStr);
+        request.set_data("");
         if (!writer->Write(request))
         {
             error = "upload failed";
             return false;
+        }
+    }
+    else
+    {
+        static const size_t CHUNK_SIZE = 8 * 1024;
+        for (size_t i = 0; i < length; i += CHUNK_SIZE)
+        {
+            robotcontrolapp::UploadFileRequest request;
+            request.set_app_name(GetAppName());
+            request.set_filename(targetFile);
+            request.set_binary_mode(true);
+            size_t currentChunkSize = std::min(CHUNK_SIZE, (length - i));
+            std::string dataStr;
+            if (data != nullptr) dataStr = std::string(data + i, data + i + currentChunkSize);
+            request.set_data(dataStr);
+            if (!writer->Write(request))
+            {
+                error = "upload failed";
+                return false;
+            }
         }
     }
 
@@ -1638,7 +1757,7 @@ bool AppClient::UploadFile(uint8_t* data, size_t length, const std::string targe
  */
 bool AppClient::DownloadFile(const std::string& sourceFile, const std::string targetFile, std::string& error)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     grpc::ClientContext context;
     robotcontrolapp::DownloadFileRequest request;
@@ -1686,7 +1805,7 @@ bool AppClient::DownloadFile(const std::string& sourceFile, const std::string ta
  */
 bool AppClient::DownloadFile(const std::string& sourceFile, std::vector<uint8_t>& data, std::string& error)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     grpc::ClientContext context;
     robotcontrolapp::DownloadFileRequest request;
@@ -1695,6 +1814,7 @@ bool AppClient::DownloadFile(const std::string& sourceFile, std::vector<uint8_t>
 
     auto reader = m_grpcStub->DownloadFile(&context, request);
     robotcontrolapp::DownloadFileResponse response;
+    data.clear();
 
     while (reader->Read(&response))
     {
@@ -1713,13 +1833,50 @@ bool AppClient::DownloadFile(const std::string& sourceFile, std::vector<uint8_t>
 }
 
 /**
+ * @brief Removes a file from the robot control
+ * @param file file on the robot control, relative to the Data directory
+ * @param error if an error occurs the reason is written here
+ * @return true on success
+ */
+bool AppClient::RemoveFile(const std::string& file, std::string& error)
+{
+    if (!IsConnected()) throw NotConnectedException();
+
+    grpc::ClientContext context;
+    robotcontrolapp::RemoveFilesRequest request;
+    request.set_app_name(GetAppName());
+    request.add_files(file.c_str());
+    robotcontrolapp::RemoveFilesResponse response;
+    auto status = m_grpcStub->RemoveFiles(&context, request, &response);
+    if (!status.ok())
+    {
+        throw std::runtime_error("request RemoveFiles failed: " + status.error_message());
+    }
+
+    if (response.results_size() > 0 && !response.results(0).success())
+    {
+        error = response.results(0).error();
+        return false;
+    }
+    else if (response.success())
+    {
+        return true;
+    }
+    else
+    {
+        error = "unknown error";
+        return false;
+    }
+}
+
+/**
  * @brief Gets the content of a directory
  * @param directory Directory to list, must be relative to and within the Data directory of the robot control
  * @return Description of the directory's content
  */
 AppClient::DirectoryContent AppClient::ListFiles(const std::string& directory)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::ListFilesRequest request;
     request.set_app_name(GetAppName());
@@ -1749,7 +1906,7 @@ AppClient::DirectoryContent AppClient::ListFiles(const std::string& directory)
  */
 void AppClient::SendFunctionDone(int64_t callId)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::AppAction response;
     response.add_done_functions(callId);
@@ -1764,7 +1921,7 @@ void AppClient::SendFunctionDone(int64_t callId)
  */
 void AppClient::SendFunctionFailed(int64_t callId, const std::string& reason)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::AppAction response;
     robotcontrolapp::FailedFunction& failedFunction = *response.add_failed_functions();
@@ -1776,7 +1933,8 @@ void AppClient::SendFunctionFailed(int64_t callId, const std::string& reason)
 /**
  * @brief Send queued UI updates. Queueing benefits performance by sending all updates in a single message.
  */
-void AppClient::SendQueuedUIUpdates() {
+void AppClient::SendQueuedUIUpdates()
+{
     std::unique_lock lock(m_queuedUIUpdatesMutex);
     if (m_queuedUIUpdates.ui_changes_size() > 0)
     {
@@ -1792,7 +1950,7 @@ void AppClient::SendQueuedUIUpdates() {
  */
 void AppClient::RequestUIElementState(const std::string& elementName)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::AppAction request;
     request.add_request_ui_state(elementName);
@@ -1817,7 +1975,7 @@ void AppClient::QueueRequestUIElementState(const std::string& elementName)
  */
 void AppClient::RequestUIElementStates(const std::unordered_set<std::string>& elementNames)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::AppAction request;
     for (const std::string& name : elementNames) request.add_request_ui_state(name);
@@ -1842,7 +2000,7 @@ void AppClient::QueueRequestUIElementStates(const std::unordered_set<std::string
  */
 void AppClient::SetUIVisibility(const std::string& elementName, bool visible)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::AppAction request;
     robotcontrolapp::AppUIElement& uiElement = *request.add_ui_changes();
@@ -1872,7 +2030,7 @@ void AppClient::QueueSetUIVisibility(const std::string& elementName, bool visibl
  */
 void AppClient::SetUIVisibility(const std::unordered_map<std::string, bool>& elements)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::AppAction request;
     for (auto& element : elements)
@@ -1906,7 +2064,7 @@ void AppClient::QueueSetUIVisibility(const std::unordered_map<std::string, bool>
  */
 void AppClient::SetCheckboxState(const std::string& elementName, bool isChecked)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::AppAction request;
     robotcontrolapp::AppUIElement& uiElement = *request.add_ui_changes();
@@ -1937,7 +2095,7 @@ void AppClient::QueueSetCheckboxState(const std::string& elementName, bool isChe
  */
 void AppClient::SetDropDownState(const std::string& elementName, const std::string& selectedValue)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     SetText(elementName, selectedValue);
 }
@@ -1960,7 +2118,7 @@ void AppClient::QueueSetDropDownState(const std::string& elementName, const std:
  */
 void AppClient::SetDropDownState(const std::string& elementName, const std::string& selectedValue, const std::list<std::string>& selectableEntries)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::AppAction request;
     robotcontrolapp::AppUIElement& uiElement = *request.add_ui_changes();
@@ -2000,7 +2158,7 @@ void AppClient::QueueSetDropDownState(const std::string& elementName, const std:
  */
 void AppClient::SetText(const std::string& elementName, const std::string& value)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::AppAction request;
     robotcontrolapp::AppUIElement& uiElement = *request.add_ui_changes();
@@ -2031,7 +2189,7 @@ void AppClient::QueueSetText(const std::string& elementName, const std::string& 
  */
 void AppClient::SetNumber(const std::string& elementName, double value)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
 
     robotcontrolapp::AppAction request;
     robotcontrolapp::AppUIElement& uiElement = *request.add_ui_changes();
@@ -2058,16 +2216,21 @@ void AppClient::QueueSetNumber(const std::string& elementName, double value)
 /**
  * @brief Sets the image of an image element in the UI
  * @param elementName ID of the UI element
- * @param imageWidth width of the image UI element (does not need to be equal to the image width, image will be scaled)
- * @param imageHeight height of the image UI element (does not need to be equal to the image height, image will be scaled)
+ * @param imageWidth width of the image UI element (does not need to be equal to the image width, image will be scaled) - currently not used yet
+ * @param imageHeight height of the image UI element (does not need to be equal to the image height, image will be scaled) - currently not used yet
  * @param imageData binary image data
  * @param imageDataLength length of the image data
  * @param encoding image format
  */
-void AppClient::SetImage(const std::string& elementName, unsigned uiWidth, unsigned uiHeight, uint8_t* imageData, size_t imageDataLength,
+void AppClient::SetImage(const std::string& elementName, unsigned uiWidth, unsigned uiHeight, const uint8_t* imageData, size_t imageDataLength,
                          robotcontrolapp::ImageState::ImageData::ImageEncoding encoding)
 {
-    if (!IsConnected()) throw std::runtime_error("not connected");
+    if (!IsConnected()) throw NotConnectedException();
+
+    // Check the image size. The CRI input buffer currently is 400kB and image data is transmitted base64 encoded. This means an upper limit of less than 300kB.
+    // Note that this limit effectively decreases when using more images or UI elements! The entire UI XML including all images must fit, otherwise it will not
+    // be shown after reconnect.
+    if (imageDataLength > 290 * 1024) throw std::runtime_error("Image too big! Images must be smaller than 290kB!");
 
     robotcontrolapp::AppAction request;
     robotcontrolapp::AppUIElement& uiElement = *request.add_ui_changes();
@@ -2080,6 +2243,39 @@ void AppClient::SetImage(const std::string& elementName, unsigned uiWidth, unsig
 }
 
 /**
+ * @brief Sets the image of an image element in the UI
+ * @param elementName ID of the UI element
+ * @param uiWidth width of the image UI element (does not need to be equal to the image width, image will be scaled) - currently not used yet
+ * @param uiHeight height of the image UI element (does not need to be equal to the image height, image will be scaled) - currently not used yet
+ * @param imageFile file name and path of the image file to load
+ */
+void AppClient::SetImage(const std::string& elementName, unsigned uiWidth, unsigned uiHeight, const std::string& imageFile)
+{
+    if (!std::filesystem::is_regular_file(imageFile))
+    {
+        throw std::runtime_error("image file does not exist");
+    }
+
+    std::ifstream file(imageFile, std::ios::in | std::ios::binary);
+    if (file.good())
+    {
+        file.seekg(0, std::ios::end);
+        std::ifstream::pos_type filesize = file.tellg();
+        file.seekg(0, std::ios::beg);
+
+        if (filesize > 290 * 1024) throw std::runtime_error("Image too big! Images must be smaller than 290kB!");
+        std::vector<uint8_t> data(filesize);
+        file.read((char*)data.data(), data.size());
+
+        SetImage(elementName, uiWidth, uiHeight, data.data(), data.size());
+    }
+    else
+    {
+        throw std::runtime_error("could not open image file");
+    }
+}
+
+/**
  * @brief Queues setting the image of an image element in the UI
  * @param elementName ID of the UI element
  * @param uiWidth width of the image UI element (does not need to be equal to the image width, image will be scaled)
@@ -2089,9 +2285,13 @@ void AppClient::SetImage(const std::string& elementName, unsigned uiWidth, unsig
  * @param encoding image format
  */
 void AppClient::QueueSetImage(const std::string& elementName, unsigned uiWidth, unsigned uiHeight, uint8_t* imageData, size_t imageDataLength,
-                         robotcontrolapp::ImageState::ImageData::ImageEncoding encoding)
+                              robotcontrolapp::ImageState::ImageData::ImageEncoding encoding)
 {
     std::unique_lock lock(m_queuedUIUpdatesMutex);
+
+    // Check the image size. The CRI input buffer currently is 400kB and image data is transmitted base64 encoded. This means an upper limit of less than 300kB.
+    if (imageDataLength > 290 * 1024) throw std::runtime_error("Image too big! Images must be smaller than 290kB!");
+
     robotcontrolapp::AppUIElement& uiElement = *m_queuedUIUpdates.add_ui_changes();
     lock.unlock();
 
@@ -2100,6 +2300,70 @@ void AppClient::QueueSetImage(const std::string& elementName, unsigned uiWidth, 
     uiElement.mutable_state()->mutable_image_state()->mutable_image_data()->set_width(uiWidth);
     uiElement.mutable_state()->mutable_image_state()->mutable_image_data()->set_encoding(encoding);
     uiElement.mutable_state()->mutable_image_state()->mutable_image_data()->set_data(imageData, imageDataLength);
+}
+
+/**
+ * @brief Shows a dialog window to the user.
+ * Note: If iRC is not connected the dialog will never be shown. Currently there is no way for the app to find out whether this is the case. If iRC is older
+ * than V14-004 only error messages are shown.
+ * @param message The message to be displayed
+ * @param title The dialog title
+ * @param type the dialog type (Info, Error, Warning)
+ */
+void AppClient::ShowDialog(const std::string& message, const std::string& title, robotcontrolapp::ShowDialogRequest_DialogType type)
+{
+    if (!IsConnected()) throw NotConnectedException();
+
+    robotcontrolapp::ShowDialogRequest request;
+    request.set_app_name(GetAppName());
+    auto msgDlg = request.mutable_message_dialog();
+    msgDlg->set_message(message);
+    msgDlg->set_title(title);
+    msgDlg->set_type(type);
+
+    robotcontrolapp::ShowDialogResponse response;
+    grpc::ClientContext context;
+    auto status = m_grpcStub->ShowDialog(&context, request, &response);
+    if (!status.ok())
+    {
+        throw std::runtime_error("request ShowDialog failed: " + status.error_message());
+    }
+}
+
+/**
+ * @brief Shows an info dialog window to the user.
+ * Note: If iRC is not connected or older than V14-004 the dialog will never be shown. Currently there is no way for the app to find out whether this is the
+ * case. than V14-004 only error messages are shown.
+ * @param message The message to be displayed
+ * @param title The dialog title
+ */
+void AppClient::ShowInfoDialog(const std::string& message, const std::string& title)
+{
+    ShowDialog(message, title, robotcontrolapp::ShowDialogRequest_DialogType_INFO);
+}
+
+/**
+ * @brief Shows a warning dialog window to the user.
+ * Note: If iRC is not connected or older than V14-004 the dialog will never be shown. Currently there is no way for the app to find out whether this is the
+ * case. than V14-004 only error messages are shown.
+ * @param message The message to be displayed
+ * @param title The dialog title
+ */
+void AppClient::ShowWarningDialog(const std::string& message, const std::string& title)
+{
+    ShowDialog(message, title, robotcontrolapp::ShowDialogRequest_DialogType_WARNING);
+}
+
+/**
+ * @brief Shows an error dialog window to the user.
+ * Note: If iRC is not connected the dialog will never be shown. Currently there is no way for the app to find out whether this is the case.
+ * than V14-004 only error messages are shown.
+ * @param message The message to be displayed
+ * @param title The dialog title
+ */
+void AppClient::ShowErrorDialog(const std::string& message, const std::string& title)
+{
+    ShowDialog(message, title, robotcontrolapp::ShowDialogRequest_DialogType_ERROR);
 }
 
 } // namespace App

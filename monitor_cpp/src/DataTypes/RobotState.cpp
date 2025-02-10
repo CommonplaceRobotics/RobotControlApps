@@ -17,12 +17,12 @@ RobotState::RobotState()
 
 /**
  * @brief Constructor from GRPC RobotState
- * @param state 
+ * @param state
  */
-RobotState::RobotState(const robotcontrolapp::RobotState& state) 
+RobotState::RobotState(const robotcontrolapp::RobotState& state)
 {
     tcp = Matrix44(state.tcp());
-    
+
     if (state.has_platform_pose())
     {
         platformX = state.platform_pose().position().x();
@@ -58,7 +58,7 @@ RobotState::RobotState(const robotcontrolapp::RobotState& state)
     temperatureCPU = state.temperature_cpu();
     supplyVoltage = state.supply_voltage();
     currentAll = state.current_all();
-    
+
     switch (state.referencing_state())
     {
         case robotcontrolapp::ReferencingState::IS_REFERENCED:
@@ -76,9 +76,10 @@ RobotState::RobotState(const robotcontrolapp::RobotState& state)
 
 /**
  * @brief Constructor from GRPC Joint
- * @param joint 
+ * @param joint
  */
-RobotState::Joint::Joint(const robotcontrolapp::Joint& joint) {
+RobotState::Joint::Joint(const robotcontrolapp::Joint& joint)
+{
     id = joint.id();
     name = joint.name();
     actualPosition = joint.position().position();
@@ -104,6 +105,15 @@ RobotState::Joint::Joint(const robotcontrolapp::Joint& joint) {
     temperatureMotor = joint.temperature_motor();
     current = joint.current();
     targetVelocity = joint.target_velocity();
+}
+
+/**
+ * @brief Checks whether all motors and IO modules are enabled. If false motion is not possible.
+ * @return true if enabled, false if disabled or hardware error
+ */
+bool RobotState::IsEnabled() const
+{
+    return hardwareState == "NoError";
 }
 
 } // namespace DataTypes

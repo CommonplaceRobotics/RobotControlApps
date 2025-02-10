@@ -6,57 +6,75 @@ package robotcontrolapp;
 // Interface exported by the server.
 service RobotControlApp {
 
+    // Sends the app's capabilities / API version to the server on connect
+    rpc SetCapabilities(CapabilitiesRequest) returns (CapabilitiesResponse);
+
     // Receives AppActions (see message AppAction, contains app functions and UI updates...)
-    rpc RecieveActions(stream AppAction) returns (stream Event) {}
+    rpc RecieveActions(stream AppAction) returns (stream Event);
 
     // Requests the current tool center point
-    rpc GetTCP(GetTCPRequest) returns (Matrix44) {}
+    rpc GetTCP(GetTCPRequest) returns (Matrix44);
     // streams the robot state
-    rpc GetRobotStateStream(RobotStateRequest) returns (stream RobotState) {}
+    rpc GetRobotStateStream(RobotStateRequest) returns (stream RobotState);
     // Requests the current robot state
-    rpc GetRobotState(RobotStateRequest) returns (RobotState) {}
+    rpc GetRobotState(RobotStateRequest) returns (RobotState);
 
     // Requests one or more program variables
-    rpc GetProgramVariables(ProgramVariablesRequest) returns (stream ProgramVariable) {}
+    rpc GetProgramVariables(ProgramVariablesRequest) returns (stream ProgramVariable);
     // Sets one or more program variables
-    rpc SetProgramVariables(SetProgramVariablesRequest) returns (SetProgramVariablesResponse) {}
+    rpc SetProgramVariables(SetProgramVariablesRequest) returns (SetProgramVariablesResponse);
 
     // Resetting errors, enabling motors, referencing
-    rpc EnableMotors(EnableMotorsRequest) returns (EnableMotorsResponse) {}
-    rpc ResetErrors(ResetErrorsRequest) returns (ResetErrorsResponse) {}
-    rpc ReferenceJoints(ReferenceJointsRequest) returns (ReferenceJointsResponse) {}
+    rpc EnableMotors(EnableMotorsRequest) returns (EnableMotorsResponse);
+    rpc ResetErrors(ResetErrorsRequest) returns (ResetErrorsResponse);
+    rpc ReferenceJoints(ReferenceJointsRequest) returns (ReferenceJointsResponse);
 
     // Program / motion state
     // Gets the motion source state
-    rpc GetMotionState(GetMotionStateRequest) returns (MotionState) {}
+    rpc GetMotionState(GetMotionStateRequest) returns (MotionState);
     // Sets the state of the motion program
-    rpc SetMotionInterpolator(MotionInterpolatorRequest) returns (MotionState) {}
+    rpc SetMotionInterpolator(MotionInterpolatorRequest) returns (MotionState);
     // Sets the state of the logic program
-    rpc SetLogicInterpolator(LogicInterpolatorRequest) returns (MotionState) {}
+    rpc SetLogicInterpolator(LogicInterpolatorRequest) returns (MotionState);
     // Sets the state of the fast position interface
-    rpc SetPositionInterface(PositionInterfaceRequest) returns (MotionState) {}
+    rpc SetPositionInterface(PositionInterfaceRequest) returns (MotionState);
     // Starts or stops a move-to command
-    rpc MoveTo(MoveToRequest) returns (MotionState) {}
+    rpc MoveTo(MoveToRequest) returns (MotionState);
 
     // Kinematics
-    rpc TranslateJointToCart(JointToCartRequest) returns (JointToCartResponse) {}
-    rpc TranslateCartToJoint(CartToJointRequest) returns (CartToJointResponse) {}
+    rpc TranslateJointToCart(JointToCartRequest) returns (JointToCartResponse);
+    rpc TranslateCartToJoint(CartToJointRequest) returns (CartToJointResponse);
 
     // IO
-    rpc SetIOState(IOStateRequest) returns (IOStateResponse) {}
+    rpc SetIOState(IOStateRequest) returns (IOStateResponse);
 
     // File operations
-    rpc UploadFile(stream UploadFileRequest) returns (UploadFileResponse) {}
-    rpc DownloadFile(DownloadFileRequest) returns (stream DownloadFileResponse) {}
-    rpc ListFiles(ListFilesRequest) returns (ListFilesResponse) {}
-    rpc RemoveFiles(RemoveFilesRequest) returns (RemoveFilesResponse) {}
+    rpc UploadFile(stream UploadFileRequest) returns (UploadFileResponse);
+    rpc DownloadFile(DownloadFileRequest) returns (stream DownloadFileResponse);
+    rpc ListFiles(ListFilesRequest) returns (ListFilesResponse);
+    rpc RemoveFiles(RemoveFilesRequest) returns (RemoveFilesResponse);
 
     // System info
-    rpc GetSystemInfo(SystemInfoRequest) returns (SystemInfo) {}
+    rpc GetSystemInfo(SystemInfoRequest) returns (SystemInfo);
 
     // Velocity override
-    rpc SetVelocityOverride(SetVelocityOverrideRequest) returns (SetVelocityOverrideResponse) {}
+    rpc SetVelocityOverride(SetVelocityOverrideRequest) returns (SetVelocityOverrideResponse);
+
+    // UI
+    rpc ShowDialog(ShowDialogRequest) returns (ShowDialogResponse);
 }
+
+message CapabilitiesRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    int32 api_version_major = 2;
+    int32 api_version_minor = 3;
+    int32 api_version_patch = 4;
+}
+
+message CapabilitiesResponse {}
 
 message SystemInfoRequest {
     // Name of the app. Must be equal to the name defined in rcapp.xml
@@ -401,6 +419,9 @@ message MotionState
     InterpolatorState move_to_ipo = 4;
     // position interface
     PositionInterfaceState position_interface = 5;
+
+    // If this message relates to a change request and it was successful this is set to true. E.g. after successfully starting a program.
+    optional bool request_successful = 6;
 }
 
 // Changes the state of the robot program
@@ -777,6 +798,39 @@ message Event {
     optional DisconnectRequest disconnect_request = 3;
 }
 
+// Shows a dialog window to the user
+message ShowDialogRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    enum DialogType
+    {
+        INFO = 0;
+        WARNING = 1;
+        ERROR = 2;
+    }
+
+    // A basic message dialog without user feedback
+    message MessageDialog
+    {
+        DialogType type = 1;
+        string title = 2;
+        string message = 3;
+    }
+    // TODO: Add dialogs with user feedback (Yes/No/Cancel). This must be asynchronous.
+
+    oneof dialog {
+        MessageDialog message_dialog = 2;
+    }
+}
+
+message ShowDialogResponse {
+
+}
+
+/*******************************************************************************
+ * Program variables
+ ******************************************************************************/
 /**
  * A program variable.
  * It may contain either:

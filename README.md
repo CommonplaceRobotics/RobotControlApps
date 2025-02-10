@@ -1,6 +1,6 @@
 # Robot Control Apps
 
-Since [version 14](https://wiki.cpr-robots.com/index.php/IgusRobotControl-Release14-EN) the Commonplace Robotics / igus Robot Control can be extended by apps. This repository contains guides, APIs and examples for creating your own apps.
+Since [version 14](https://wiki.cpr-robots.com/index.php/IgusRobotControl-Release14-EN) the Commonplace Robotics (CPRog) / igus Robot Control (iRC) can be extended by apps. This repository contains guides, APIs and examples for creating your own apps.
 
 ## Features
 * Simple C++ and Python API
@@ -34,7 +34,17 @@ Since [version 14](https://wiki.cpr-robots.com/index.php/IgusRobotControl-Releas
   * Upload/download files
   * List files on the robot control (e.g. list all programs)
 
-This is just a summary, please read [```AppClient.h```](minimal_cpp/src/AppClient.h) or [```AppClient.py```](minimal_python/AppClient.py) for more details.
+This is just a summary, please read [```AppClient.h```](minimal_cpp/src/AppClient.h) or [```AppClient.py```](minimal_python/AppClient.py) for a list of all features.
+
+## Planned features
+The following features are planned or considered to be added in future:
+* App UI
+  * Text styling (font size, bold, italic, etc.)
+  * Multi line text
+  * Assign icons to the buttons in the ribbon above the 3D view
+  * Define images to be loaded by the iRC PC software instead of having to send them by the app
+* Control
+  * External axis velocity (conveyor)
 
 ## Technology overview
 The robot control provides a [gRPC](https://grpc.io/) interface that allows calling functions and transmitting data between the robot control and the app. With the gRPC protocol file ```robotcontrolapp.proto``` you can generate the API for [several different programming languages](https://grpc.io/docs/languages/). In this repository you will find classes for C++ and Python that you can use for a quick start.
@@ -51,7 +61,7 @@ All files are packed as a zip file that can be installed via iRC / CPRog.
 ## Minimal App
 The MinimalApp is our example and API (available in C++ and Python) that you can use as a base for your own app. The class ```AppClient``` provides a simple interface for the most common functions. Create a class derived from ```AppClient``` and override the methods ```AppFunctionHandler()``` and ```UiUpdateHandler()```. The former is called when the robot program calls a function of your app, the latter is called on UI events.
 
-Read ```main.cpp``` or ```app.py``` and class ```MinimalApp``` for examples.
+Read ```main.cpp``` or ```app.py``` and class ```MinimalApp``` for examples and replace these to create your own robot control app.
 
 The ```MinimalApp.xml``` file is a sample robot program that calls the pow function of the sample apps and creates some program variables for the apps to read and write. Observe their values in the variables section below the 3D view.
 
@@ -62,7 +72,7 @@ This app is an example for reading and displaying the robot's state.
 This app is an example for controlling a robot via an app.
 
 # Math Tools
-This app extends the robot control by new math features like calculating the distance between two position variables. With some Python knowledge you should be able to easily add your own math functions.
+This app extends the robot control by new math features like calculating the distance between two position variables. With some Python knowledge you should be able to easily extend the robot control's programs with your own functions.
 
 # Documentation
 See the README.md files and the source code comments in the example directories.

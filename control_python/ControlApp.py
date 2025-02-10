@@ -16,11 +16,11 @@ class ControlApp(AppClient):
         self.__moveToJointsE1Target = 0
         self.__moveToCartXTarget = 0
         self.__moveToCartE1Target = 0
-        self.__moveToJointSpeed = 0
-        self.__moveToCartSpeed = 0
-        self.__sampleRemoteFileName = ""
-        self.__sampleUploadFileName = ""
-        self.__sampleDownloadFileName = ""
+        self.__moveToJointSpeed = 100
+        self.__moveToCartSpeed = 100
+        self.__sampleRemoteFileName = "Programs/SampleProgram.xml"
+        self.__sampleUploadFileName = "SampleProgram.xml"
+        self.__sampleDownloadFileName = "SampleProgramDownloaded.xml"
         AppClient.__init__(self, appName, target)
 
     def _AppFunctionHandler(self, function: AppFunction):
@@ -42,9 +42,9 @@ class ControlApp(AppClient):
                     elif update.element_name == "buttonDisable":
                         self.DisableMotors()
                     elif update.element_name == "buttonReferenceAll":
-                        self.ReferenceAllJoints()
+                        self.ReferenceAllJoints(False)
                     elif update.element_name == "buttonReferenceA1":
-                        self.ReferenceJoints(0)
+                        self.ReferenceJoints([0], []) # only A1 (index 0)
                     elif update.element_name == "buttonReferenceProgram":
                         self.ReferenceAllJoints(True)
 
@@ -96,7 +96,7 @@ class ControlApp(AppClient):
                     elif update.element_name == "buttonProgramDownloadSampleFile":
                         self.ExampleDownloadSampleProgramToFile()
                     elif update.element_name == "buttonProgramDownloadSampleMemory":
-                        self.ExampleUploadSampleProgramFromMemory()
+                        self.ExampleDownloadSampleProgramToMemory()
                     elif update.element_name == "buttonProgramList":
                         self.ExampleListPrograms()
 
@@ -114,21 +114,21 @@ class ControlApp(AppClient):
                     elif update.element_name == "buttonGSig2False":
                         self.SetGlobalSignal(1, False)
                         
-            elif update.HasField("textfield_state"):
+            elif update.state.HasField("textfield_state"):
                 # Handle text boxes
                 if update.element_name == "textboxMotionProgramFile":
-                    self.__motionProgramFile = update.state.textfield_state.current_text()
+                    self.__motionProgramFile = update.state.textfield_state.current_text
                 elif update.element_name == "textboxLogicProgramFile":
-                    self.__logicProgramFile = update.state.textfield_state.current_text()
+                    self.__logicProgramFile = update.state.textfield_state.current_text
 
-            elif update.HasField("numberfield_state"):
+            elif update.state.HasField("numberfield_state"):
                 # Handle number boxes
                 if update.element_name == "numberboxMoveToJointA1":
-                    self.__moveToJointsA1Target = update.state.numberfield_state.current_number()
+                    self.__moveToJointsA1Target = update.state.numberfield_state.current_number
                 elif update.element_name == "numberboxMoveToJointE1":
-                    self.__moveToJointsE1Target = update.state.numberfield_state.current_number()
+                    self.__moveToJointsE1Target = update.state.numberfield_state.current_number
                 elif update.element_name == "numberboxMoveToJointSpeed":
-                    self.__moveToJointSpeed = update.state.numberfield_state.current_number()
+                    self.__moveToJointSpeed = update.state.numberfield_state.current_number
                     if self.__moveToJointSpeed < 0:
                         self.__moveToJointSpeed = 0
                         self.SetNumber("numberboxMoveToJointSpeed", self.__moveToJointSpeed)
@@ -136,16 +136,16 @@ class ControlApp(AppClient):
                         self.__moveToJointSpeed = 100
                         self.SetNumber("numberboxMoveToJointSpeed", self.__moveToJointSpeed)
                 elif update.element_name == "numberboxMoveToLinearX":
-                    self.__moveToCartXTarget = update.state.numberfield_state.current_number()
+                    self.__moveToCartXTarget = update.state.numberfield_state.current_number
                 elif update.element_name == "numberboxMoveToLinearE1":
-                    self.__moveToCartE1Target = update.state.numberfield_state.current_number()
+                    self.__moveToCartE1Target = update.state.numberfield_state.current_number
                 elif update.element_name == "numberboxMoveToLinearSpeed":
-                    self.__moveToCartSpeed = update.state.numberfield_state.current_number()
+                    self.__moveToCartSpeed = update.state.numberfield_state.current_number
                     if self.__moveToCartSpeed < 0:
                         self.__moveToCartSpeed = 0
                         self.SetNumber("numberboxMoveToLinearSpeed", self.__moveToCartSpeed)
 
-    def translateReferencingState(state: ReferencingState) -> str:
+    def translateReferencingState(self, state: ReferencingState) -> str:
         """Translates a referencing state to a human readable string"""
         if state == ReferencingState.NOT_REFERENCED:
             return "not referenced"
@@ -156,7 +156,7 @@ class ControlApp(AppClient):
         else:
             return "n/a"
       
-    def translateProgramState(runState: RunState) -> str:
+    def translateProgramState(self, runState: RunState) -> str:
         """Translates a program run state to a human readable string"""
         if runState == RunState.NOT_RUNNING:
             return "not running"
@@ -175,7 +175,7 @@ class ControlApp(AppClient):
         self.QueueSetText("textHardwareState", robotState.hardwareState)
         self.QueueSetText("textReferencingStateAll", self.translateReferencingState(robotState.referencingState))
         self.QueueSetText("textReferencingStateA1", self.translateReferencingState(robotState.joints[0].referencingState))
-        self.QueueSetText("textVelocityOverride", robotState.velocityOverride + " %")
+        self.QueueSetText("textVelocityOverride", f"{robotState.velocityOverride} %")
 
         # Section digital IO
         if robotState.digitalInputs[21]: # DIn22
@@ -193,23 +193,27 @@ class ControlApp(AppClient):
 
         # Section Motion Program
         programState = self.GetMotionState()
-        motionStr = self.translateProgramState(programState.motionProgram.runState)
-        if programState.motionProgram.runState != RunState.NOT_RUNNING:
-            motionStr = motionStr + ", in '" + programState.motionProgram.currentProgram + "' (" +(programState.motionProgram.currentProgramIndex +1) + "/" + programState.motionProgram.programCount
-            motionStr = motionStr + "), cmd " + (programState.motionProgram.currentCommandIndex + 1) + "/" + programState.motionProgram.commandCount
+        if len(programState.motionProgram.currentProgram) == 0:
+            motionStr = "no program loaded"
+        elif programState.motionProgram.runState != RunState.NOT_RUNNING:
+            motionStr = self.translateProgramState(programState.motionProgram.runState)
+            motionStr = f"{motionStr}, in '{programState.motionProgram.currentProgram}' ({(programState.motionProgram.currentProgramIndex + 1)}/{programState.motionProgram.programCount}"
+            motionStr = f"{motionStr}), cmd {(programState.motionProgram.currentCommandIndex + 1)}/{programState.motionProgram.commandCount}"
         else:
-            motionStr = motionStr + ", in '" + programState.motionProgram.currentProgram + " (not running)"
+            motionStr = f"'{programState.motionProgram.currentProgram}' not running"
         
         self.QueueSetText("textMotionProgramStatus", motionStr)
         self.QueueSetText("textboxMotionProgramFile", programState.motionProgram.mainProgram)
 
         # Section Logic Program
-        logicStr = self.translateProgramState(programState.logicProgram.runState)
-        if programState.logicProgram.runState != RunState.NOT_RUNNING:
-            logicStr = logicStr + ", in '" + programState.logicProgram.currentProgram + "' (" +(programState.logicProgram.currentProgramIndex +1) + "/" + programState.motionProgram.programCount
-            logicStr = logicStr + "), cmd " + (programState.logicProgram.currentCommandIndex + 1) + "/" + programState.logicProgram.commandCount
+        if len(programState.logicProgram.currentProgram) == 0:
+            logicStr = "no program loaded"
+        elif programState.logicProgram.runState != RunState.NOT_RUNNING:
+            logicStr = self.translateProgramState(programState.logicProgram.runState)
+            logicStr = f"{logicStr}, in '{programState.logicProgram.currentProgram}' ({(programState.logicProgram.currentProgramIndex + 1)}/{programState.motionProgram.programCount}"
+            logicStr = f"{logicStr}), cmd {(programState.logicProgram.currentCommandIndex + 1)}/{programState.logicProgram.commandCount}"
         else:
-            logicStr = logicStr + ", in '" + programState.logicProgram.currentProgram + " (not running)"
+            logicStr = f"'{programState.logicProgram.currentProgram}' not running"
         
         self.QueueSetText("textLogicProgramStatus", logicStr)
         self.QueueSetText("textboxLogicProgramFile", programState.logicProgram.mainProgram)
@@ -219,13 +223,13 @@ class ControlApp(AppClient):
 
     def ExampleFaster(self):
         """Increases the velocity override"""
-        self.SetVelocity(min(100, self.GetVelocity() + 10))
-        self.SetText("textVelocityOverride", self.GetVelocity() + " %")
+        self.SetVelocityOverride(min(100, self.GetVelocityOverride() + 10))
+        self.SetText("textVelocityOverride", f"{self.GetVelocityOverride()} %")
     
     def ExampleSlower(self):
         """Decreases the velocity override"""
-        self.SetVelocity(max(0, self.GetVelocity() - 10))
-        self.SetText("textVelocityOverride", self.GetVelocity() + " %")
+        self.SetVelocityOverride(max(0, self.GetVelocityOverride() - 10))
+        self.SetText("textVelocityOverride", f"{self.GetVelocityOverride()} %")
     
     def ExampleMoveToJoint(self):
         """Example: Move to position by joint motion"""
@@ -234,16 +238,16 @@ class ControlApp(AppClient):
     
     def ExampleMoveToJointRelative(self):
         """Example: Move to relative position by joint motion"""
-        self.MoveToJointRelative(self.__moveToJointSpeed, 40, self.__moveToJointsA1Target, 0, 0, 0, 0, 0, self.__moveToJointsE1Target, 0 ,0)
+        self.MoveToJointRelative(self.__moveToJointSpeed, 40, self.__moveToJointsA1Target, 0, 0, 0, 0, 0, self.__moveToJointsE1Target, 0, 0)
     
     def ExampleMoveToCart(self):
         """Example: Move to position by linear motion"""
         robotState = self.GetRobotState()
-        self.MoveToJoint(self.__moveToCartSpeed, 40, self.__moveToCartXTarget, robotState.tcp.GetY(), robotState.tcp.GetZ(),robotState.tcp.GetA(), robotState.tcp.GetB(), robotState.tcp.GetC(), self.__moveToCartE1Target, robotState.joints[7].targetPosition, robotState.joints[8].targetPosition)
+        self.MoveToLinear(self.__moveToCartSpeed, 40, self.__moveToCartXTarget, robotState.tcp.GetY(), robotState.tcp.GetZ(),robotState.tcp.GetA(), robotState.tcp.GetB(), robotState.tcp.GetC(), self.__moveToCartE1Target, robotState.joints[7].targetPosition, robotState.joints[8].targetPosition, "")
     
     def ExampleMoveToCartRelativeBase(self):
         """Example: Move to relative position by linear motion"""
-        self.MoveToLinearRelativeBase(self.__moveToCartSpeed, 40, self.__moveToCartXTarget, 0, 0, 0, 0, 0, self.__moveToCartE1Target, 0, 0)
+        self.MoveToLinearRelativeBase(self.__moveToCartSpeed, 40, self.__moveToCartXTarget, 0, 0, 0, 0, 0, self.__moveToCartE1Target, 0, 0, "")
     
     def ExampleMoveToCartRelativeTool(self):
         """Example: Move to relative position by linear motion"""
@@ -262,45 +266,47 @@ class ControlApp(AppClient):
         print("Uploading sample file '" + self.__sampleRemoteFileName + "' from memory...")
         
         # Flash DOut21 in a 1s interval
-        content = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+        content = """\
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
         "<Program>"
         "    <Output Nr=\"1\" Channel=\"DOut21\" State=\"True\" Descr=\"\" />"
         "    <Wait Nr=\"2\" Type=\"Time\" Seconds=\"1\" Descr=\"\" />"
         "    <Output Nr=\"3\" Channel=\"DOut21\" State=\"False\" Descr=\"\" />"
         "    <Wait Nr=\"4\" Type=\"Time\" Seconds=\"1\" Descr=\"\" />"
         "</Program>"
+        """
 
-        (success, errorMsg) = self.UploadFileFromMemory(content, self.__sampleRemoteFileName)
+        (success, errorMsg) = self.UploadFileFromMemory(content.encode(), self.__sampleRemoteFileName)
         if success:
-            print("Sample file '" + self.__sampleRemoteFileName + "' uploaded from memory")
+            print(f"Sample file '{self.__sampleRemoteFileName}' uploaded from memory")
         else:
-            print("Could not upload sample file '" + self.__sampleRemoteFileName + "': " << errorMsg)
+            print(f"Could not upload sample file '{self.__sampleRemoteFileName}': {errorMsg}")
     
     def ExampleDownloadSampleProgramToFile(self):
         """Example: Download sample program file to file"""
-        print("Downloading sample file '" + self.__sampleRemoteFileName + "' to file '" + self.__sampleDownloadFileName + "'..." )
+        print(f"Downloading sample file '{self.__sampleRemoteFileName}' to file '{self.__sampleDownloadFileName}'...")
 
         (success, errorMsg) = self.DownloadFileToFile(self.__sampleRemoteFileName, self.__sampleDownloadFileName)
         if success:
-            print("Sample file '" + self.__sampleRemoteFileName + "' downloaded to file '" + self.__sampleDownloadFileName)
+            print(f"Sample file '{self.__sampleRemoteFileName}' downloaded to file '{self.__sampleDownloadFileName}")
         else:
-            print("Could not download sample file '" + self.__sampleRemoteFileName + "' to file '" + self.__sampleDownloadFileName + "': " + errorMsg)
+            print(f"Could not download sample file '{self.__sampleRemoteFileName}' to file '{self.__sampleDownloadFileName}': {errorMsg}")
     
     def ExampleDownloadSampleProgramToMemory(self):
         """Example: Download sample program file to memory"""
-        print("Downloading sample file '" + self.__sampleRemoteFileName + "' to memory...")
+        print(f"Downloading sample file '{self.__sampleRemoteFileName}' to memory...")
 
         (success, errorMsg, data) = self.DownloadFileToMemory(self.__sampleRemoteFileName)
         if success:
-            print("Sample file '" + self.__sampleRemoteFileName + "' downloaded to memory (" + data.count() + " bytes):")
-            if(data.count > 1024):
+            print(f"Sample file '{self.__sampleRemoteFileName}' downloaded to memory ({len(data)} bytes):")
+            if(len(data) > 1024):
                 # Print only the first bytes of the file
-                dataStr = str(data[:1024])
-                print(dataStr)
+                contentstr = data[:1024].decode("utf-8")
+                print(f"First 1024 bytes: '{contentstr}'")
             else:
-                print(str(data))
+                print(data.decode("utf-8"))
         else:
-            print("Could not download sample file '" + self.__sampleRemoteFileName + "' to memory: " + errorMsg)
+            print(f"Could not download sample file '{self.__sampleRemoteFileName}' to memory: {errorMsg}")
     
     def ExampleListPrograms(self):
         """Example: List the files in the Programs directory"""
@@ -308,7 +314,7 @@ class ControlApp(AppClient):
         files = self.ListFiles(directoryName)
 
         if(files.success):
-            print("Content of directory '" + directoryName + "' (" + files.entries.count() + " entries):")
+            print(f"Content of directory '{directoryName}' ({len(files.entries)} entries):")
 
             for entry in files.entries:
                 if entry.type == ListFilesResponse.DirectoryEntry.Type.File:
@@ -320,4 +326,4 @@ class ControlApp(AppClient):
                 else:
                     print("???: " + entry.name)
         else:
-            print("Could not read directory '" + directoryName + "': " + files.errorMessage)
+            print(f"Could not read directory '{directoryName}': {files.errorMessage}")

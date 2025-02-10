@@ -5,9 +5,11 @@
 
 #pragma once
 
-#include "Matrix44.h"
 #include <robotcontrolapp.grpc.pb.h>
+
 #include <vector>
+
+#include "Matrix44.h"
 
 namespace App
 {
@@ -24,7 +26,7 @@ public:
      * @brief Position and orientation of the TCP in cartesian space (position in mm)
      */
     Matrix44 tcp;
-    
+
     // Mobile platform position X
     double platformX = 0;
     // Mobile platform position Y
@@ -115,7 +117,7 @@ public:
         Joint() = default;
         /**
          * @brief Constructor from GRPC Joint
-         * @param joint 
+         * @param joint
          */
         Joint(const robotcontrolapp::Joint& joint);
     };
@@ -147,7 +149,7 @@ public:
     robotcontrolapp::KinematicState kinematicState = robotcontrolapp::KinematicState::KINEMATIC_NORMAL;
 
     /**
-     * @brief The velocity override in percent 0.0..1.0
+     * @brief The velocity override in percent 0.0..100.0
      */
     float velocityOverride = 0;
     /**
@@ -182,6 +184,12 @@ public:
      * @param state GRPC RobotState
      */
     RobotState(const robotcontrolapp::RobotState& state);
+
+    /**
+     * @brief Checks whether all motors and IO modules are enabled
+     * @return true if enabled, false if disabled or hardware error
+     */
+    bool IsEnabled() const;
 };
 
 } // namespace DataTypes

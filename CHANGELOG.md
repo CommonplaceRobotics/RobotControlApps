@@ -36,3 +36,9 @@ Support for Python apps
   * Files (within the Data directory only)
     * Up-/download (to/from file or memory)
     * Listing files
+* UI
+  * Show dialog windows to the User
+  * Show images from files
+* App functions (robot program integration)
+  * Default values
+* Mutual compatibility check between app and robot control via API version

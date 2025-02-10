@@ -231,31 +231,39 @@ void ControlApp::UpdateUI()
     // Section Motion Program
     auto programState = GetMotionState();
     std::stringstream ssMotion;
-    ssMotion << translateProgramState(programState.motionProgram.runState);
-    if (programState.motionProgram.runState != App::DataTypes::MotionState::RunState::NOT_RUNNING)
+    if (programState.motionProgram.currentProgram.empty())
     {
-        ssMotion << ", in '" << programState.motionProgram.currentProgram << "' (" << (programState.motionProgram.currentProgramIndex + 1) << "/"
+        ssMotion << "no program loaded";
+    }
+    else if (programState.motionProgram.runState != App::DataTypes::MotionState::RunState::NOT_RUNNING)
+    {
+        ssMotion << translateProgramState(programState.motionProgram.runState)
+                << ", in '" << programState.motionProgram.currentProgram << "' (" << (programState.motionProgram.currentProgramIndex + 1) << "/"
                  << programState.motionProgram.programCount << "), cmd " << (programState.motionProgram.currentCommandIndex + 1) << "/"
                  << programState.motionProgram.commandCount;
     }
     else {
-        ssMotion << ", in '" << programState.motionProgram.currentProgram << "(not running)";
+        ssMotion << programState.motionProgram.currentProgram << " not running";
     }
     QueueSetText("textMotionProgramStatus", ssMotion.str());
     QueueSetText("textboxMotionProgramFile", programState.motionProgram.mainProgram);
 
     // Section Logic Program
     std::stringstream ssLogic;
-    ssLogic << translateProgramState(programState.logicProgram.runState);
-    if (programState.logicProgram.runState != App::DataTypes::MotionState::RunState::NOT_RUNNING)
+    if (programState.logicProgram.currentProgram.empty())
     {
-        ssLogic << ", in '" << programState.logicProgram.currentProgram << "' ("
+        ssLogic << "no program loaded";
+    }
+    else if (programState.logicProgram.runState != App::DataTypes::MotionState::RunState::NOT_RUNNING)
+    {
+        ssLogic << translateProgramState(programState.logicProgram.runState)
+                << ", in '" << programState.logicProgram.currentProgram << "' ("
                 << (programState.logicProgram.currentProgramIndex + 1) << "/" << programState.logicProgram.programCount << "), cmd "
                 << (programState.logicProgram.currentCommandIndex + 1) << "/" << programState.logicProgram.commandCount;
     }
     else
     {
-        ssLogic << ", in '" << programState.logicProgram.currentProgram << "(not running)";
+        ssLogic << programState.logicProgram.currentProgram << " not running";
     }
     QueueSetText("textLogicProgramStatus", ssLogic.str());
     QueueSetText("textboxLogicProgramFile", programState.logicProgram.mainProgram);
@@ -268,16 +276,16 @@ void ControlApp::UpdateUI()
  */
 void ControlApp::ExampleFaster()
 {
-    SetVelocity(std::min(100.0f, GetVelocity() + 10.0f));
-    SetText("textVelocityOverride", std::to_string((int)GetVelocity()) + " %");
+    SetVelocityOverride(std::min(100.0f, GetVelocityOverride() + 10.0f));
+    SetText("textVelocityOverride", std::to_string((int)GetVelocityOverride()) + " %");
 }
 
 /**
  * @brief Decreases the velocity override
  */
 void ControlApp::ExampleSlower() {
-    SetVelocity(std::max(0.0f, GetVelocity() - 10.0f));
-    SetText("textVelocityOverride", std::to_string((int)GetVelocity()) + " %");
+    SetVelocityOverride(std::max(0.0f, GetVelocityOverride() - 10.0f));
+    SetText("textVelocityOverride", std::to_string((int)GetVelocityOverride()) + " %");
 }
 
 /**

@@ -34,11 +34,11 @@ void MonitorApp::UiUpdateHandler(const std::map<std::string, const robotcontrola
             {
                 if (update.first == "buttonFaster")
                 {
-                    SetVelocity(std::min(100.0f, GetVelocity() + 10.0f));
+                    SetVelocityOverride(std::min(100.0f, GetVelocityOverride() + 10.0f));
                 }
                 else if (update.first == "buttonSlower")
                 {
-                    SetVelocity(std::max(0.0f, GetVelocity() - 10.0f));
+                    SetVelocityOverride(std::max(0.0f, GetVelocityOverride() - 10.0f));
                 }
             }
         }
@@ -170,14 +170,5 @@ void MonitorApp::UpdateRobotState()
 {
     // You can also query the robot state like this, use this approach if you don't need frequent updates:
     App::DataTypes::RobotState state = GetRobotState();
-    UpdateRobotState(state);
-}
-
-/**
- * @brief Is called when the robot state is updated (usually each 10 or 20ms). Override this method, start the stream by calling StartRobotStateStream().
- * @param state new robot state
- */
-void MonitorApp::OnRobotStateUpdated(const App::DataTypes::RobotState& state) {
-    // For automatic as-fast-as-possible updates override this method (OnRobotStateUpdated) and call StartRobotStateStream()
     UpdateRobotState(state);
 }

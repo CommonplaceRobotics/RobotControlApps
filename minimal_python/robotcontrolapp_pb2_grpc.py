@@ -17,6 +17,11 @@ class RobotControlAppStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.SetCapabilities = channel.unary_unary(
+                '/robotcontrolapp.RobotControlApp/SetCapabilities',
+                request_serializer=robotcontrolapp__pb2.CapabilitiesRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.CapabilitiesResponse.FromString,
+                )
         self.RecieveActions = channel.stream_stream(
                 '/robotcontrolapp.RobotControlApp/RecieveActions',
                 request_serializer=robotcontrolapp__pb2.AppAction.SerializeToString,
@@ -132,6 +137,11 @@ class RobotControlAppStub(object):
                 request_serializer=robotcontrolapp__pb2.SetVelocityOverrideRequest.SerializeToString,
                 response_deserializer=robotcontrolapp__pb2.SetVelocityOverrideResponse.FromString,
                 )
+        self.ShowDialog = channel.unary_unary(
+                '/robotcontrolapp.RobotControlApp/ShowDialog',
+                request_serializer=robotcontrolapp__pb2.ShowDialogRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.ShowDialogResponse.FromString,
+                )
 
 
 class RobotControlAppServicer(object):
@@ -139,6 +149,13 @@ class RobotControlAppServicer(object):
 
     Interface exported by the server.
     """
+
+    def SetCapabilities(self, request, context):
+        """Sends the app's capabilities / API version to the server on connect
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def RecieveActions(self, request_iterator, context):
         """Receives AppActions (see message AppAction, contains app functions and UI updates...)
@@ -296,9 +313,21 @@ class RobotControlAppServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ShowDialog(self, request, context):
+        """UI
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_RobotControlAppServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'SetCapabilities': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetCapabilities,
+                    request_deserializer=robotcontrolapp__pb2.CapabilitiesRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.CapabilitiesResponse.SerializeToString,
+            ),
             'RecieveActions': grpc.stream_stream_rpc_method_handler(
                     servicer.RecieveActions,
                     request_deserializer=robotcontrolapp__pb2.AppAction.FromString,
@@ -414,6 +443,11 @@ def add_RobotControlAppServicer_to_server(servicer, server):
                     request_deserializer=robotcontrolapp__pb2.SetVelocityOverrideRequest.FromString,
                     response_serializer=robotcontrolapp__pb2.SetVelocityOverrideResponse.SerializeToString,
             ),
+            'ShowDialog': grpc.unary_unary_rpc_method_handler(
+                    servicer.ShowDialog,
+                    request_deserializer=robotcontrolapp__pb2.ShowDialogRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.ShowDialogResponse.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'robotcontrolapp.RobotControlApp', rpc_method_handlers)
@@ -426,6 +460,23 @@ class RobotControlApp(object):
 
     Interface exported by the server.
     """
+
+    @staticmethod
+    def SetCapabilities(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/robotcontrolapp.RobotControlApp/SetCapabilities',
+            robotcontrolapp__pb2.CapabilitiesRequest.SerializeToString,
+            robotcontrolapp__pb2.CapabilitiesResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def RecieveActions(request_iterator,
@@ -815,5 +866,22 @@ class RobotControlApp(object):
         return grpc.experimental.unary_unary(request, target, '/robotcontrolapp.RobotControlApp/SetVelocityOverride',
             robotcontrolapp__pb2.SetVelocityOverrideRequest.SerializeToString,
             robotcontrolapp__pb2.SetVelocityOverrideResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def ShowDialog(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/robotcontrolapp.RobotControlApp/ShowDialog',
+            robotcontrolapp__pb2.ShowDialogRequest.SerializeToString,
+            robotcontrolapp__pb2.ShowDialogResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

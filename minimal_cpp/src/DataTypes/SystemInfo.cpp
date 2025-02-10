@@ -9,7 +9,7 @@ namespace DataTypes
  * @brief Constructor from GRPC SystemInfo
  * @param info
  */
-SystemInfo::SystemInfo(const robotcontrolapp::SystemInfo& info) 
+SystemInfo::SystemInfo(const robotcontrolapp::SystemInfo& info)
 {
     versionMajor = info.version_major();
     versionMinor = info.version_minor();

@@ -110,3 +110,19 @@ Elements can be hidden by a command from the app or by adding the attribute ```v
 ```xml
 <numberbox name="numberboxSample" value="123.456" label="Number Box" visible="false" />
 ```
+
+# Handling UI events in your app
+When a user clicks a button or enters a value the ```UiUpdateHandler()``` is called. You app should override this function and handle the UI updates it contains. See sample apps ```MinimalApp```, ```MonitorApp``` or ```ControlApp``` for examples. Note that if your app uses more than one binary each binary will also receive the updates triggered by the other binaries.
+
+# Changing the UI via your app
+While the UI structure can not be changed class ```AppClient``` contains several methods for changing the state of the UI elements:
+* ```SetUIVisibility()``` - sets an object visible or hidden
+* ```SetCheckboxState()``` - sets the state of a checkbox
+* ```SetDropDownState()``` - sets the selection and/or selectable items of a drop down box
+* ```SetText()``` - sets the text of a text element or text box
+* ```SetNumber()``` - sets the number value of a number box. This can also be used to assign a number value to a text element or text box.
+* ```SetImage()``` - sets an image
+
+Note the ```Queue...``` method calls. These queue multiple UI updates to be sent in a single message via ```SendQueuedUIUpdates()```. This improves UI performance when updating multiple UI elements at once.
+
+If you are using images note that all images combined must not be larger than 290kB. Due to a limitation in the CRI interface larger images are not received by the igus Robot Control PC software (iRC). On reconnect of the iRC the entire ```ui.xml``` including images is sent to iRC, everything combined must be less than 400kB (images are base64 encoded, therefore 290kB). If you exceed this limit images may not be updated and the UI may not load on reconnect.

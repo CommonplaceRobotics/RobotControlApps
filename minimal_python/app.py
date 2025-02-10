@@ -10,7 +10,7 @@ from MinimalApp import MinimalApp
 
 def ExamplePrintTCP(app: AppClient):
     """Example: Requests and prints the tool center point (cartesian) position."""
-    tcp = app.GetTcp()
+    tcp = app.GetTCP()
     print(
         f"TCP: X={tcp.GetX():.2f} Y={tcp.GetY():.2f} Z={tcp.GetZ():.2f} A={tcp.GetA():.2f} B={tcp.GetB():.2f} C={tcp.GetC():.2f}"
     )

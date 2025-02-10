@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include <string>
-
 #include <robotcontrolapp.grpc.pb.h>
+
+#include <string>
 
 namespace App
 {
@@ -66,7 +66,7 @@ public:
          */
         int programCount = 0;
         /**
-         * @brief Index of the current command that is being executed. 0 is the first command in the current (sub-)program
+         * @brief Index of the current command that is being executed. 0 is the first command in the current (sub-)program, -1 when not running.
          */
         int currentCommandIndex = 0;
         /**
@@ -80,7 +80,7 @@ public:
         InterpolatorState() = default;
         /**
          * @brief Constructor from GRPC InterpolatorState
-         * @param state 
+         * @param state
          */
         InterpolatorState(const robotcontrolapp::MotionState_InterpolatorState& state);
     };
@@ -116,15 +116,21 @@ public:
     PositionInterfaceState positionInterface;
 
     /**
+     * @brief If this MotionState was sent in response to a request (specifically program load, start and move-to starts) this value is set true if the request
+     * was successful
+     */
+    bool requestSuccessful = false;
+
+    /**
      * @brief Default constructor
      */
     MotionState() = default;
     /**
      * @brief Constructor from GRPC MotionState
-     * @param state 
+     * @param state
      */
     MotionState(const robotcontrolapp::MotionState& state);
 };
 
-}
+} // namespace DataTypes
 } // namespace App

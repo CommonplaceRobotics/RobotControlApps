@@ -1,60 +1,63 @@
 from DataTypes.Matrix44 import Matrix44
 import robotcontrolapp_pb2
 
+
 class Joint:
     """This class describes the state of a joint"""
+
     def __init__(self):
-        # Joint ID / index
         self.id = 0
-        # Joint name
+        """Joint ID / index"""
         self.name = ""
-        # Actual position in degrees, mm or user defined units
+        """Joint name"""
         self.actualPosition = 0
-        # Target position in degrees, mm or user defined units
+        """Actual position in degrees, mm or user defined units"""
         self.targetPosition = 0
-        # Hardware state
+        """Target position in degrees, mm or user defined units"""
         self.hardwareState = robotcontrolapp_pb2.HardwareState.ERROR_MODULE_DEAD
-        # Referencing state
+        """Hardware state"""
         self.referencingState = robotcontrolapp_pb2.ReferencingState.NOT_REFERENCED
+        """Referencing state"""
 
-        # Temperature of the electronics in °C
         self.temperatureBoard = 0
-        # Temperature of the motor in °C (available for some robots only)
+        """Temperature of the electronics in °C"""
         self.temperatureMotor = 0
-        # Current draw of this joint in mA
+        """Temperature of the motor in °C (available for some robots only)"""
         self.current = 0
+        """Current draw of this joint in mA"""
 
-        # Target velocity in degrees/s, mm/s or user defined units per second - only usable with external axes in velocity mode
         self.targetVelocity = 0
+        """Target velocity in degrees/s, mm/s or user defined units per second - only usable with external axes in velocity mode"""
 
     def FromGrpc(grpc: robotcontrolapp_pb2.Joint):
-        """Constructs a Joint from a GRPC object"""
-        joint = Joint()
-        joint.id = grpc.id
-        joint.name = grpc.name
-        joint.actualPosition = grpc.position.position
-        joint.targetPosition = grpc.position.target_position
-        joint.hardwareState = grpc.state
-        joint.referencingState = grpc.referencing_state
-        joint.temperatureBoard = grpc.temperature_board
-        joint.temperatureMotor = grpc.temperature_motor
-        joint.current = grpc.current
-        joint.targetVelocity = grpc.target_velocity
-        return joint
-        
+        """Initializes an object from GRPC MotionState"""
+        result = Joint()
+        result.id = grpc.id
+        result.name = grpc.name
+        result.actualPosition = grpc.position.position
+        result.targetPosition = grpc.position.target_position
+        result.hardwareState = grpc.state
+        result.referencingState = grpc.referencing_state
+        result.temperatureBoard = grpc.temperature_board
+        result.temperatureMotor = grpc.temperature_motor
+        result.current = grpc.current
+        result.targetVelocity = grpc.target_velocity
+        return result
+
+
 class RobotState:
     """This class contains most relevant info about the robot's state, e.g. position, IO and errors"""
-    def __init__(self):
-        # Position and orientation of the TCP in cartesian space (position in mm)
-        self.tcp = Matrix44()
-        # Mobile platform position X
-        self.platformX = 0.0
-        # Mobile platform position Y
-        self.platformY = 0.0
-        # Mobile platform heading in rad
-        self.platformHeading = 0.0
 
-        # Joint angles/positions in degrees, mm or user defined units. Indices 0-5 are robot joints, 6-8 are external joints.
+    def __init__(self):
+        self.tcp = Matrix44()
+        """Position and orientation of the TCP in cartesian space (position in mm)"""
+        self.platformX = 0.0
+        """Mobile platform position X"""
+        self.platformY = 0.0
+        """Mobile platform position Y"""
+        self.platformHeading = 0.0
+        """Mobile platform heading in rad"""
+
         self.joints = [
             Joint(),
             Joint(),
@@ -64,8 +67,9 @@ class RobotState:
             Joint(),
             Joint(),
             Joint(),
-            Joint()
+            Joint(),
         ]
+        """Joint angles/positions in degrees, mm or user defined units. Indices 0-5 are robot joints, 6-8 are external joints."""
         self.joints[0].id = 0
         self.joints[1].id = 1
         self.joints[2].id = 2
@@ -85,66 +89,84 @@ class RobotState:
         self.joints[7].name = "E2"
         self.joints[8].name = "E3"
 
-        # 64 digital inputs
         self.digitalInputs = []
-        # 64 digital outputs
+        """64 digital inputs"""
         self.digitalOutputs = []
-        # 100 global signals
+        """64 digital outputs"""
         self.globalSignals = []
-        # Fill arrays
-        for a in range(64):
+        """100 global signals"""
+
+        while len(self.digitalInputs) < 64:
             self.digitalInputs.append(False)
+        while len(self.digitalOutputs) < 64:
             self.digitalOutputs.append(False)
-        for a in range(100):
+        while len(self.globalSignals) < 100:
             self.globalSignals.append(False)
 
-        # A string describing the combined state of all modules
         self.hardwareState = ""
-        # Kinematic state / error
-        self.kinematicState = robotcontrolapp_pb2.KINEMATIC_NORMAL
-        
-        # The velocity override in percent 0.0..1.0
+        """A string describing the combined state of all modules"""
+        self.kinematicState = robotcontrolapp_pb2.KinematicState.KINEMATIC_NORMAL
+        """Kinematic state / error"""
+
         self.velocityOverride = 0
-        # The actual cartesian velocity in mm/s
+        """The velocity override in percent 0.0..100.0"""
         self.cartesianVelocity = 0
+        """The actual cartesian velocity in mm/s"""
 
-        # Temperature of the robot control computer's CPU in °C
         self.temperatureCPU = 0
-        # Voltage of the motor power supply in mV
+        """Temperature of the robot control computer's CPU in °C"""
         self.supplyVoltage = 0
-        # Combined current of all motors and DIO in mA (available for some robots only)
+        """Voltage of the motor power supply in mV"""
         self.currentAll = 0
+        """Combined current of all motors and DIO in mA (available for some robots only)"""
 
-        # Combined referencing state of all axes
         self.referencingState = robotcontrolapp_pb2.ReferencingState.NOT_REFERENCED
+        """Combined referencing state of all axes"""
+
+    def IsEnabled(self) -> bool:
+        """Checks whether all motors and IO modules are enabled. If false motion is not possible."""
+        return self.hardwareState == "NoError"
 
     def FromGrpc(grpc: robotcontrolapp_pb2.RobotState):
-        """Constructs a RobotState from a GRPC object"""
-        state = RobotState()
-        state.tcp = Matrix44.FromGrpc(grpc.tcp)
-        state.platformX = grpc.platform_pose.position.x
-        state.platformY = grpc.platform_pose.position.y
-        state.platformHeading = grpc.platform_pose.heading
-        
-        for i in range(0, min(9, len(grpc.joints))):
-            state.joints[i] = Joint.FromGrpc(grpc.joints[i])
-        
-        for i in range(0, min(64, len(grpc.DIns))):
-            state.digitalInputs[i] = grpc.DIns[i].state == robotcontrolapp_pb2.HIGH
-        for i in range(0, min(64, len(grpc.DOuts))):
-            state.digitalOutputs[i] = grpc.DOuts[i].state == robotcontrolapp_pb2.HIGH
-        for i in range(0, min(100, len(grpc.GSigs))):
-            state.globalSignals[i] = grpc.GSigs[i].state == robotcontrolapp_pb2.HIGH
+        """Initializes an object from GRPC MotionState"""
+        result = RobotState()
+        result.tcp = Matrix44.FromGrpc(grpc.tcp)
+        result.platformX = grpc.platform_pose.position.x
+        result.platformY = grpc.platform_pose.position.y
+        result.platformHeading = grpc.platform_pose.heading
 
-        state.hardwareState = grpc.hardware_state_string
-        state.kinematicState = grpc.kinematic_state
-        
-        state.velocityOverride = grpc.velocity_override
-        state.cartesianVelocity = grpc.cartesian_velocity
+        for i in range(min(len(result.joints), len(grpc.joints))):
+            result.joints[i] = Joint.FromGrpc(grpc.joints[i])
 
-        state.temperatureCPU = grpc.temperature_cpu
-        state.supplyVoltage = grpc.supply_voltage
-        state.currentAll = grpc.current_all
+        result.digitalInputs = []
+        result.digitalOutputs = []
+        result.globalSignals = []
+        for i in range(len(grpc.DIns)):
+            result.digitalInputs.append(
+                grpc.DIns[i].state == robotcontrolapp_pb2.DIOState.HIGH
+            )
+        for i in range(len(grpc.DOuts)):
+            result.digitalOutputs.append(
+                grpc.DOuts[i].state == robotcontrolapp_pb2.DIOState.HIGH
+            )
+        for i in range(len(grpc.GSigs)):
+            result.globalSignals.append(
+                grpc.GSigs[i].state == robotcontrolapp_pb2.DIOState.HIGH
+            )
 
-        state.referencingState = grpc.referencing_state
-        return state
+        while len(result.digitalInputs) < 64:
+            result.digitalInputs.append(False)
+        while len(result.digitalOutputs) < 64:
+            result.digitalOutputs.append(False)
+        while len(result.globalSignals) < 100:
+            result.globalSignals.append(False)
+
+        result.hardwareState = grpc.hardware_state_string
+        result.kinematicState = grpc.kinematic_state
+        result.velocityOverride = grpc.velocity_override
+        result.cartesianVelocity = grpc.cartesian_velocity
+        result.temperatureCPU = grpc.temperature_cpu
+        result.supplyVoltage = grpc.supply_voltage
+        result.currentAll = grpc.current_all
+        result.referencingState = grpc.referencing_state
+        return result

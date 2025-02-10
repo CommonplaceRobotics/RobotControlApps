@@ -4,9 +4,10 @@ import math
 from DataTypes.MathDefinitions import DEG2RAD, RAD2DEG
 import robotcontrolapp_pb2
 
+
 class Matrix44:
     """A 4x4 matrix for cartesian positions and transformations. Values are to be interpreted as mm for positions and degrees for angles."""
-    
+
     def __init__(self):
         """Initializes a 4x4 matrix data as a unit matrix"""
         self._data = [
@@ -29,7 +30,7 @@ class Matrix44:
         ]
 
     def FromGrpc(grpcMatrix: robotcontrolapp_pb2.Matrix44):
-        """Creates a Matrix44 from a GRPC object"""
+        """Constructor, copies values from GRPC matrix"""
         if len(grpcMatrix.data) != 16:
             raise Exception(
                 "could not initialize Matrix44, GRPC matrix had invalid element count "

@@ -2,6 +2,7 @@ from typing import List
 
 from DataTypes.Matrix44 import Matrix44
 
+
 class ProgramVariable:
     """Program variable base type"""
 
@@ -16,8 +17,10 @@ class ProgramVariable:
         """Sets the variable name"""
         self.__name = name
 
+
 class NumberVariable(ProgramVariable):
     """Number variable"""
+
     __value: float
 
     def __init__(self, name: str, value: float = 0):
@@ -32,9 +35,10 @@ class NumberVariable(ProgramVariable):
         """Sets the variable value"""
         self.__value = value
 
+
 class PositionVariable(ProgramVariable):
     """Position variable"""
-    
+
     def __init__(self, name: str):
         ProgramVariable.__init__(self, name)
         self.__cartesian = Matrix44()

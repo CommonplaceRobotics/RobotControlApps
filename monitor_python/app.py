@@ -16,14 +16,14 @@ app = MonitorApp("MonitorApp-Python", connectionTarget)
 app.Connect()
 
 # time of the last example run
-lastUpdate = datetime.datetime.now()
+lastUpdate = datetime.datetime(2000, 1, 1)
 
 try:
     # Keep the app running
     while app.IsConnected():
         sleep(0.5)
 
-        #app.ReadAndUpdateRobotState()
+        app.ReadAndUpdateRobotState()
 
         # Run some examples every few seconds
         now = datetime.datetime.now()

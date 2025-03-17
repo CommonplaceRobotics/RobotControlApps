@@ -1165,7 +1165,7 @@ DataTypes::MotionState AppClient::UnloadLogicProgram()
 /**
  * @brief Starts a joint motion to the given position
  * @param velocityPercent velocity in percent, 0.0..100.0
- * @param acceleration acceleration in percent, currently not used
+ * @param acceleration acceleration in percent, 0.0..100.0, negative values result in default value 40%
  * @param a1 A1 target in degrees or mm
  * @param a2 A2 target in degrees or mm
  * @param a3 A3 target in degrees or mm
@@ -1212,7 +1212,7 @@ DataTypes::MotionState AppClient::MoveToJoint(float velocityPercent, float accel
 /**
  * @brief Starts a relative joint motion to the given position
  * @param velocityPercent velocity in percent, 0.0..100.0
- * @param acceleration acceleration in percent, currently not used
+ * @param acceleration acceleration in percent, 0.0..100.0, negative values result in default value 40%
  * @param a1 A1 target in degrees or mm
  * @param a2 A2 target in degrees or mm
  * @param a3 A3 target in degrees or mm
@@ -1259,7 +1259,7 @@ DataTypes::MotionState AppClient::MoveToJointRelative(float velocityPercent, flo
 /**
  * @brief Starts a linear motion to the given position
  * @param velocityMms velocity in mm/s
- * @param acceleration acceleration in percent, currently not used
+ * @param acceleration acceleration in percent, 0.0..100.0, negative values result in default value 40%
  * @param x X position in mm
  * @param y Y position in mm
  * @param z Z position in mm
@@ -1308,7 +1308,7 @@ DataTypes::MotionState AppClient::MoveToLinear(float velocityMms, float accelera
 /**
  * @brief Starts a linear motion to the given position
  * @param velocityMms velocity in mm/s
- * @param acceleration acceleration in percent, currently not used
+ * @param acceleration acceleration in percent, 0.0..100.0, negative values result in default value 40%
  * @param x X position in mm
  * @param y Y position in mm
  * @param z Z position in mm
@@ -1356,7 +1356,7 @@ DataTypes::MotionState AppClient::MoveToLinearRelativeBase(float velocityMms, fl
 /**
  * @brief Starts a linear motion to the given position
  * @param velocityMms velocity in mm/s
- * @param acceleration acceleration in percent, currently not used
+ * @param acceleration acceleration in percent, 0.0..100.0, negative values result in default value 40%
  * @param x X position in mm
  * @param y Y position in mm
  * @param z Z position in mm

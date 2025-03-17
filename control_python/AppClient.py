@@ -862,7 +862,7 @@ class AppClient:
         Starts a joint motion to the given position
         Parameters:
             velocityPercent: velocity in percent, 0.0..100.0
-            acceleration: acceleration in percent, currently not used
+            acceleration: acceleration in percent, 0.0..100.0, negative values result in default value 40%
             a1: A1 target in degrees or mm
             a2: A2 target in degrees or mm
             a3: A3 target in degrees or mm
@@ -911,7 +911,7 @@ class AppClient:
         Starts a relative joint motion to the given position
         Parameters:
             velocityPercent: velocity in percent, 0.0..100.0
-            acceleration: acceleration in percent, currently not used
+            acceleration: acceleration in percent, 0.0..100.0, negative values result in default value 40%
             a1: A1 target in degrees or mm
             a2: A2 target in degrees or mm
             a3: A3 target in degrees or mm
@@ -961,7 +961,7 @@ class AppClient:
         Starts a linear motion to the given position
         Parameters:
             velocityMms: velocity in mm/s
-            acceleration: acceleration in percent, currently not used
+            acceleration: acceleration in percent, 0.0..100.0, negative values result in default value 40%
             x: X position in mm
             y: Y position in mm
             z: Z position in mm
@@ -1013,7 +1013,7 @@ class AppClient:
         Starts a linear motion to the given position
         Parameters:
             velocityMms: velocity in mm/s
-            acceleration: acceleration in percent, currently not used
+            acceleration: acceleration in percent, 0.0..100.0, negative values result in default value 40%
             x: X position in mm
             y: Y position in mm
             z: Z position in mm
@@ -1064,7 +1064,7 @@ class AppClient:
         Starts a linear motion to the given position
         Parameters:
         velocityMms: velocity in mm/s
-            acceleration: acceleration in percent, currently not used
+            acceleration: acceleration in percent, 0.0..100.0, negative values result in default value 40%
             x: X position in mm
             y: Y position in mm
             z: Z position in mm

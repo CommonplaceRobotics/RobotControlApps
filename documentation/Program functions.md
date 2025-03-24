@@ -68,3 +68,9 @@ The implementation of one of the functions:
 ```
 
 Use the same approach for C++ apps.
+
+## Parameter default values
+The optional parameter "value" may be given to define the default value that is set when the app function is added to a program. This parameter must match UI element type:
+* text - any value format allowed, e.g. text, numbers etc.
+* number - numbers with dot as decimal separator, e.g. "42" or "123.45"
+* checkbox - boolean values, i.e. "true" or "false"

@@ -11,7 +11,7 @@ The following example shows the file structure:
     <!-- Example: Calculate <base_number_variable> to the power of <exponent_number> and assign the result to <result_variable> -->
 	<function name="pow" label="Exponentiation">
 		<parameter name="base_variable" type="string" ui-hint="text" label="Base (number variable)"></parameter>
-		<parameter name="exponent_number" type="double" ui-hint="number" label="Exponent"></parameter>
+		<parameter name="exponent_number" type="double" ui-hint="number" label="Exponent" value="2"></parameter>
 		<parameter name="result_variable" type="string" ui-hint="text" label="Result (number variable)"></parameter>
 	</function>
 </App>
@@ -50,3 +50,9 @@ The UI hint defines what UI element is created (more may be added later):
 * number - a number box
 * dropdown - a dropdown box - currently not supported yet, creates a text box instead
 * checkbox - a checkbox
+
+## Parameter default values
+The optional parameter "value" may be given to define the default value that is set when the app function is added to a program. This parameter must match UI element type:
+* text - any value format allowed, e.g. text, numbers etc.
+* number - numbers with dot as decimal separator, e.g. "42" or "123.45"
+* checkbox - boolean values, i.e. "true" or "false"

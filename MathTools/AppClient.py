@@ -471,7 +471,7 @@ class AppClient:
     # =========================================================================
     # Referencing
     # =========================================================================
-    def ReferenceAllJoints(self, withReferencingProgram: bool | None):
+    def ReferenceAllJoints(self, withReferencingProgram: bool):
         """
         Starts referencing all joints
         Parameters:
@@ -1322,9 +1322,8 @@ class AppClient:
     class MemoryReadIterator:
         """Iterator for reading data from memory into UploadFileRequests"""
 
-        def __init__(
-            self, appName: str, data: bytes | bytearray, targetFile: str, chunkSize: int
-        ):
+        def __init__(self, appName: str, data: bytes, targetFile: str, chunkSize: int):
+            # data accepts bytes and bytearray (byte | bytearray does not work on the python release that is installed on the embedded control)
             self.__data = memoryview(data)
             self.__chunkSize = chunkSize
             self.__dataIndex = 0

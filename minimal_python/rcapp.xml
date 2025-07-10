@@ -1,4 +1,4 @@
-<App name="MinimalApp-Python" label="Python Minimal App Sample" vendor="" version="1.0.0">
+<App name="MinimalApp-Python" label="Python Minimal App Sample" vendor="" version="1.0.1">
 	<!-- Define the executable(s) to call -->
 	<executable path="app.py"/>
 

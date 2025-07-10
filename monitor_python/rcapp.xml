@@ -1,4 +1,4 @@
-<App name="MonitorApp-Python" label="Python Monitor App Sample" vendor="" version="1.0.0">
+<App name="MonitorApp-Python" label="Python Monitor App Sample" vendor="" version="1.0.1">
 	<!-- Define the executable(s) to call -->
 	<executable path="app.py"/>
 </App>

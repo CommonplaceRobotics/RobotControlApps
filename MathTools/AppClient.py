@@ -1,8 +1,13 @@
+"""
+The AppClient class provides a simple interface to the igus Robot Control App Interface.
+"""
+
 from io import BufferedReader
 from queue import Queue
 import sys
 from threading import Thread, Lock
 import threading
+import time
 from typing import List
 import grpc
 from google.protobuf.internal import containers as protobufContainers
@@ -13,7 +18,6 @@ from DataTypes.RobotState import RobotState
 from DataTypes.MotionState import MotionState
 import robotcontrolapp_pb2
 from robotcontrolapp_pb2_grpc import RobotControlAppStub
-import time
 
 
 class NotConnectedException(RuntimeError):
@@ -170,10 +174,10 @@ class AppClient:
         result = self.GetProgramVariables(names)
         if variableName in result:
             return result[variableName]
-        else:
-            raise RuntimeError(
-                f"failed to get variable '{variableName}': variable does not exist"
-            )
+
+        raise RuntimeError(
+            f"failed to get variable '{variableName}': variable does not exist"
+        )
 
     def GetNumberVariable(self, variableName: str) -> NumberVariable:
         """
@@ -1307,23 +1311,23 @@ class AppClient:
 
         def __next__(self):
             data = self.__file.read(self.__chunkSize)
-            dataStr = data.decode("utf-8")
+            # dataStr = data.decode("utf-8")
             if len(data) > 0:
                 self.__anyRequestSent = True
                 self.__request.data = data
                 return self.__request
-            elif not self.__anyRequestSent:
+
+            if not self.__anyRequestSent:
                 self.__anyRequestSent = True
                 self.__request.data = bytes()
                 return self.__request
-            else:
-                raise StopIteration
+
+            raise StopIteration
 
     class MemoryReadIterator:
         """Iterator for reading data from memory into UploadFileRequests"""
 
         def __init__(self, appName: str, data: bytes, targetFile: str, chunkSize: int):
-            # data accepts bytes and bytearray (byte | bytearray does not work on the python release that is installed on the embedded control)
             self.__data = memoryview(data)
             self.__chunkSize = chunkSize
             self.__dataIndex = 0
@@ -1347,12 +1351,13 @@ class AppClient:
                 # self.__request.data = self.__data[start:end]
                 self.__request.data = bytes(self.__data[start:end])
                 return self.__request
-            elif not self.__anyRequestSent:
+
+            if not self.__anyRequestSent:
                 self.__anyRequestSent = True
                 self.__request.data = bytes()
                 return self.__request
-            else:
-                raise StopIteration
+
+            raise StopIteration
 
     def UploadFileFromFile(self, sourceFile: str, targetFile: str) -> tuple[bool, str]:
         """
@@ -1475,10 +1480,11 @@ class AppClient:
 
         if len(response.results) > 0 and not response.results[0].success:
             return (False, response.results[0].error)
-        elif response.success:
+
+        if response.success:
             return (True, "")
-        else:
-            return (False, "unknown error")
+
+        return (False, "unknown error")
 
     class DirectoryContent:
         """Description of a directory's content"""
@@ -1547,7 +1553,7 @@ class AppClient:
             uiElement.element_name = elementName
             uiElement.is_visible = visible
 
-    def SetUIVisibility(self, elements: set[tuple[str, bool]]):
+    def SetUIVisibilitySet(self, elements: set[tuple[str, bool]]):
         """Set a list of UI element visible or hidden"""
         request = robotcontrolapp_pb2.AppAction()
         for element in elements:
@@ -1556,7 +1562,7 @@ class AppClient:
             uiElement.is_visible = element[1]
         self.SendAction(request)
 
-    def QueueSetUIVisibility(self, elements: set[tuple[str, bool]]):
+    def QueueSetUIVisibilitySet(self, elements: set[tuple[str, bool]]):
         """Queues setting a list of UI element visible or hidden"""
         with self.__queuedUIUpdatesMutex:
             for element in elements:
@@ -1795,10 +1801,12 @@ class AppClient:
         """Checks whether the connected robot supports all features of this AppClient"""
         if sysInfo.versionMajor > self.VERSION_MAJOR_MIN:
             return True
-        elif sysInfo.versionMajor == self.VERSION_MAJOR_MIN:
+
+        if sysInfo.versionMajor == self.VERSION_MAJOR_MIN:
             if sysInfo.versionMinor > self.VERSION_MINOR_MIN:
                 return True
-            elif sysInfo.versionMinor == self.VERSION_MINOR_MIN:
+
+            if sysInfo.versionMinor == self.VERSION_MINOR_MIN:
                 if sysInfo.versionPatch >= self.VERSION_PATCH_MIN:
                     return True
         return False

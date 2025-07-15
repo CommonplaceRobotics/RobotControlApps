@@ -1323,7 +1323,6 @@ class AppClient:
         """Iterator for reading data from memory into UploadFileRequests"""
 
         def __init__(self, appName: str, data: bytes, targetFile: str, chunkSize: int):
-            # data accepts bytes and bytearray (byte | bytearray does not work on the python release that is installed on the embedded control)
             self.__data = memoryview(data)
             self.__chunkSize = chunkSize
             self.__dataIndex = 0
@@ -1547,7 +1546,7 @@ class AppClient:
             uiElement.element_name = elementName
             uiElement.is_visible = visible
 
-    def SetUIVisibility(self, elements: set[tuple[str, bool]]):
+    def SetUIVisibilitySet(self, elements: set[tuple[str, bool]]):
         """Set a list of UI element visible or hidden"""
         request = robotcontrolapp_pb2.AppAction()
         for element in elements:
@@ -1556,7 +1555,7 @@ class AppClient:
             uiElement.is_visible = element[1]
         self.SendAction(request)
 
-    def QueueSetUIVisibility(self, elements: set[tuple[str, bool]]):
+    def QueueSetUIVisibilitySet(self, elements: set[tuple[str, bool]]):
         """Queues setting a list of UI element visible or hidden"""
         with self.__queuedUIUpdatesMutex:
             for element in elements:

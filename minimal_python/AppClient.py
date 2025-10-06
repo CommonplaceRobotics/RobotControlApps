@@ -477,7 +477,8 @@ class AppClient:
     # =========================================================================
     def ReferenceAllJoints(self, withReferencingProgram: bool):
         """
-        Starts referencing all joints
+        Starts referencing all joints.
+        Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the motors.
         Parameters:
             withReferencingProgram: if true: call referencing program after referencing, then reference again
         """
@@ -491,7 +492,10 @@ class AppClient:
         self.__grpcStub.ReferenceJoints(request)
 
     def ReferencingProgram(self):
-        """Runs the referencing program, then references again. Does not reference before calling the program."""
+        """
+        Runs the referencing program, then references again. Does not reference before calling the program.
+        Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the motors.
+        """
         if not self.IsConnected():
             raise NotConnectedException()
 
@@ -503,7 +507,8 @@ class AppClient:
 
     def ReferenceRobotJoint(self, n: int):
         """
-        Starts referencing a robot joint
+        Starts referencing a robot joint.
+        Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the motors.
         Parameters:
             n: joint number 0..5
         """
@@ -519,7 +524,8 @@ class AppClient:
 
     def ReferenceExternalJoint(self, n: int):
         """
-        Starts referencing an external joint
+        Starts referencing an external joint.
+        Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the motors.
         Parameters:
             n: joint number 0..3
         """
@@ -535,7 +541,8 @@ class AppClient:
 
     def ReferenceJoints(self, robotJoints: set[int], externalJoints: set[int]):
         """
-        Starts referencing robot and external joints without delay
+        Starts referencing robot and external joints without delay.
+        Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the motors.
         Paramters:
             robotJoints: set of robot joint numbers 0..6
             externalJoints: set of external joint numbers 0..3

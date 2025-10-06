@@ -227,26 +227,31 @@ public:
     // Referencing
     // =========================================================================
     /**
-     * @brief Starts referencing all joints
+     * @brief Starts referencing all joints. Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the
+     * motors.
      * @param withReferencingProgram if true: call referencing program after referencing, then reference again
      */
     void ReferenceAllJoints(bool withReferencingProgram = false);
     /**
-     * @brief Runs the referencing program, then references again. Does not reference before calling the program.
+     * @brief Runs the referencing program, then references again. Does not reference before calling the program. Note that axes will enter position lag error
+     * when successfully referenced, this is no issue, simply re-enable the motors.
      */
     void ReferencingProgram();
     /**
-     * @brief Starts referencing a robot joint
+     * @brief Starts referencing a robot joint. Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable
+     * the motors.
      * @param n joint number 0..5
      */
     void ReferenceRobotJoint(unsigned n);
     /**
-     * @brief Starts referencing an external joint
+     * @brief Starts referencing an external joint. Note that axes will enter position lag error when successfully referenced, this is no issue, simply
+     * re-enable the motors.
      * @param n joint number 0..3
      */
     void ReferenceExternalJoint(unsigned n);
     /**
-     * @brief Starts referencing robot and external joints without delay
+     * @brief Starts referencing robot and external joints without delay. Note that axes will enter position lag error when successfully referenced, this is no
+     * issue, simply re-enable the motors.
      * @param robotJoints set of robot joint numbers 0..6
      * @param externalJoints set of external joint numbers 0..3
      */

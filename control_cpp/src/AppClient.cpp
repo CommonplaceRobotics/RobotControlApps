@@ -596,7 +596,8 @@ void AppClient::DisableMotors()
 }
 
 /**
- * @brief Starts referencing all joints
+ * @brief Starts referencing all joints. Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the
+ * motors.
  * @param withReferencingProgram if true: call referencing program after referencing, then reference again
  */
 void AppClient::ReferenceAllJoints(bool withReferencingProgram)
@@ -618,7 +619,8 @@ void AppClient::ReferenceAllJoints(bool withReferencingProgram)
 }
 
 /**
- * @brief Runs the referencing program, then references again. Does not reference before calling the program.
+ * @brief Runs the referencing program, then references again. Does not reference before calling the program. Note that axes will enter position lag error when
+ * successfully referenced, this is no issue, simply re-enable the motors.
  */
 void AppClient::ReferencingProgram()
 {
@@ -639,7 +641,8 @@ void AppClient::ReferencingProgram()
 }
 
 /**
- * @brief Starts referencing a robot joint
+ * @brief Starts referencing a robot joint. Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the
+ * motors.
  * @param n joint number 0..6
  */
 void AppClient::ReferenceRobotJoint(unsigned n)
@@ -662,7 +665,8 @@ void AppClient::ReferenceRobotJoint(unsigned n)
 }
 
 /**
- * @brief Starts referencing an external joint
+ * @brief Starts referencing an external joint. Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable
+ * the motors.
  * @param n joint number 0..3
  */
 void AppClient::ReferenceExternalJoint(unsigned n)
@@ -685,7 +689,8 @@ void AppClient::ReferenceExternalJoint(unsigned n)
 }
 
 /**
- * @brief Starts referencing robot and external joints without delay
+ * @brief Starts referencing robot and external joints without delay. Note that axes will enter position lag error when successfully referenced, this is no
+ * issue, simply re-enable the motors.
  * @param robotJoints set of robot joint numbers 0..6
  * @param externalJoints set of external joint numbers 0..3
  */

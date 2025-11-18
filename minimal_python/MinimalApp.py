@@ -7,7 +7,7 @@ from google.protobuf.internal import containers as protobufContainers
 
 class MinimalApp(AppClient):
     """This is an example app implementation"""
-    
+
     def __init__(self, appName: str, target: str):
         """Initializes the app. Pass the app name (as defined in rcapp.xml) and socket to connect to (default: "localhost:5000")"""
         AppClient.__init__(self, appName, target)
@@ -27,11 +27,13 @@ class MinimalApp(AppClient):
 
         # Confirm that the function finished, otherwise the robot program will wait forever.
         # You may send this later if the function call takes some time but it must be sent at some point.
-        #self.SendFunctionDone(function.call_id)
+        self.SendFunctionDone(function.call_id)
         # Or call this in case the function failed. This stops the robot program.
-        self.SendFunctionFailed(function.call_id, "failure reason")
+        # self.SendFunctionFailed(function.call_id, "example failure reason - this is a test, see MinimalApp.py")
 
-    def _UiUpdateHandler(self, updates: protobufContainers.RepeatedCompositeFieldContainer[AppUIElement]):
+    def _UiUpdateHandler(
+        self, updates: protobufContainers.RepeatedCompositeFieldContainer[AppUIElement]
+    ):
         """Gets called on remote UI update requests received from the robot control"""
         # This prints the received UI updates:
         print("Received UI updates: ")

@@ -4,11 +4,11 @@
 # If necessary add your source files and libraries in the Target Definition
 # section. Define files to copy to the output in the Copy Data section.
 ###############################################################################
+cmake_minimum_required (VERSION 3.16)
+
 project(monitorapp
     LANGUAGES C CXX
 )
-
-cmake_minimum_required (VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

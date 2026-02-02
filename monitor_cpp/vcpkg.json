@@ -1,5 +1,5 @@
 {
-  "name": "robotcontrol",
+  "name": "monitorapp",
   "version-string": "1.0.0",
   "dependencies": [
     "grpc",

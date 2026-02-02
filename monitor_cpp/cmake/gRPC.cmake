@@ -3,7 +3,7 @@
 # https://github.com/grpc/grpc/tree/master/examples/cpp/route_guide (Apache 2.0 (http://www.apache.org/licenses/LICENSE-2.0); Copyright 2018 gRPC authors)
 # https://github.com/IvanSafonov/grpc-cmake-example (MIT; IvanSafonov)
 
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required (VERSION 3.16)
 
 # By default have GRPC_GENERATE_CPP macro pass -I to protoc
 # for each directory where a proto file is referenced.

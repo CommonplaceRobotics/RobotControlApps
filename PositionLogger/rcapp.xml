@@ -1,0 +1,13 @@
+<App name="PositionLogger" label="Position Logger" vendor="" version="1.0.0">
+	<!-- Define the executable(s) to call -->
+	<executable path="app.py"/>
+
+	<!-- Define the app functions that the robot program can call -->
+	<function name="clear" label="Clear log">
+	</function>
+	<function name="add_tcp" label="Add TCP to log">
+	</function>
+	<function name="add_variable" label="Add position variable to log">
+		<parameter name="varname" type="string" ui-hint="text" label="Position variable"></parameter>
+	</function>
+</App>

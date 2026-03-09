@@ -1,0 +1,888 @@
+syntax = "proto3";
+
+package robotcontrolapp;
+
+/******************************************************************************/
+// Interface exported by the server.
+service RobotControlApp {
+
+    // Sends the app's capabilities / API version to the server on connect
+    rpc SetCapabilities(CapabilitiesRequest) returns (CapabilitiesResponse);
+
+    // Receives AppActions (see message AppAction, contains app functions and UI updates...)
+    rpc RecieveActions(stream AppAction) returns (stream Event);
+
+    // Requests the current tool center point
+    rpc GetTCP(GetTCPRequest) returns (Matrix44);
+    // streams the robot state
+    rpc GetRobotStateStream(RobotStateRequest) returns (stream RobotState);
+    // Requests the current robot state
+    rpc GetRobotState(RobotStateRequest) returns (RobotState);
+
+    // Requests one or more program variables
+    rpc GetProgramVariables(ProgramVariablesRequest) returns (stream ProgramVariable);
+    // Sets one or more program variables
+    rpc SetProgramVariables(SetProgramVariablesRequest) returns (SetProgramVariablesResponse);
+
+    // Resetting errors, enabling motors, referencing
+    rpc EnableMotors(EnableMotorsRequest) returns (EnableMotorsResponse);
+    rpc ResetErrors(ResetErrorsRequest) returns (ResetErrorsResponse);
+    rpc ReferenceJoints(ReferenceJointsRequest) returns (ReferenceJointsResponse);
+
+    // Program / motion state
+    // Gets the motion source state
+    rpc GetMotionState(GetMotionStateRequest) returns (MotionState);
+    // Sets the state of the motion program
+    rpc SetMotionInterpolator(MotionInterpolatorRequest) returns (MotionState);
+    // Sets the state of the logic program
+    rpc SetLogicInterpolator(LogicInterpolatorRequest) returns (MotionState);
+    // Sets the state of the fast position interface
+    rpc SetPositionInterface(PositionInterfaceRequest) returns (MotionState);
+    // Starts or stops a move-to command
+    rpc MoveTo(MoveToRequest) returns (MotionState);
+
+    // Kinematics
+    rpc TranslateJointToCart(JointToCartRequest) returns (JointToCartResponse);
+    rpc TranslateCartToJoint(CartToJointRequest) returns (CartToJointResponse);
+
+    // IO
+    rpc SetIOState(IOStateRequest) returns (IOStateResponse);
+
+    // File operations
+    rpc UploadFile(stream UploadFileRequest) returns (UploadFileResponse);
+    rpc DownloadFile(DownloadFileRequest) returns (stream DownloadFileResponse);
+    rpc ListFiles(ListFilesRequest) returns (ListFilesResponse);
+    rpc RemoveFiles(RemoveFilesRequest) returns (RemoveFilesResponse);
+
+    // System info
+    rpc GetSystemInfo(SystemInfoRequest) returns (SystemInfo);
+
+    // Velocity override
+    rpc SetVelocityOverride(SetVelocityOverrideRequest) returns (SetVelocityOverrideResponse);
+
+    // UI
+    rpc ShowDialog(ShowDialogRequest) returns (ShowDialogResponse);
+}
+
+message CapabilitiesRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    int32 api_version_major = 2;
+    int32 api_version_minor = 3;
+    int32 api_version_patch = 4;
+}
+
+message CapabilitiesResponse {}
+
+message SystemInfoRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+}
+message SystemInfo
+{
+    int32 version_major = 1;
+    int32 version_minor = 2;
+    int32 version_patch = 3;
+    // this may contain further labels, usually for development versions
+    string version = 4;
+
+    enum SystemType {
+        Other = 0;
+        Windows = 1;
+        Raspberry = 2;
+        Linux_x86 = 3;
+    }
+    SystemType system_type = 5;
+
+    // Is this robot simulated?
+    bool is_simulation = 22;
+
+    // project file name
+    string project_file = 6;
+    // optional title and author as given in the project file
+    string project_title = 7;
+    string project_author = 8;
+    // robot type
+    string robot_type = 9;
+
+    // The voltage is used to select the velocities ("velocity setting")
+    enum Voltage {
+        Voltage24V = 0;
+        Voltage48V = 1;
+    }
+    Voltage voltage = 10;
+
+    // The unique device ID
+    string device_id = 11;
+
+    // configured main loop cycle time in ms
+    float cycle_time_target = 12;
+    // average cycle time
+    float cycle_time_avg = 13;
+    float cycle_time_max = 14;
+    float cycle_time_min = 15;
+    // percentage of the cycle used for calculations (not waiting), 0.0-1.0
+    float workload = 16;
+
+    // axis count
+    uint32 robot_axis_count = 17;
+    uint32 external_axis_count = 18;
+    uint32 tool_axis_count = 19;
+    uint32 platform_axis_count = 20;
+    uint32 digital_io_module_count = 21;
+}
+
+// requests the current robot state (sent by app)
+message RobotStateRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+}
+
+// requests one or more program variable (sent by app)
+message ProgramVariablesRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+    repeated string variable_names = 2;
+}
+
+// sets one or more program variable (sent by app)
+message SetProgramVariablesRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+    repeated ProgramVariable variables = 2;
+}
+
+// response to the set program variable request
+message SetProgramVariablesResponse {
+}
+
+// requests the current tool center point
+message GetTCPRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+}
+
+// requests the current motion state
+message GetMotionStateRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+}
+
+/*******************************************************************************
+ * Basic data types
+ ******************************************************************************/
+// 3-dimensional vector
+message Vector3 {
+    double x = 1;
+    double y = 2;
+    double z = 3;
+}
+
+// 4x4 matrix
+message Matrix44 {
+    repeated double data = 1;
+}
+
+/*******************************************************************************
+ * Robot configuration and state
+ ******************************************************************************/
+// Robot State
+enum DIOState {
+    LOW = 0;
+    HIGH = 1;
+}
+
+// Is a digital input used for a special function, e.g. PLC?
+//enum DInSpecialFunction {
+//    NORMAL_DIN = 0;
+//    PLC_ENABLE = 1;
+//}
+
+// Is a digital output used for a special function, e.g. PLC?
+//enum DOutSpecialFunction {
+//    NORMAL_DOUT = 0;
+//    PLC_ENABLED = 1;
+//}
+
+// Digital input configuration and state
+message DIn {
+    reserved 2,10;
+
+    uint32 id = 1;
+    //string name = 2;
+    DIOState state = 3;
+    //DInSpecialFunction function = 10;
+}
+
+// Digital output configuration and state
+message DOut {
+    reserved 2,10;
+
+    uint32 id = 1;
+    //string name = 2;
+    DIOState state = 3;
+    DIOState target_state = 4;
+    //DOutSpecialFunction function = 10;
+}
+
+// Global signal state
+message GSig {
+    uint32 id = 1;
+    DIOState state = 3;
+    DIOState target_state = 4;
+}
+
+// Hardware state (i.e. CANv2 error bits)
+enum HardwareState {
+    OKAY = 0;
+    ERROR_OVERTEMP = 1;
+    ERROR_ESTOP_LOW_VOLTAGE = 2;
+    ERROR_MOTOR_NOT_ENABLED = 4;
+    ERROR_COMMUNICATION = 8;
+    ERROR_POSITION_LAG = 16;
+    ERROR_ENCODER = 32;
+    ERROR_OVERCURRENT = 64;
+    ERROR_DRIVER = 128;
+    ERROR_BUS_DEAD = 256;
+    ERROR_MODULE_DEAD = 512;
+    ERROR_NOTREADY = 4096;
+}
+
+// Kinematic error states
+enum KinematicState {
+    KINEMATIC_NORMAL = 0;
+    KINEMATIC_ERROR_ErrGeneral = -1;
+    KINEMATIC_ERROR_LINKAGE_LIMITED = 12; // Delta
+    KINEMATIC_ERROR_JOINT_LIMIT_MIN = 13;
+    KINEMATIC_ERROR_JOINT_LIMIT_MAX = 14;
+    KINEMATIC_ERROR_JOINT_DIFF_MIN = 17;
+    KINEMATIC_ERROR_JOINT_DIFF_MAX = 18;
+    KINEMATIC_ERROR_CENTER_SINGULARITY = 21;
+    KINEMATIC_ERROR_OUT_OF_REACH = 22;
+    KINEMATIC_ERROR_WRIST_SINGULARITY = 23;
+    KINEMATIC_ERROR_TRILATERATION = 28; // Delta
+    KINEMATIC_ERROR_VIRTUAL_BOX_X_POS = 30;
+    KINEMATIC_ERROR_VIRTUAL_BOX_X_NEG = 31;
+    KINEMATIC_ERROR_VIRTUAL_BOX_Y_POS = 32;
+    KINEMATIC_ERROR_VIRTUAL_BOX_Y_NEG = 33;
+    KINEMATIC_ERROR_VIRTUAL_BOX_Z_POS = 34;
+    KINEMATIC_ERROR_VIRTUAL_BOX_Z_NEG = 35;
+    KINEMATIC_ERROR_JOINT_NAN = 50;
+    KINEMATIC_ERROR_VELOCITY_LIMIT_EXCEEDED = 51;
+    KINEMATIC_ERROR_VARIABLE_NOT_FOUND = 61;
+    KINEMATIC_ERROR_BRAKE_ACTIVE = 98;
+    KINEMATIC_ERROR_MOTION_NOT_ALLOWED = 99;
+}
+
+// Referencing state
+enum ReferencingState {
+    NOT_REFERENCED = 0;
+    IS_REFERENCING = 1;
+    IS_REFERENCED = 2;
+}
+
+// Joint configuration, position and state
+message Joint {
+    uint32 id = 1;
+    string name = 2;
+    message JointPosition {
+        // actual hardware position
+        double position = 1;
+        // target position - this should be used in most situations!
+        double target_position = 2;
+    }
+    JointPosition position = 3;
+    // Hardware error state
+    HardwareState state = 5;
+
+    ReferencingState referencing_state = 6;
+
+    float temperature_board = 7; // in °C
+    float temperature_motor = 8; // in °C
+    float current = 9; // in mA
+
+    // target velocity in velocity mode (not available in position mode)
+    float target_velocity = 10;
+}
+
+// Position and orientation in platform space
+message PlatformPose
+{
+    Vector3 position = 1;
+    float heading = 2;
+}
+
+// Robot state
+message RobotState {
+    // Position and orientation of the TCP in cartesian space
+    Matrix44 tcp = 3;
+    // Position and orientation of the mobile platform in platform space, if available
+    optional PlatformPose platform_pose = 20;
+    // Joint angles/positions in degrees or mm
+    repeated Joint joints = 4; // 6 robot joints + 3 ext joints (at indices 6,7,8)
+
+    // inputs, outputs and global signals
+    repeated DIn DIns = 5;
+    repeated DOut DOuts = 6;
+    repeated GSig GSigs = 7;
+
+    // hardware error state
+    string hardware_state_string = 11;
+    // kinematic error state
+    KinematicState kinematic_state = 12;
+
+    // velocity override in percent (0.0 - 1.0)
+    float velocity_override = 13;
+    // Current velocity of the TCP in mm/s
+    float cartesian_velocity = 14;
+
+    // temperature of the control computer's CPU
+    float temperature_cpu = 15;
+    // supply voltage for the motors in mV
+    float supply_voltage = 16;
+    // current of all motors and DIO in mA (available for some robot types only)
+    float current_all = 17;
+
+    // combined referencing state
+    ReferencingState referencing_state = 19;
+}
+
+// Is a program running or paused?
+enum RunState
+{
+    NOT_RUNNING = 0;
+    RUNNING = 1;
+    PAUSED = 2;
+}
+
+// Repeat the program?
+enum ReplayMode
+{
+    SINGLE = 0; // run once
+    REPEAT = 1; // repeat
+    STEP = 2; // pause after each step
+}
+
+// State of the motion sources
+message MotionState
+{
+    enum MotionSource
+    {
+        JOG = 0;
+        IPO = 1;
+        MOVE_TO = 2;
+        POSITION_INTERFACE = 3;
+        PLATFORM = 4;
+    }
+
+    // which of the position sources below is currently controlling the robot?
+    MotionSource current_source = 1;
+
+    // State of a program interpolator
+    message InterpolatorState {
+        // is this interpolator running?
+        RunState runstate = 1;
+        // Repeat the program?
+        ReplayMode replay_mode = 2;
+        // the loaded main program
+        string main_program_name = 3;
+        // the (sub-)program that is currently being run
+        string current_program_name = 4;
+        // the program index: 0 is the main program, positive numbers are sub-programs
+        int32 current_program_idx = 5;
+        // total number of loaded programs: 1 means main program only, 2 is main plus a sub-program etc.
+        uint32 program_count = 6;
+        // the command index of the (sub-)program currently being rung
+        int32 current_command_idx = 7;
+        // the total number of commands in the current (sub-)program
+        uint32 command_count = 8;
+    }
+
+    // State of the position interface
+    message PositionInterfaceState
+    {
+        // is the position interface enabled?
+        bool is_enabled = 1;
+        // is the position interface being used as position source?
+        bool is_in_use = 2;
+        // the TCP port that the interface uses for accepting clients
+        uint32 port = 3;
+    }
+
+    // interpolator for motion programs
+    InterpolatorState motion_ipo = 2;
+    // interpolator for logic programs
+    InterpolatorState logic_ipo = 3;
+    // interpolator for Move-To commands
+    InterpolatorState move_to_ipo = 4;
+    // position interface
+    PositionInterfaceState position_interface = 5;
+
+    // If this message relates to a change request and it was successful this is set to true. E.g. after successfully starting a program.
+    optional bool request_successful = 6;
+}
+
+// Changes the state of the robot program
+message MotionInterpolatorRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // starts / stops / pauses the program
+    optional RunState runstate = 2;
+    // Repeat the program?
+    optional ReplayMode replay_mode = 3;
+    // (re-)loads a program, set empty to unload the program
+    optional string main_program = 4;
+
+    message StartAt
+    {
+        // (sub-)program
+        optional string program = 1;
+        // command index to start at
+        uint32 command = 2;
+    }
+    // selects the command to start at
+    optional StartAt start_at = 5;
+}
+
+// Changes the state of the logic program
+message LogicInterpolatorRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // (re-)loads a program, set empty to unload the program
+    optional string main_program = 2;
+}
+
+// Changes the state of the position interface
+message PositionInterfaceRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    bool is_enabled = 2;
+    bool is_in_use = 3;
+}
+
+// Starts or stops a move-to motion
+message MoveToRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // Starts a joint Move-To command
+    message MoveToJoint {
+        repeated double robot_joints = 1;
+        repeated double external_joints = 2;
+        // velocity in percent (0.0-1.0)
+        float velocity = 3;
+        // acceleration in percent
+        float acceleration = 4;
+    }
+    // Starts a linear Move-To command
+    message MoveToCart {
+        Vector3 position = 1;
+        Vector3 orientation = 2;
+        repeated double external_joints = 3;
+        // velocity in mm/s
+        float velocity = 4;
+        // acceleration in percent
+        float acceleration = 5;
+        // user frame, leave empty for base frame
+        optional string frame = 6;
+    }
+    // stops a running Move-To command
+    message MoveToStop {}
+
+    oneof type
+    {
+        MoveToJoint joint = 2;
+        MoveToJoint joint_relative = 3;
+        MoveToCart cart = 4;
+        MoveToCart cart_relative_base = 5;
+        MoveToCart cart_relative_tool = 6;
+        MoveToStop stop = 7;
+    }
+}
+
+// Enables or disables the motors
+message EnableMotorsRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // enable or disable
+    bool enable = 2;
+}
+message EnableMotorsResponse {}
+
+// Resets the hardware errors
+message ResetErrorsRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+}
+message ResetErrorsResponse {}
+
+// Starts referencing axes
+message ReferenceJointsRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // if true all joints will be referenced. The lists below will be ignored.
+    bool reference_all = 2;
+    // if true all joints the referencing program is run, then all joints are referenced. Can be combined with reference_all to reference all joints first.
+    bool referencing_program = 3;
+    // set the robot axes to reference to true
+    repeated uint32 reference_robot_joints = 4;
+    // set the external axes to reference to true
+    repeated uint32 reference_external_joints = 5;
+}
+message ReferenceJointsResponse {}
+
+// Sets the velocity override (multiplier)
+message SetVelocityOverrideRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // target value in percent (0.0-100.0)
+    float velocity_override = 2;
+}
+message SetVelocityOverrideResponse {
+    // actual value in percent (0.0-100.0)
+    float velocity_override = 1;
+}
+
+// Requests a change of IOs
+message IOStateRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // inputs, outputs and global signals to change
+    repeated DIn DIns = 2;
+    repeated DOut DOuts = 3;
+    repeated GSig GSigs = 4;
+}
+
+// Response to the IOStateRequest
+message IOStateResponse {}
+
+/*******************************************************************************
+ * Kinematics
+ ******************************************************************************/
+ message JointToCartRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // Up to 6 robot and 3 external joints to convert
+    repeated double joints = 2;
+ }
+
+ message CartToJointRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // Up to 6 robot and 3 external joints to convert, this is used for the initial configuration
+    repeated double joints = 2;
+    // Requested TCP position
+    Vector3 position = 3;
+    // Requested TCP orientation
+    Vector3 orientation = 4;
+ }
+
+ message JointToCartResponse {
+    // 0 if the result is valid or error code
+    KinematicState kinematicState = 1;
+
+    // Calculated position
+    Matrix44 position = 2;
+ }
+
+ message CartToJointResponse {
+    // 0 if the result is valid or error code
+    KinematicState kinematicState = 1;
+
+    // Result: 6 robot joints and 3 external joints
+    repeated double joints = 2;
+ }
+
+/*******************************************************************************
+ * File transfer
+ ******************************************************************************/
+message UploadFileRequest{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // file name, relative to the "Data" directory
+    string filename = 2;
+    // data chunk
+    bytes data = 4;
+    // binary or text mode
+    bool binary_mode = 5;
+}
+message UploadFileResponse {
+    // was the file written successfully?
+    bool success = 1;
+    // error message
+    optional string error = 2;
+}
+
+message DownloadFileRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // file name, relative to the "Data" directory
+    string filename = 2;
+}
+message DownloadFileResponse {
+    // true if the file was read successfully
+    bool success = 1;
+    // error message
+    optional string error = 2;
+    // data chunk
+    bytes data = 3;
+}
+
+message ListFilesRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // directory to list, relative to the "Data" directory
+    string path = 2;
+}
+message ListFilesResponse {
+    // true if the file was read successfully
+    bool success = 1;
+    // error message
+    optional string error = 2;
+
+    message DirectoryEntry {
+        string name = 1;
+
+        enum Type {
+            Other = 0;
+            File = 1;
+            Directory = 2;
+        }
+        Type type = 2;
+    }
+
+    // Directory entries
+    repeated DirectoryEntry entries = 3;
+}
+
+message RemoveFilesRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // files to remove, relative to the "Data" directory
+    repeated string files = 2;
+}
+message RemoveFilesResponse {
+    // true if all files are removed
+    bool success = 1;
+
+    message DirectoryEntry {
+        string name = 1;
+        bool success = 2;
+        optional string error = 3;
+    }
+    // Detailed success / errors
+    repeated DirectoryEntry results = 3;
+}
+
+/*******************************************************************************
+ * UI <-> App interaction
+ ******************************************************************************/
+ // States of a button
+enum ButtonState {
+    NOT_CLICKED = 0;
+    CLICKED = 1;
+}
+
+// States of a checkbox
+enum CheckboxState {
+    UNCHECKED = 0;
+    CHECKED  = 1;
+}
+
+// State of a dropdown box
+message DropdownState {
+    repeated string options = 1; // list of available options
+    string selected_option = 2;
+}
+
+// State of a textbox or static text element
+message TextfieldState {
+    string current_text = 1;
+}
+
+// State of a number box, can be used to set a static text element to a number value
+message NumberfieldState {
+    double current_number = 1;
+}
+
+// State of an image element
+message ImageState {
+    message ImageData {
+        enum ImageEncoding {
+            JPEG = 0;
+        }
+        ImageEncoding encoding = 1;
+        bytes data = 2; // base64 encoded image of the given encoding
+        uint32 width = 3; // image width
+        uint32 height = 4; // image height
+    }
+    optional ImageData image_data = 1;
+
+    message ClickedAt {
+        ButtonState is_clicked = 1;
+        double x = 2;
+        double y = 3;
+    }
+    optional ClickedAt clicked_at = 2;
+}
+
+// State of a UI element, may contain any type. Used to communicate UI events and updates in both ways.
+message AppUIElement {
+    message AppUIState {
+        oneof state {
+            ButtonState button_state = 1;
+            CheckboxState checkbox_state = 2;
+            DropdownState dropdown_state = 3;
+            TextfieldState textfield_state = 4;
+            NumberfieldState numberfield_state = 5;
+            ImageState image_state = 6;
+        }
+    }
+    string element_name = 1;
+    AppUIState state = 3;
+    optional bool is_visible = 4;
+}
+
+// App function call, e.g. coming from the app program command
+message AppFunction {
+    message Parameter {
+        string name = 1;
+        oneof value {
+            bool bool_value = 2;
+            int64 int64_value = 3;
+            double double_value = 4;
+            string string_value = 5;
+            Vector3 vector3_value = 6;
+            Matrix44 cartesian_value = 7;
+        }
+    }
+    string name = 1;
+    int64 call_id = 2;
+    repeated Parameter parameters = 3;
+
+    string label = 9;
+    string ui_hint = 10;
+}
+
+// App event, this contains app function and UI updates
+message Event {
+    message DisconnectRequest
+    {
+        string reason = 1;
+    }
+
+    AppFunction function = 2;
+    repeated AppUIElement ui_updates = 10;
+
+    // if set the app should disconnect
+    optional DisconnectRequest disconnect_request = 3;
+}
+
+// Shows a dialog window to the user
+message ShowDialogRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    enum DialogType
+    {
+        INFO = 0;
+        WARNING = 1;
+        ERROR = 2;
+    }
+
+    // A basic message dialog without user feedback
+    message MessageDialog
+    {
+        DialogType type = 1;
+        string title = 2;
+        string message = 3;
+    }
+    // TODO: Add dialogs with user feedback (Yes/No/Cancel). This must be asynchronous.
+
+    oneof dialog {
+        MessageDialog message_dialog = 2;
+    }
+}
+
+message ShowDialogResponse {
+
+}
+
+/*******************************************************************************
+ * Program variables
+ ******************************************************************************/
+/**
+ * A program variable.
+ * It may contain either:
+ *   - a scalar number
+ *   - joint angles (request from the app, will be transformed to cartesian)
+ *   - a cartesian position (request from the app, will be transformed to joints)
+ *   - both joint angles and cartesian position (coming from the robot control)
+ */
+message ProgramVariable {
+    // Position sub-type
+    message ProgramVariablePosition {
+        message Joints {
+            repeated double joints = 1;
+        }
+        message CartAndJoints {
+            Joints robot_joints = 1;
+            Matrix44 cartesian = 2;
+        }
+
+        oneof value { // only one:
+            Joints robot_joints = 1; // joints only (for set-request, translates to cartesian)
+            Matrix44 cartesian = 2; // cartesian only (for set-request, translates to joints)
+            CartAndJoints both = 3; // joints and cartesian
+        }
+        repeated double external_joints = 4; // external joints: available in all position variables
+    }
+
+    // elements of ProgramVariable
+    string name = 1;
+    oneof value { // only one:
+        double number = 2;
+        ProgramVariablePosition position = 3;
+    }
+}
+
+// Feedback for a failed app function
+message FailedFunction {
+    int64 call_id = 1;
+    string reason = 2;
+}
+
+// This object is used to communicate requests and changes between app and robot control.
+message AppAction {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+    // List of variables to set
+    repeated ProgramVariable set_variables = 2;
+    // List of finished app function call IDs - The app sends these to confirm a function finished, e.g. when called from the robot program.
+    repeated int64 done_functions = 5; // call_id
+    // List of failed app functions - these abort the running program
+    repeated FailedFunction failed_functions = 6;
+    // List of UI updates
+    repeated AppUIElement ui_changes = 10;
+    repeated string request_ui_state = 11;
+}

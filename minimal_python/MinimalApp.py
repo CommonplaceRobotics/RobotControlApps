@@ -135,12 +135,14 @@ class MinimalApp(AppClient):
                 )
             elif update.state.HasField("dropdown_state"):
                 # drop down selected
+                # to compare with strings call .__str__()!
                 selectedOption = update.state.dropdown_state.selected_option
                 print(
                     f"Dropdown '{update.element_name}' changed: selected option = {selectedOption}"
                 )
             elif update.state.HasField("textfield_state"):
                 # text box changed
+                # to compare with strings call .__str__()!
                 text = update.state.textfield_state.current_text
                 print(f"Text box '{update.element_name}' changed: text = {text}")
             elif update.state.HasField("numberfield_state"):

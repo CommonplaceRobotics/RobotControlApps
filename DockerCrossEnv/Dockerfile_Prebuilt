@@ -1,3 +1,9 @@
+# This builds the cross build environment mostly from scratch:
+# The build environment is copied from crossbuild_environment.tar.xz,
+# which also contains most additional libraries. Only libraries required for native builds are compiled from source code.
+#
+# docker build . --tag=robotcontrolappcrossenv --file=Dockerfile_Prebuilt
+
 FROM ubuntu:22.04 AS robotcontrolappcrossenv
 
 LABEL maintainer="support@cpr-robots.com"
@@ -10,7 +16,7 @@ LABEL description="RobotControl C++ app development environment"
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get -y update && apt-get -y upgrade
-RUN apt-get -y install make cmake git g++ libz-dev zip xz-utils wget pkg-config
+RUN apt-get -y install make cmake git g++ libz-dev zip xz-utils wget pkg-config dos2unix
 
 # Crossbuild
 COPY crossbuild_environment_prebuilt.tar.xz "/crossbuild_environment.tar.xz"
@@ -24,7 +30,8 @@ COPY toolchain-raspberrypi.cmake /opt/toolchains/toolchain-raspberrypi.cmake
 # Build and install dependencies for RPi
 RUN mkdir -p "/dependencies"
 COPY dependencies /dependencies
-RUN chmod +x /dependencies/*.sh
+# Fix line endings and permissions
+RUN find -name "*.sh" -exec dos2unix {} \; && chmod +x /dependencies/*.sh
 #RUN /dependencies/01_system_fixes.sh
 #RUN /dependencies/10_zlib_rpi.sh
 #RUN /dependencies/20_openssl_rpi.sh

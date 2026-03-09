@@ -12,7 +12,7 @@ Linux apps can be build on Ubuntu (native or in WSL), but to simplify this we pr
 ### Using the prebuilt image
 We recommend using the prebuilt image to save time and disk space. This contains compiled libraries for Raspberry Pi, only some libraries for the Ubuntu system need to be build. This takes about 18 minutes.
 
-[Download our prebuilt build environment](https://cpr-robots.com/download/embedded-computer/crossbuild_environment_prebuilt.tar.xz) (ca. 650MB, 3.8GB extracted) to this directory.
+[Download our prebuilt build environment](https://cpr-robots.com/download/embedded-computer/crossbuild_environment_prebuilt.tar.xz) (ca. 650MB, 3.8GB extracted) to this directory. Do not extract this file.
 
 ```
 docker build . --tag=robotcontrolappcrossenv --file=Dockerfile_Prebuilt
@@ -21,7 +21,7 @@ docker build . --tag=robotcontrolappcrossenv --file=Dockerfile_Prebuilt
 ### Building the dependencies
 Alternatively you can build all libraries. This will take around 45 minutes and takes more disk space. If you only want to rebuild some libraries consider editing the prebuilt Dockerfile.
 
-[Download our base build environment](https://cpr-robots.com/download/embedded-computer/crossbuild_environment.tar.xz) (ca. 1.9GB, 13GB extracted) to this directory.
+[Download our base build environment](https://cpr-robots.com/download/embedded-computer/crossbuild_environment.tar.xz) (ca. 1.9GB, 13GB extracted) to this directory. Do not extract this file.
 
 ```
 docker build . --tag=robotcontrolappcrossenv
@@ -30,7 +30,7 @@ docker build . --tag=robotcontrolappcrossenv
 ### Building the prebuilt image
 The following command builds all libraries and creates the prebuilt image. You should not need this command. Building this takes ca. 90 minutes.
 
-[Download our base build environment](https://cpr-robots.com/download/embedded-computer/crossbuild_environment.tar.xz) (ca. 1.9GB, 13GB extracted) to this directory.
+[Download our base build environment](https://cpr-robots.com/download/embedded-computer/crossbuild_environment.tar.xz) (ca. 1.9GB, 13GB extracted) to this directory. Do not extract this file.
 
 ```
 docker build . --tag=robotcontrolappcrossenv --file=Dockerfile_Image --output type=local,dest=output

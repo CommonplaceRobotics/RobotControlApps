@@ -1,3 +1,8 @@
+# This builds the prebuilt image, which can be used to speed up building the cross build environment.
+# Normal users should never need to use this file.
+#
+# docker build . --tag=robotcontrolappcrossenv --file=Dockerfile_Image --output type=local,dest=output
+
 FROM ubuntu:22.04 AS robotcontrolappcrossenv
 
 LABEL maintainer="support@cpr-robots.com"
@@ -30,7 +35,8 @@ COPY toolchain-raspberrypi.cmake /opt/toolchains/toolchain-raspberrypi.cmake
 # Build and install dependencies for RPi
 RUN mkdir -p "/dependencies"
 COPY dependencies /dependencies
-RUN chmod +x /dependencies/*.sh
+# Fix line endings and permissions
+RUN find -name "*.sh" -exec dos2unix {} \; && chmod +x /dependencies/*.sh
 RUN /dependencies/01_system_fixes.sh
 RUN /dependencies/10_zlib_rpi.sh
 RUN /dependencies/20_openssl_rpi.sh

@@ -1,3 +1,9 @@
+# This builds the cross build environment mostly from scratch:
+# The build environment is copied from crossbuild_environment.tar.xz,
+# all additional libraries are compiled from source code.
+#
+# docker build . --tag=robotcontrolappcrossenv
+
 FROM ubuntu:22.04 AS robotcontrolappcrossenv
 
 LABEL maintainer="support@cpr-robots.com"
@@ -24,7 +30,8 @@ COPY toolchain-raspberrypi.cmake /opt/toolchains/toolchain-raspberrypi.cmake
 # Build and install dependencies for RPi
 RUN mkdir -p "/dependencies"
 COPY dependencies /dependencies
-RUN chmod +x /dependencies/*.sh
+# Fix line endings and permissions
+RUN find -name "*.sh" -exec dos2unix {} \; && chmod +x /dependencies/*.sh
 RUN /dependencies/01_system_fixes.sh
 RUN /dependencies/10_zlib_rpi.sh
 RUN /dependencies/20_openssl_rpi.sh

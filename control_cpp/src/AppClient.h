@@ -51,9 +51,9 @@ public:
     // Minimum required major version of the RobotControl Core
     static constexpr int VERSION_MAJOR_MIN = 14;
     // Minimum required minor version of the RobotControl Core
-    static constexpr int VERSION_MINOR_MIN = 4;
+    static constexpr int VERSION_MINOR_MIN = 6;
     // Minimum required patch version of the RobotControl Core
-    static constexpr int VERSION_PATCH_MIN = 0;
+    static constexpr int VERSION_PATCH_MIN = 6;
 
     /**
      * @brief If set true additional output is written to stdout
@@ -478,6 +478,40 @@ public:
     DataTypes::MotionState MoveToStop();
 
     /**
+     * @brief Gets the velocities of external axes in velocity mode (e.g. conveyor drives etc.)
+     * @param e1 velocity of external axis 1 in user-defined units or 0 if not in velocity mode
+     * @param e2 velocity of external axis 2 in user-defined units or 0 if not in velocity mode
+     * @param e3 velocity of external axis 3 in user-defined units or 0 if not in velocity mode
+     */
+    void GetTargetVelocity(float& e1, float& e2, float& e3);
+
+    /**
+     * @brief Sets the target velocity of external axis 1 in velocity mode
+     * @param vel target velocity in user-defined units
+     * @return new target velocity or 0 if not in velocity mode
+     */
+    float SetTargetVelocityE1(float vel);
+    /**
+     * @brief Sets the target velocity of external axis 2 in velocity mode
+     * @param vel target velocity in user-defined units
+     * @return new target velocity or 0 if not in velocity mode
+     */
+    float SetTargetVelocityE2(float vel);
+    /**
+     * @brief Sets the target velocity of external axis 3 in velocity mode
+     * @param vel target velocity in user-defined units
+     * @return new target velocity or 0 if not in velocity mode
+     */
+    float SetTargetVelocityE3(float vel);
+    /**
+     * @brief Sets the target velocities of external axes in velocity mode. Axes that are not in velocity mode are ignored.
+     * @param e1 target velocity of external axis 1 in user-defined units
+     * @param e2 target velocity of external axis 2 in user-defined units
+     * @param e3 target velocity of external axis 3 in user-defined units
+     */
+    void SetTargetVelocities(float e1, float e2, float e3);
+
+    /**
      * @brief Returns true if the robot moves automatically. This does not indicate other motion types, like jog motion!
      * @return true if a Move To command is being executed, if a motion program is running or if the position interface is used.
      */
@@ -497,6 +531,39 @@ public:
      * @brief Gets the system information
      */
     DataTypes::SystemInfo GetSystemInfo();
+
+    /**
+     * @brief
+     */
+    struct LicenseDetails
+    {
+        // Feature ID
+        std::string featureID;
+        // True if the feature is licensed and not expired
+        bool isLicensed;
+        // Expiry date and time or empty string if the feature does not expire
+        std::string expiryDate;
+    };
+
+    struct LicenseInfo
+    {
+        // Number of remaining seconds in the feature test duration or 0 if expired. Within this duration some features can be tested without a license.
+        unsigned testDurationRemaining;
+        // Licensed features and their validity
+        std::map<std::string, LicenseDetails> features;
+    };
+
+    /**
+     * @brief Gets the license information
+     */
+    LicenseInfo GetLicenseInfo();
+
+    /**
+     * @brief Checks whether the given feature is licensed via the robot control and is not expired.
+     * @param id feature ID
+     * @return true if the feature is licensed, false if not licensed or expired
+     */
+    bool IsFeatureLicensed(const std::string& id);
 
     /**
      * @brief Gets the tool center point position and orientation

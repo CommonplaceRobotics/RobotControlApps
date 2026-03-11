@@ -40,6 +40,8 @@ service RobotControlApp {
     rpc SetPositionInterface(PositionInterfaceRequest) returns (MotionState);
     // Starts or stops a move-to command
     rpc MoveTo(MoveToRequest) returns (MotionState);
+    // Sets the target velocity of external axes in velocity mode
+    rpc SetTargetVelocity(TargetVelocityRequest) returns (TargetVelocityResponse);
 
     // Kinematics
     rpc TranslateJointToCart(JointToCartRequest) returns (JointToCartResponse);
@@ -56,6 +58,7 @@ service RobotControlApp {
 
     // System info
     rpc GetSystemInfo(SystemInfoRequest) returns (SystemInfo);
+    rpc GetLicensedFeatures(LicenseInfoRequest) returns (LicenseInfoResponse);
 
     // Velocity override
     rpc SetVelocityOverride(SetVelocityOverrideRequest) returns (SetVelocityOverrideResponse);
@@ -132,6 +135,31 @@ message SystemInfo
     uint32 tool_axis_count = 19;
     uint32 platform_axis_count = 20;
     uint32 digital_io_module_count = 21;
+}
+
+message LicenseInfoRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+}
+
+message LicenseInfoResponse
+{
+    message LicenseDetails
+    {
+        // unique feature ID
+        string feature_id = 1;
+        // is true if the feature is allowed to be used and is not expired
+        bool is_licensed = 2;
+        // expiry date and time, if time based
+        optional string expiry_date = 3;
+    }
+
+    // list of licensed features
+    repeated LicenseDetails licensed_features = 1;
+
+    // number of seconds remaining for the test period. If 0 the test duration is expired.
+    uint32 test_duration_remaining_seconds = 3;
 }
 
 // requests the current robot state (sent by app)
@@ -506,6 +534,30 @@ message MoveToRequest
         MoveToCart cart_relative_tool = 6;
         MoveToStop stop = 7;
     }
+}
+
+// Requests a change of the velocity of one or more external axes in velocity mode
+message TargetVelocityRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // Velocity of external axis e1 if in velocity mode, in user-defined units
+    optional float velocity_e1 = 2;
+    // Velocity of external axis e2 if in velocity mode, in user-defined units
+    optional float velocity_e2 = 3;
+    // Velocity of external axis e3 if in velocity mode, in user-defined units
+    optional float velocity_e3 = 4;
+}
+
+// Returns the velocities of the external axes in velocity mode
+message TargetVelocityResponse
+{
+    // Velocity of external axis e1 if in velocity mode, in user-defined units
+    optional float velocity_e1 = 2;
+    // Velocity of external axis e2 if in velocity mode, in user-defined units
+    optional float velocity_e2 = 3;
+    // Velocity of external axis e3 if in velocity mode, in user-defined units
+    optional float velocity_e3 = 4;
 }
 
 // Enables or disables the motors

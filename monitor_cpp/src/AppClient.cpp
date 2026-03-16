@@ -1619,7 +1619,7 @@ DataTypes::SystemInfo AppClient::GetSystemInfo()
 /**
  * @brief Gets the license information
  */
-AppClient::LicenseInfo AppClient::GetLicenseInfo()
+DataTypes::LicenseInfo AppClient::GetLicenseInfo()
 {
     if (!IsConnected()) throw NotConnectedException();
 
@@ -1634,21 +1634,7 @@ AppClient::LicenseInfo AppClient::GetLicenseInfo()
         throw std::runtime_error("request GetLicensedFeatures failed: " + status.error_message());
     }
 
-    AppClient::LicenseInfo info;
-    info.testDurationRemaining = response.test_duration_remaining_seconds();
-
-    for (const auto& feature : response.licensed_features())
-    {
-        AppClient::LicenseDetails& details = info.features[feature.feature_id()];
-        details.featureID = feature.feature_id();
-        details.isLicensed = feature.is_licensed();
-        if (feature.has_expiry_date())
-            details.expiryDate = feature.expiry_date();
-        else
-            details.expiryDate = "";
-    }
-
-    return info;
+    return DataTypes::LicenseInfo(response);
 }
 
 /**
@@ -1658,10 +1644,9 @@ AppClient::LicenseInfo AppClient::GetLicenseInfo()
  */
 bool AppClient::IsFeatureLicensed(const std::string& id)
 {
-    AppClient::LicenseInfo info = GetLicenseInfo();
-    auto featureIt = info.features.find(id);
-    if (featureIt != info.features.end())
-        return featureIt->second.isLicensed;
+    DataTypes::LicenseInfo info = GetLicenseInfo();
+    if (info.HasFeature(id))
+        return info.GetFeature(id).isLicensed;
     else
         return false;
 }

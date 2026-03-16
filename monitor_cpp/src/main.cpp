@@ -43,6 +43,7 @@ int main(int argc, char* argv[])
                 lastUpdate = now;
 
                 app.UpdateSystemInfo();
+                app.UpdateLicenseInfo();
             }
         }
     }

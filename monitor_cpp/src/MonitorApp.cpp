@@ -15,8 +15,7 @@ MonitorApp::MonitorApp(const std::string& target) : AppClient(std::string(APP_NA
  * @brief Gets called on remote app function calls received from the robot control
  * @param function app function data
  */
-void MonitorApp::AppFunctionHandler(const robotcontrolapp::AppFunction& function)
-{}
+void MonitorApp::AppFunctionHandler(const robotcontrolapp::AppFunction& function) {}
 
 /**
  * @brief Gets called on remote UI update requests received from the robot control
@@ -48,7 +47,8 @@ void MonitorApp::UiUpdateHandler(const std::map<std::string, const robotcontrola
 /**
  * @brief Updates the system info UI
  */
-void MonitorApp::UpdateSystemInfo() {
+void MonitorApp::UpdateSystemInfo()
+{
     App::DataTypes::SystemInfo info = GetSystemInfo();
 
     QueueSetText("textSoftwareVersion", info.version);
@@ -90,10 +90,11 @@ void MonitorApp::UpdateSystemInfo() {
 
 /**
  * @brief Translates a referencing state to a human readable string
- * @param state 
- * @return 
+ * @param state
+ * @return
  */
-std::string translateReferencingState(App::DataTypes::RobotState::ReferencingState state) {
+std::string translateReferencingState(App::DataTypes::RobotState::ReferencingState state)
+{
     switch (state)
     {
         default:
@@ -108,10 +109,11 @@ std::string translateReferencingState(App::DataTypes::RobotState::ReferencingSta
 
 /**
  * @brief Translates a hardware state to a human readable string
- * @param state 
- * @return 
+ * @param state
+ * @return
  */
-std::string translateHardwareState(App::DataTypes::RobotState::HardwareState state) {
+std::string translateHardwareState(App::DataTypes::RobotState::HardwareState state)
+{
     std::stringstream ss;
     ss << std::hex << "0x" << ((int)state);
     return ss.str();
@@ -124,10 +126,10 @@ std::string translateHardwareState(App::DataTypes::RobotState::HardwareState sta
 void MonitorApp::UpdateRobotState(const App::DataTypes::RobotState& state)
 {
     std::stringstream ssTcp;
-    ssTcp << std::fixed << "X=" << state.tcp.GetX() << ", Y=" << state.tcp.GetY() << ", Z=" << state.tcp.GetZ() << ", A=" << state.tcp.GetA() << ", B=" << state.tcp.GetB()
-          << ", C=" << state.tcp.GetC();
-    QueueSetText("textTCPPosition",  ssTcp.str());
-    
+    ssTcp << std::fixed << "X=" << state.tcp.GetX() << ", Y=" << state.tcp.GetY() << ", Z=" << state.tcp.GetZ() << ", A=" << state.tcp.GetA()
+          << ", B=" << state.tcp.GetB() << ", C=" << state.tcp.GetC();
+    QueueSetText("textTCPPosition", ssTcp.str());
+
     QueueSetText("textA1Name", state.joints[0].name);
     QueueSetText("textA1PosTarget", std::to_string(state.joints[0].targetPosition));
     QueueSetText("textA1PosActual", std::to_string(state.joints[0].actualPosition));
@@ -136,7 +138,7 @@ void MonitorApp::UpdateRobotState(const App::DataTypes::RobotState& state)
     QueueSetText("textA1TempBoard", std::to_string(state.joints[0].temperatureBoard) + " °C");
     QueueSetText("textA1TempMotor", std::to_string(state.joints[0].temperatureMotor) + " °C");
     QueueSetText("textA1Current", std::to_string(state.joints[0].current) + " mA");
-    
+
     QueueSetText("textE1Name", state.joints[6].name);
     QueueSetText("textE1PosTarget", std::to_string(state.joints[6].targetPosition));
     QueueSetText("textE1PosActual", std::to_string(state.joints[6].actualPosition));
@@ -171,4 +173,36 @@ void MonitorApp::UpdateRobotState()
     // You can also query the robot state like this, use this approach if you don't need frequent updates:
     App::DataTypes::RobotState state = GetRobotState();
     UpdateRobotState(state);
+}
+
+/**
+ * @brief Updates the license info UI
+ */
+void MonitorApp::UpdateLicenseInfo()
+{
+    App::DataTypes::LicenseInfo licenseInfo = GetLicenseInfo();
+
+    std::stringstream ssDuration, ssFeatures;
+    ssDuration << licenseInfo.testDurationRemaining << " s";
+
+    if (licenseInfo.features.empty())
+    {
+        ssFeatures << "none";
+    }
+    else
+    {
+        for (auto& feature : licenseInfo.features)
+        {
+            ssFeatures << feature.second.featureID;
+            if (!feature.second.isLicensed)
+                ssFeatures << " (invalid)";
+            else if (!feature.second.expiryDate.empty())
+                ssFeatures << " (till " << feature.second.expiryDate << ")";
+            ssFeatures << ", ";
+        }
+    }
+
+    QueueSetText("textLicenseDuration", ssDuration.str());
+    QueueSetText("textLicenseFeatures", ssFeatures.str());
+    SendQueuedUIUpdates();
 }

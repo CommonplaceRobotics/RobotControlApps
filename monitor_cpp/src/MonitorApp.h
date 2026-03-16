@@ -47,7 +47,11 @@ public:
     void UpdateRobotState(const App::DataTypes::RobotState& state);
     /**
      * @brief Updates the robot state UI
-     * @param state new robot state
      */
     void UpdateRobotState();
+
+    /**
+     * @brief Updates the license info UI
+     */
+    void UpdateLicenseInfo();
 };

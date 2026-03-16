@@ -21,6 +21,7 @@
 #include <unordered_set>
 #include <utility>
 
+#include "DataTypes/LicenseDetails.h"
 #include "DataTypes/Matrix44.h"
 #include "DataTypes/MotionState.h"
 #include "DataTypes/ProgramVariable.h"
@@ -533,30 +534,9 @@ public:
     DataTypes::SystemInfo GetSystemInfo();
 
     /**
-     * @brief
-     */
-    struct LicenseDetails
-    {
-        // Feature ID
-        std::string featureID;
-        // True if the feature is licensed and not expired
-        bool isLicensed;
-        // Expiry date and time or empty string if the feature does not expire
-        std::string expiryDate;
-    };
-
-    struct LicenseInfo
-    {
-        // Number of remaining seconds in the feature test duration or 0 if expired. Within this duration some features can be tested without a license.
-        unsigned testDurationRemaining;
-        // Licensed features and their validity
-        std::map<std::string, LicenseDetails> features;
-    };
-
-    /**
      * @brief Gets the license information
      */
-    LicenseInfo GetLicenseInfo();
+    DataTypes::LicenseInfo GetLicenseInfo();
 
     /**
      * @brief Checks whether the given feature is licensed via the robot control and is not expired.

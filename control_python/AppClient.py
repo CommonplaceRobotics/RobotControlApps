@@ -16,6 +16,7 @@ from DataTypes.ProgramVariable import NumberVariable, PositionVariable, ProgramV
 from DataTypes.SystemInfo import SystemInfo
 from DataTypes.RobotState import RobotState
 from DataTypes.MotionState import MotionState
+from DataTypes.LicenseInfo import LicenseInfo
 import robotcontrolapp_pb2
 from robotcontrolapp_pb2_grpc import RobotControlAppStub
 
@@ -31,9 +32,9 @@ class AppClient:
     def __init__(self, appName: str, target: str):
         self.VERSION_MAJOR_MIN = 14
         """Minimum required major version of the RobotControl Core"""
-        self.VERSION_MINOR_MIN = 4
+        self.VERSION_MINOR_MIN = 6
         """Minimum required minor version of the RobotControl Core"""
-        self.VERSION_PATCH_MIN = 0
+        self.VERSION_PATCH_MIN = 6
         """Minimum required patch version of the RobotControl Core"""
 
         self.logDebug = False
@@ -1120,6 +1121,128 @@ class AppClient:
         request.stop.SetInParent()
         return MotionState.FromGrpc(self.__grpcStub.MoveTo(request))
 
+    def GetTargetVelocity(self) -> tuple[float, float, float]:
+        """
+        Gets the velocities of external axes in velocity mode (e.g. conveyor drives etc.)
+        Returns:
+            tuple of the velocities of e1, e2 and e3 if in velocity mode, otherwise 0. Values are in user-defined units.
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.TargetVelocityRequest()
+        request.app_name = self.GetAppName()
+
+        e1 = 0
+        e2 = 0
+        e3 = 0
+
+        response = self.__grpcStub.SetTargetVelocity(request)
+        if response.HasField("velocity_e1"):
+            e1 = response.velocity_e1
+        if response.HasField("velocity_e2"):
+            e2 = response.velocity_e2
+        if response.HasField("velocity_e3"):
+            e3 = response.velocity_e3
+
+        return (e1, e2, e3)
+
+    def SetTargetVelocityE1(self, vel: float) -> float:
+        """
+        Sets the target velocity of external axis 1 in velocity mode
+        Parameters:
+            vel: target velocity in user-defined units
+        Returns:
+            new target velocity or 0 if not in velocity mode
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.TargetVelocityRequest()
+        request.app_name = self.GetAppName()
+        request.velocity_e1 = vel
+
+        response = self.__grpcStub.SetTargetVelocity(request)
+        if response.HasField("velocity_e1"):
+            return response.velocity_e1
+        else:
+            return 0
+
+    def SetTargetVelocityE2(self, vel: float) -> float:
+        """
+        Sets the target velocity of external axis 2 in velocity mode
+        Parameters:
+            vel: target velocity in user-defined units
+        Returns:
+            new target velocity or 0 if not in velocity mode
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.TargetVelocityRequest()
+        request.app_name = self.GetAppName()
+        request.velocity_e2 = vel
+
+        response = self.__grpcStub.SetTargetVelocity(request)
+        if response.HasField("velocity_e2"):
+            return response.velocity_e2
+        else:
+            return 0
+
+    def SetTargetVelocityE3(self, vel: float) -> float:
+        """
+        Sets the target velocity of external axis 3 in velocity mode
+        Parameters:
+            vel: target velocity in user-defined units
+        Returns:
+            new target velocity or 0 if not in velocity mode
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.TargetVelocityRequest()
+        request.app_name = self.GetAppName()
+        request.velocity_e3 = vel
+
+        response = self.__grpcStub.SetTargetVelocity(request)
+        if response.HasField("velocity_e3"):
+            return response.velocity_e3
+        else:
+            return 0
+
+    def SetTargetVelocities(self, e1: float, e2: float, e3: float) -> float:
+        """
+        Sets the target velocities of external axes in velocity mode. Axes that are not in velocity mode are ignored.
+        Parameters:
+            e1: target velocity of external axis 1 in user-defined units
+            e2: target velocity of external axis 2 in user-defined units
+            e3: target velocity of external axis 3 in user-defined units
+        Returns:
+            tuple of the velocities of e1, e2 and e3 if in velocity mode, otherwise 0. Values are in user-defined units.
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.TargetVelocityRequest()
+        request.app_name = self.GetAppName()
+        request.velocity_e1 = e1
+        request.velocity_e2 = e2
+        request.velocity_e3 = e3
+
+        e1 = 0
+        e2 = 0
+        e3 = 0
+
+        response = self.__grpcStub.SetTargetVelocity(request)
+        if response.HasField("velocity_e1"):
+            e1 = response.velocity_e1
+        if response.HasField("velocity_e2"):
+            e2 = response.velocity_e2
+        if response.HasField("velocity_e3"):
+            e3 = response.velocity_e3
+
+        return (e1, e2, e3)
+
     def IsAutomaticMotion(self) -> bool:
         """
         Returns true if the robot moves automatically. This does not indicate other motion types, like jog motion!
@@ -1162,6 +1285,28 @@ class AppClient:
         request = robotcontrolapp_pb2.SystemInfoRequest()
         request.app_name = self.GetAppName()
         return SystemInfo.FromGrpc(self.__grpcStub.GetSystemInfo(request))
+
+    def GetLicenseInfo(self) -> LicenseInfo:
+        """Gets the license information"""
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.LicenseInfoRequest()
+        request.app_name = self.GetAppName()
+        return LicenseInfo.FromGrpc(self.__grpcStub.GetLicensedFeatures(request))
+
+    def IsFeatureLicensed(self, id: str) -> bool:
+        """
+        Checks whether the given feature is licensed via the robot control and is not expired.
+        Parameters:
+            id: feature ID
+        Returns:
+            true if the feature is licensed, false if not licensed or expired
+        """
+        info = self.GetLicenseInfo()
+        if info.features.__contains__(id):
+            return info.features[id].isLicensed
+        return False
 
     def GetTCP(self) -> Matrix44:
         """Gets the tool center point position and orientation"""

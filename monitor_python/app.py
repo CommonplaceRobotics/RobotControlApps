@@ -31,6 +31,7 @@ try:
             lastUpdate = now
 
             app.UpdateSystemInfo()
+            app.UpdateLicenseInfo()
 
 # Make sure to disconnect on exception
 finally:

@@ -2,13 +2,21 @@ import sys
 from AppClient import AppClient
 from DataTypes import RobotState
 from DataTypes.Matrix44 import Matrix44
-from robotcontrolapp_pb2 import AppFunction, AppUIElement, ButtonState, CheckboxState, HardwareState, ReferencingState, SystemInfo
+from robotcontrolapp_pb2 import (
+    AppFunction,
+    AppUIElement,
+    ButtonState,
+    CheckboxState,
+    HardwareState,
+    ReferencingState,
+    SystemInfo,
+)
 from google.protobuf.internal import containers as protobufContainers
 
 
 class MonitorApp(AppClient):
     """This is an example app implementation"""
-    
+
     def __init__(self, appName: str, target: str):
         """Initializes the app. Pass the app name (as defined in rcapp.xml) and socket to connect to (default: "localhost:5000")"""
         AppClient.__init__(self, appName, target)
@@ -17,7 +25,9 @@ class MonitorApp(AppClient):
         """Gets called on remote app function calls received from the robot control"""
         return
 
-    def _UiUpdateHandler(self, updates: protobufContainers.RepeatedCompositeFieldContainer[AppUIElement]):
+    def _UiUpdateHandler(
+        self, updates: protobufContainers.RepeatedCompositeFieldContainer[AppUIElement]
+    ):
         """Gets called on remote UI update requests received from the robot control"""
         for update in updates:
             if update.state.HasField("button_state"):
@@ -26,9 +36,13 @@ class MonitorApp(AppClient):
                 if isClicked:
                     # Init
                     if update.element_name == "buttonFaster":
-                        self.SetVelocityOverride(min(100, self.GetVelocityOverride() + 10))
+                        self.SetVelocityOverride(
+                            min(100, self.GetVelocityOverride() + 10)
+                        )
                     if update.element_name == "buttonSlower":
-                        self.SetVelocityOverride(max(0, self.GetVelocityOverride() - 10))
+                        self.SetVelocityOverride(
+                            max(0, self.GetVelocityOverride() - 10)
+                        )
 
     def UpdateSystemInfo(self):
         """Updates the system info UI"""
@@ -64,7 +78,7 @@ class MonitorApp(AppClient):
         self.QueueSetText("textCycleMax", f"{info.cycleTimeMax} ms")
         self.QueueSetText("textWorkload", f"{info.workload} %")
         self.SendQueuedUIUpdates()
-    
+
     def translateReferencingState(self, state: ReferencingState) -> str:
         """Translates a referencing state to a human readable string"""
         if state == ReferencingState.NOT_REFERENCED:
@@ -75,11 +89,11 @@ class MonitorApp(AppClient):
             return "referencing..."
         else:
             return "n/a"
-        
+
     def translateHardwareState(self, state: HardwareState) -> str:
         """Translates a hardware state to a human readable string"""
         return f"{state:#x}"
-    
+
     def UpdateRobotState(self, state: RobotState):
         """Updates the robot state UI"""
         tcpStr = f"X={state.tcp.GetX()}, Y={state.tcp.GetY()}, Z={state.tcp.GetZ()}, A={state.tcp.GetA()}, B={state.tcp.GetB()}, C={state.tcp.GetC()}"
@@ -88,8 +102,13 @@ class MonitorApp(AppClient):
         self.QueueSetText("textA1Name", state.joints[0].name)
         self.QueueSetText("textA1PosTarget", str(state.joints[0].targetPosition))
         self.QueueSetText("textA1PosActual", str(state.joints[0].actualPosition))
-        self.QueueSetText("textA1State", self.translateHardwareState(state.joints[0].hardwareState))
-        self.QueueSetText("textA1Referencing", self.translateReferencingState(state.joints[0].referencingState))
+        self.QueueSetText(
+            "textA1State", self.translateHardwareState(state.joints[0].hardwareState)
+        )
+        self.QueueSetText(
+            "textA1Referencing",
+            self.translateReferencingState(state.joints[0].referencingState),
+        )
         self.QueueSetText("textA1TempBoard", f"{state.joints[0].temperatureBoard} °C")
         self.QueueSetText("textA1TempMotor", f"{state.joints[0].temperatureMotor} °C")
         self.QueueSetText("textA1Current", f"{state.joints[0].current} mA")
@@ -97,20 +116,27 @@ class MonitorApp(AppClient):
         self.QueueSetText("textE1Name", state.joints[6].name)
         self.QueueSetText("textE1PosTarget", str(state.joints[6].targetPosition))
         self.QueueSetText("textE1PosActual", str(state.joints[6].actualPosition))
-        self.QueueSetText("textE1State", self.translateHardwareState(state.joints[6].hardwareState))
-        self.QueueSetText("textE1Referencing", self.translateReferencingState(state.joints[6].referencingState))
+        self.QueueSetText(
+            "textE1State", self.translateHardwareState(state.joints[6].hardwareState)
+        )
+        self.QueueSetText(
+            "textE1Referencing",
+            self.translateReferencingState(state.joints[6].referencingState),
+        )
         self.QueueSetText("textE1TempBoard", f"{state.joints[6].temperatureBoard} °C")
         self.QueueSetText("textE1TempMotor", f"{state.joints[6].temperatureMotor} °C")
         self.QueueSetText("textE1Current", f"{state.joints[6].current} mA")
         self.QueueSetText("textE1Velocity", str(state.joints[6].targetVelocity))
 
-        platformStr = f"X={state.platformX}, Y={state.platformY}, Z={state.platformHeading}"
+        platformStr = (
+            f"X={state.platformX}, Y={state.platformY}, Z={state.platformHeading}"
+        )
         self.QueueSetText("textPlatformPosition", platformStr)
         if state.digitalInputs[20]:
-            self.QueueSetText("textDIn21", "High")    
+            self.QueueSetText("textDIn21", "High")
         else:
-            self.QueueSetText("textDIn21", "Low")    
-        if state.digitalOutputs[20]:            
+            self.QueueSetText("textDIn21", "Low")
+        if state.digitalOutputs[20]:
             self.QueueSetText("textDOut21", "High")
         else:
             self.QueueSetText("textDOut21", "Low")
@@ -124,16 +150,39 @@ class MonitorApp(AppClient):
         self.QueueSetText("textTempCPU", f"{state.temperatureCPU} °C")
         self.QueueSetText("textSupplyVoltage", f"{state.supplyVoltage} V")
         self.QueueSetText("textCurrentAll", f"{state.currentAll} mA")
-        self.QueueSetText("textReferencingState", self.translateReferencingState(state.referencingState))
+        self.QueueSetText(
+            "textReferencingState",
+            self.translateReferencingState(state.referencingState),
+        )
         self.SendQueuedUIUpdates()
-    
+
     def ReadAndUpdateRobotState(self):
         """Updates the robot state UI"""
         state = self.GetRobotState()
         self.UpdateRobotState(state)
-    
+
     def OnRobotStateUpdated(self, state: RobotState):
         """Is called when the robot state is updated (usually each 10 or 20ms). Override this method, start the stream by calling StartRobotStateStream()."""
         self.UpdateRobotState(state)
 
+    def UpdateLicenseInfo(self):
+        """Updates the license info UI"""
+        licenseInfo = self.GetLicenseInfo()
 
+        durationStr = str(licenseInfo.testDurationRemaining) + " s"
+        featuresStr = ""
+
+        if len(licenseInfo.features) == 0:
+            featuresStr = "none"
+        else:
+            for feature in licenseInfo.features.values():
+                featuresStr += feature.featureID
+                if not feature.isLicensed:
+                    featuresStr += " (invalid)"
+                elif len(feature.expiryDate) > 0:
+                    featuresStr += " (till " + feature.expiryDate + ")"
+                featuresStr += ", "
+
+        self.QueueSetText("textLicenseDuration", durationStr)
+        self.QueueSetText("textLicenseFeatures", featuresStr)
+        self.SendQueuedUIUpdates()

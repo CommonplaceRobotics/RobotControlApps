@@ -66,5 +66,10 @@
       <text name="textCurrentAll" label="All joints current:" value="n/a"/>
       <text name="textReferencingState" label="Referencing:" value="n/a"/>
     </group>
+
+		<group label="License Info">
+			<text name="textLicenseDuration" label="Remaining test duration:" value="n/a"/>
+			<text name="textLicenseFeatures" label="Features:" value="n/a"/>
+		</group>
 	</main>
 </ui>

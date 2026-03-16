@@ -29,22 +29,22 @@
     <group label="Digital IO">
       <text text="Note: Digital inputs can only be set in simulation."/>
       <horizontal>
-        <text name="textDIn22" label="DIn22"/>
+        <text name="textDIn22" label="DIn22" text="n/a"/>
         <button name="buttonDIn22True" label="On"/>
         <button name="buttonDIn22False" label="Off"/>
       </horizontal>
       <horizontal>
-        <text name="textDOut22" label="DOut22"/>
+        <text name="textDOut22" label="DOut22" text="n/a"/>
         <button name="buttonDOut22True" label="On"/>
         <button name="buttonDOut22False" label="Off"/>
       </horizontal>
       <horizontal>
-        <text name="textGSig2" label="GSig2"/>
+        <text name="textGSig2" label="GSig2" text="n/a"/>
         <button name="buttonGSig2True" label="On"/>
         <button name="buttonGSig2False" label="Off"/>
       </horizontal>
     </group>
-    
+
     <group label="Motion program">
       <text name="textMotionProgramStatus" label="Status:" value="n/a"/>
       <horizontal>
@@ -75,7 +75,7 @@
 
     <group label="Move To">
       <button name="buttonMoveToStop" label="Stop" />
-      
+
       <group label="Joint">
         <numberbox name="numberboxMoveToJointA1" label="A1:"/>
         <numberbox name="numberboxMoveToJointE1" label="E1:"/>

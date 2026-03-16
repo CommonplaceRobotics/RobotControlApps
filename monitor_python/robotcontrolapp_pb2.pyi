@@ -214,6 +214,29 @@ class SystemInfo(_message.Message):
     digital_io_module_count: int
     def __init__(self, version_major: _Optional[int] = ..., version_minor: _Optional[int] = ..., version_patch: _Optional[int] = ..., version: _Optional[str] = ..., system_type: _Optional[_Union[SystemInfo.SystemType, str]] = ..., is_simulation: bool = ..., project_file: _Optional[str] = ..., project_title: _Optional[str] = ..., project_author: _Optional[str] = ..., robot_type: _Optional[str] = ..., voltage: _Optional[_Union[SystemInfo.Voltage, str]] = ..., device_id: _Optional[str] = ..., cycle_time_target: _Optional[float] = ..., cycle_time_avg: _Optional[float] = ..., cycle_time_max: _Optional[float] = ..., cycle_time_min: _Optional[float] = ..., workload: _Optional[float] = ..., robot_axis_count: _Optional[int] = ..., external_axis_count: _Optional[int] = ..., tool_axis_count: _Optional[int] = ..., platform_axis_count: _Optional[int] = ..., digital_io_module_count: _Optional[int] = ...) -> None: ...
 
+class LicenseInfoRequest(_message.Message):
+    __slots__ = ("app_name",)
+    APP_NAME_FIELD_NUMBER: _ClassVar[int]
+    app_name: str
+    def __init__(self, app_name: _Optional[str] = ...) -> None: ...
+
+class LicenseInfoResponse(_message.Message):
+    __slots__ = ("licensed_features", "test_duration_remaining_seconds")
+    class LicenseDetails(_message.Message):
+        __slots__ = ("feature_id", "is_licensed", "expiry_date")
+        FEATURE_ID_FIELD_NUMBER: _ClassVar[int]
+        IS_LICENSED_FIELD_NUMBER: _ClassVar[int]
+        EXPIRY_DATE_FIELD_NUMBER: _ClassVar[int]
+        feature_id: str
+        is_licensed: bool
+        expiry_date: str
+        def __init__(self, feature_id: _Optional[str] = ..., is_licensed: bool = ..., expiry_date: _Optional[str] = ...) -> None: ...
+    LICENSED_FEATURES_FIELD_NUMBER: _ClassVar[int]
+    TEST_DURATION_REMAINING_SECONDS_FIELD_NUMBER: _ClassVar[int]
+    licensed_features: _containers.RepeatedCompositeFieldContainer[LicenseInfoResponse.LicenseDetails]
+    test_duration_remaining_seconds: int
+    def __init__(self, licensed_features: _Optional[_Iterable[_Union[LicenseInfoResponse.LicenseDetails, _Mapping]]] = ..., test_duration_remaining_seconds: _Optional[int] = ...) -> None: ...
+
 class RobotStateRequest(_message.Message):
     __slots__ = ("app_name",)
     APP_NAME_FIELD_NUMBER: _ClassVar[int]
@@ -506,6 +529,28 @@ class MoveToRequest(_message.Message):
     cart_relative_tool: MoveToRequest.MoveToCart
     stop: MoveToRequest.MoveToStop
     def __init__(self, app_name: _Optional[str] = ..., joint: _Optional[_Union[MoveToRequest.MoveToJoint, _Mapping]] = ..., joint_relative: _Optional[_Union[MoveToRequest.MoveToJoint, _Mapping]] = ..., cart: _Optional[_Union[MoveToRequest.MoveToCart, _Mapping]] = ..., cart_relative_base: _Optional[_Union[MoveToRequest.MoveToCart, _Mapping]] = ..., cart_relative_tool: _Optional[_Union[MoveToRequest.MoveToCart, _Mapping]] = ..., stop: _Optional[_Union[MoveToRequest.MoveToStop, _Mapping]] = ...) -> None: ...
+
+class TargetVelocityRequest(_message.Message):
+    __slots__ = ("app_name", "velocity_e1", "velocity_e2", "velocity_e3")
+    APP_NAME_FIELD_NUMBER: _ClassVar[int]
+    VELOCITY_E1_FIELD_NUMBER: _ClassVar[int]
+    VELOCITY_E2_FIELD_NUMBER: _ClassVar[int]
+    VELOCITY_E3_FIELD_NUMBER: _ClassVar[int]
+    app_name: str
+    velocity_e1: float
+    velocity_e2: float
+    velocity_e3: float
+    def __init__(self, app_name: _Optional[str] = ..., velocity_e1: _Optional[float] = ..., velocity_e2: _Optional[float] = ..., velocity_e3: _Optional[float] = ...) -> None: ...
+
+class TargetVelocityResponse(_message.Message):
+    __slots__ = ("velocity_e1", "velocity_e2", "velocity_e3")
+    VELOCITY_E1_FIELD_NUMBER: _ClassVar[int]
+    VELOCITY_E2_FIELD_NUMBER: _ClassVar[int]
+    VELOCITY_E3_FIELD_NUMBER: _ClassVar[int]
+    velocity_e1: float
+    velocity_e2: float
+    velocity_e3: float
+    def __init__(self, velocity_e1: _Optional[float] = ..., velocity_e2: _Optional[float] = ..., velocity_e3: _Optional[float] = ...) -> None: ...
 
 class EnableMotorsRequest(_message.Message):
     __slots__ = ("app_name", "enable")

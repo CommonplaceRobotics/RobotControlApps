@@ -1,0 +1,4 @@
+<App name="OpcUaServer-Python" label="OPC UA Server Bridge" vendor="CPR-Robotics" version="1.0.0">
+    <!-- Define the executable(s) to call -->
+    <executable path="app.py"/>
+</App>

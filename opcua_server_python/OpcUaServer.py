@@ -224,9 +224,9 @@ class OpcUaServer:
     async def _update_system_info(self, sys_info):
         await self._nodes["sysinfo/Version"].write_value(sys_info.version)
         await self._nodes["sysinfo/RobotType"].write_value(sys_info.robotType)
-        await self._nodes["sysinfo/DeviceId"].write_value(sys_info.deviceId)
+        await self._nodes["sysinfo/DeviceId"].write_value(sys_info.deviceID)
         await self._nodes["sysinfo/IsSimulation"].write_value(sys_info.isSimulation)
-        await self._nodes["sysinfo/CycleTimeAvg_ms"].write_value(float(sys_info.cycleTimeAvg))
+        await self._nodes["sysinfo/CycleTimeAvg_ms"].write_value(float(sys_info.cycleTimeAverage))
         await self._nodes["sysinfo/Workload"].write_value(float(sys_info.workload))
         await self._nodes["sysinfo/RobotAxisCount"].write_value(ua.UInt32(sys_info.robotAxisCount))
         await self._nodes["sysinfo/ExternalAxisCount"].write_value(ua.UInt32(sys_info.externalAxisCount))
@@ -254,7 +254,7 @@ class OpcUaServer:
 
     async def _update_nodes(self, robot_state, motion_state):
         try:
-            await self._nodes["state/HardwareStateString"].write_value(str(robot_state.hardwareStateString))
+            await self._nodes["state/HardwareStateString"].write_value(str(robot_state.hardwareState))
             await self._nodes["state/KinematicState"].write_value(int(robot_state.kinematicState))
             await self._nodes["state/VelocityOverride"].write_value(float(robot_state.velocityOverride))
             await self._nodes["state/CartesianVelocity_mm_s"].write_value(float(robot_state.cartesianVelocity))
@@ -264,10 +264,10 @@ class OpcUaServer:
             await self._nodes["state/ReferencingState"].write_value(int(robot_state.referencingState))
 
             tcp = robot_state.tcp
-            if tcp and len(tcp.data) == 16:
-                await self._nodes["state/TCP_X_mm"].write_value(float(tcp.data[3]))
-                await self._nodes["state/TCP_Y_mm"].write_value(float(tcp.data[7]))
-                await self._nodes["state/TCP_Z_mm"].write_value(float(tcp.data[11]))
+            if tcp is not None:
+                await self._nodes["state/TCP_X_mm"].write_value(float(tcp.GetX()))
+                await self._nodes["state/TCP_Y_mm"].write_value(float(tcp.GetY()))
+                await self._nodes["state/TCP_Z_mm"].write_value(float(tcp.GetZ()))
                 try:
                     a, b, c = tcp.GetOrientation()
                     await self._nodes["state/TCP_A_deg"].write_value(float(a))
@@ -280,16 +280,15 @@ class OpcUaServer:
                 if i >= 9:
                     break
                 await self._nodes[f"joint/{i}/Name"].write_value(str(joint.name))
-                await self._nodes[f"joint/{i}/Position"].write_value(float(joint.position.position))
-                await self._nodes[f"joint/{i}/TargetPosition"].write_value(float(joint.position.targetPosition))
+                await self._nodes[f"joint/{i}/Position"].write_value(float(joint.actualPosition))
+                await self._nodes[f"joint/{i}/TargetPosition"].write_value(float(joint.targetPosition))
                 await self._nodes[f"joint/{i}/Temperature_C"].write_value(float(joint.temperatureBoard))
                 await self._nodes[f"joint/{i}/Current_mA"].write_value(float(joint.current))
-                await self._nodes[f"joint/{i}/HardwareState"].write_value(int(joint.state))
+                await self._nodes[f"joint/{i}/HardwareState"].write_value(int(joint.hardwareState))
 
-            await self._nodes["motion/CurrentMotionSource"].write_value(int(motion_state.currentSource))
             await self._nodes["motion/MotionProgram_RunState"].write_value(int(motion_state.motionProgram.runState))
             await self._nodes["motion/MotionProgram_Name"].write_value(str(motion_state.motionProgram.mainProgram))
-            await self._nodes["motion/MotionProgram_Command"].write_value(int(motion_state.motionProgram.currentCommandIdx))
+            await self._nodes["motion/MotionProgram_Command"].write_value(int(motion_state.motionProgram.currentCommandIndex))
 
         except Exception as e:
             logger.warning(f"Node update error: {e}")

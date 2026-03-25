@@ -3,7 +3,7 @@ OPC UA Server Bridge for igus Robot Control
 Connects to the robot gRPC interface and exposes robot state and control via OPC UA.
 
 Usage:
-    python app.py [--grpc-target localhost:50051] [--opcua-port 4840] [--app-name OpcUaServer-Python]
+    python app.py [grpc_target] [--opcua-port 4840] [--app-name OpcUaServer-Python]
 """
 
 import argparse
@@ -11,16 +11,16 @@ import sys
 import os
 import signal
 
-# Allow importing shared modules from control_python
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'control_python'))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from OpcUaServer import OpcUaServer
 
 
 def main():
     parser = argparse.ArgumentParser(description='OPC UA Server Bridge for igus Robot Control')
-    parser.add_argument('--grpc-target', default='localhost:50051',
-                        help='gRPC target address (default: localhost:50051)')
+    # Positional argument: the robot control passes the connection target as argv[1] on startup.
+    parser.add_argument('grpc_target', nargs='?', default='localhost:5000',
+                        help='gRPC target address (default: localhost:5000)')
     parser.add_argument('--opcua-port', type=int, default=4840,
                         help='OPC UA server port (default: 4840)')
     parser.add_argument('--app-name', default='OpcUaServer-Python',

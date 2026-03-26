@@ -58,23 +58,35 @@ All files are packed as a zip file that can be installed via iRC / CPRog.
 ## Security
 **Warning:** Apps can run arbitrary code and can cause damage e.g. to the robot control or the network. Only use apps that you trust and do not connect the robot to the internet or your company network if you can avoid it!
 
-## Minimal App
+## Example Apps
+
+### Minimal App
 The MinimalApp is our example and API (available in C++ and Python) that you can use as a base for your own app. The class ```AppClient``` provides a simple interface for the most common functions. Create a class derived from ```AppClient``` and override the methods ```AppFunctionHandler()``` and ```UiUpdateHandler()```. The former is called when the robot program calls a function of your app, the latter is called on UI events.
 
 Read ```main.cpp``` or ```app.py``` and class ```MinimalApp``` for examples and replace these to create your own robot control app.
 
 The ```MinimalApp.xml``` file is a sample robot program that calls the pow function of the sample apps and creates some program variables for the apps to read and write. Observe their values in the variables section below the 3D view.
 
-# Monitor App
+### Monitor App
 This app is an example for reading and displaying the robot's state.
 
-# Control App
+### Control App
 This app is an example for controlling a robot via an app.
 
-# Math Tools
+### Math Tools
 This app extends the robot control by new math features like calculating the distance between two position variables. With some Python knowledge you should be able to easily extend the robot control's programs with your own functions.
 
-# Documentation
+## Creating your custom application
+
+We recommend using the C++ or Python Minimal App as a starting point for your own app.
+1. Copy the code to a new folder
+2. Change the name of ```MinimalApp.c++/.h``` or ```MinimalApp.py``` and the app's name in these files
+3. Change the app's name in ```rcapp.xml```
+4. Remove or adapt the examples in ```MinimalApp.c++/.h``` or ```MinimalApp.py``` and ```main.cpp```
+
+Refer to the MinimalApp Readme on how to continue.
+
+## Documentation
 See the README.md files and the source code comments in the example directories.
 
 The [documentation](documentation/README.md) directory contains further explanations.

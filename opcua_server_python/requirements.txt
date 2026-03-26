@@ -1,3 +1,6 @@
 grpcio>=1.50.0
 protobuf>=4.21.0
 asyncua>=1.0.0
+# NOTE: Python 3.14 is NOT supported. asyncua's binary deserializer (ua_binary.py)
+# breaks on Python 3.14 due to PEP 649 annotation changes (issubclass on string types).
+# Use Python 3.12 or 3.13.

@@ -23,15 +23,22 @@ python app.py
 
 With options:
 ```bash
-python app.py --grpc-target localhost:50051 --opcua-port 4840 --update-interval 0.1
+python app.py localhost:5000 --opcua-port 4840 --update-interval 0.1
+```
+
+With full logging to a file (useful for diagnosing connection problems):
+```bash
+python app.py localhost:5000 --log-level DEBUG --log-file opcua_server.log
 ```
 
 | Argument | Default | Description |
 |---|---|---|
-| `--grpc-target` | `localhost:50051` | gRPC target of the robot control |
+| `grpc_target` (positional) | `localhost:5000` | gRPC target of the robot control (passed automatically by the robot control on startup) |
 | `--opcua-port` | `4840` | Port for the OPC UA server |
 | `--app-name` | `OpcUaServer-Python` | Must match `rcapp.xml` |
 | `--update-interval` | `0.2` | Robot state polling interval (seconds) |
+| `--log-level` | `INFO` | Logging verbosity: `DEBUG`, `INFO`, `WARNING`, `ERROR` |
+| `--log-file` | *(none)* | Optional file path to write logs to (in addition to stdout) |
 
 ## OPC UA Node Structure
 

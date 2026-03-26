@@ -18,6 +18,7 @@ from google.protobuf.internal import containers as protobufContainers
 # Shared modules from control_python (added to path in app.py)
 from AppClient import AppClient
 import robotcontrolapp_pb2
+from DataTypes.ProgramVariable import NumberVariable, PositionVariable
 
 logger = logging.getLogger(__name__)
 
@@ -81,14 +82,8 @@ class OpcUaServer:
         self._loop = asyncio.get_running_loop()
         self._running = True
 
-        self._robot = RobotAppClient(self._app_name, self._grpc_target)
-        try:
-            self._robot.Connect()
-            logger.info(f"Connected to robot at {self._grpc_target}")
-        except Exception as e:
-            logger.error(f"Failed to connect to robot: {e}")
-            return
-
+        # Build the OPC UA server object and address space before starting to listen.
+        # All of these are fast async operations that don't block the event loop.
         server = Server()
         await server.init()
         server.set_endpoint(f"opc.tcp://0.0.0.0:{self._opcua_port}/freeopcua/server/")
@@ -100,15 +95,19 @@ class OpcUaServer:
         objects = server.nodes.objects
         await self._build_address_space(server, idx, objects)
 
-        try:
-            sys_info = self._robot.GetSystemInfo()
-            await self._update_system_info(sys_info)
-        except Exception as e:
-            logger.warning(f"Could not get system info: {e}")
+        # Create the robot client but do NOT call Connect() here.
+        # AppClient.Connect() + GetSystemInfo() are blocking synchronous gRPC calls.
+        # Running them on the asyncio event loop thread would stall the server and
+        # cause UAExpert's FindServers to time out (BadTimeout).  The polling thread
+        # is a real OS thread and handles all gRPC work safely.
+        self._robot = RobotAppClient(self._app_name, self._grpc_target)
 
         poll_thread = threading.Thread(target=self._polling_thread, daemon=True)
         poll_thread.start()
 
+        # Enter the context manager LAST — this is the point where asyncua binds the
+        # TCP socket and begins accepting OPC UA connections.  Everything above is
+        # pure setup that never touches the network on the OPC UA side.
         async with server:
             logger.info(f"OPC UA server running on port {self._opcua_port}")
             print(f"OPC UA server running at opc.tcp://0.0.0.0:{self._opcua_port}")
@@ -214,6 +213,37 @@ class OpcUaServer:
              ua.VariantType.Double, ua.VariantType.Double, ua.VariantType.Double,
              ua.VariantType.String],
             [])
+        await methods_obj.add_method(idx, "SetDigitalOutput",
+            self._method_set_digital_output,
+            [ua.VariantType.UInt32, ua.VariantType.Boolean], [])
+        await methods_obj.add_method(idx, "SetGlobalSignal",
+            self._method_set_global_signal,
+            [ua.VariantType.UInt32, ua.VariantType.Boolean], [])
+
+        # ProgramVariables — dynamic named variables inside the robot program
+        progvar_obj = await robot_obj.add_object(idx, "ProgramVariables")
+        await progvar_obj.add_method(idx, "GetNumberVariable",
+            self._method_get_number_variable,
+            [ua.VariantType.String], [ua.VariantType.Double])
+        await progvar_obj.add_method(idx, "SetNumberVariable",
+            self._method_set_number_variable,
+            [ua.VariantType.String, ua.VariantType.Double], [])
+
+        # DigitalIO — read-only inputs, readable outputs + global signals
+        # Outputs and global signals can also be written via Methods above.
+        dio_obj = await robot_obj.add_object(idx, "DigitalIO")
+
+        din_obj = await dio_obj.add_object(idx, "DigitalInputs")
+        for i in range(64):
+            self._nodes[f"din/{i}"] = await din_obj.add_variable(idx, f"DIn_{i}", False)
+
+        dout_obj = await dio_obj.add_object(idx, "DigitalOutputs")
+        for i in range(64):
+            self._nodes[f"dout/{i}"] = await dout_obj.add_variable(idx, f"DOut_{i}", False)
+
+        gsig_obj = await dio_obj.add_object(idx, "GlobalSignals")
+        for i in range(100):
+            self._nodes[f"gsig/{i}"] = await gsig_obj.add_variable(idx, f"GSig_{i}", False)
 
         logger.info("OPC UA address space built successfully.")
 
@@ -236,19 +266,31 @@ class OpcUaServer:
     # ------------------------------------------------------------------
 
     def _polling_thread(self):
+        """Worker thread: owns all gRPC I/O so the asyncio event loop is never blocked."""
         logger.info("Polling thread started.")
         while self._running:
             try:
-                if self._robot and self._robot.IsConnected():
-                    robot_state = self._robot.GetRobotState()
-                    motion_state = self._robot.GetMotionState()
+                if not self._robot.IsConnected():
+                    # AppClient.Disconnect() closes the gRPC channel permanently, so
+                    # we must create a fresh instance rather than reusing the old one.
+                    self._robot = RobotAppClient(self._app_name, self._grpc_target)
+                    self._robot.Connect()
+                    logger.info(f"Connected to robot at {self._grpc_target}")
+                    sys_info = self._robot.GetSystemInfo()
                     future = asyncio.run_coroutine_threadsafe(
-                        self._update_nodes(robot_state, motion_state),
-                        self._loop
+                        self._update_system_info(sys_info), self._loop
                     )
                     future.result(timeout=2.0)
+
+                robot_state = self._robot.GetRobotState()
+                motion_state = self._robot.GetMotionState()
+                future = asyncio.run_coroutine_threadsafe(
+                    self._update_nodes(robot_state, motion_state),
+                    self._loop
+                )
+                future.result(timeout=2.0)
             except Exception as e:
-                logger.warning(f"Polling error: {e}")
+                logger.warning(f"Polling error (will retry): {e}")
             time.sleep(self._update_interval)
         logger.info("Polling thread stopped.")
 
@@ -289,6 +331,13 @@ class OpcUaServer:
             await self._nodes["motion/MotionProgram_RunState"].write_value(int(motion_state.motionProgram.runState))
             await self._nodes["motion/MotionProgram_Name"].write_value(str(motion_state.motionProgram.mainProgram))
             await self._nodes["motion/MotionProgram_Command"].write_value(int(motion_state.motionProgram.currentCommandIndex))
+
+            for i, val in enumerate(robot_state.digitalInputs[:64]):
+                await self._nodes[f"din/{i}"].write_value(bool(val))
+            for i, val in enumerate(robot_state.digitalOutputs[:64]):
+                await self._nodes[f"dout/{i}"].write_value(bool(val))
+            for i, val in enumerate(robot_state.globalSignals[:100]):
+                await self._nodes[f"gsig/{i}"].write_value(bool(val))
 
         except Exception as e:
             logger.warning(f"Node update error: {e}")
@@ -396,6 +445,46 @@ class OpcUaServer:
             )
         except Exception as e:
             logger.error(f"MoveToLinear failed: {e}")
+            raise ua.UaStatusCodeError(ua.StatusCodes.BadInternalError)
+        return []
+
+    async def _method_set_digital_output(self, parent, number: ua.Variant, state: ua.Variant):
+        try:
+            await self._run_in_executor(
+                self._robot.SetDigitalOutput, int(number.Value), bool(state.Value)
+            )
+        except Exception as e:
+            logger.error(f"SetDigitalOutput failed: {e}")
+            raise ua.UaStatusCodeError(ua.StatusCodes.BadInternalError)
+        return []
+
+    async def _method_set_global_signal(self, parent, number: ua.Variant, state: ua.Variant):
+        try:
+            await self._run_in_executor(
+                self._robot.SetGlobalSignal, int(number.Value), bool(state.Value)
+            )
+        except Exception as e:
+            logger.error(f"SetGlobalSignal failed: {e}")
+            raise ua.UaStatusCodeError(ua.StatusCodes.BadInternalError)
+        return []
+
+    async def _method_get_number_variable(self, parent, name: ua.Variant):
+        try:
+            var = await self._run_in_executor(
+                self._robot.GetNumberVariable, str(name.Value)
+            )
+            return [ua.Variant(float(var.GetValue()), ua.VariantType.Double)]
+        except Exception as e:
+            logger.error(f"GetNumberVariable failed: {e}")
+            raise ua.UaStatusCodeError(ua.StatusCodes.BadInternalError)
+
+    async def _method_set_number_variable(self, parent, name: ua.Variant, value: ua.Variant):
+        try:
+            await self._run_in_executor(
+                self._robot.SetNumberVariable, str(name.Value), float(value.Value)
+            )
+        except Exception as e:
+            logger.error(f"SetNumberVariable failed: {e}")
             raise ua.UaStatusCodeError(ua.StatusCodes.BadInternalError)
         return []
 

@@ -3,7 +3,7 @@
 
 #include "../../src/DataTypes/SystemInfo.h"
 
-TEST(SystemInfoTest, ConstructorDefault)
+TEST(App_SystemInfoTest, ConstructorDefault)
 {
     App::DataTypes::SystemInfo sysInfo;
 
@@ -16,7 +16,7 @@ TEST(SystemInfoTest, ConstructorDefault)
     EXPECT_TRUE(sysInfo.projectTitle.empty());
     EXPECT_TRUE(sysInfo.projectAuthor.empty());
     EXPECT_TRUE(sysInfo.robotType.empty());
-    
+
     EXPECT_EQ(robotcontrolapp::SystemInfo_Voltage_Voltage24V, sysInfo.voltage);
     EXPECT_EQ(robotcontrolapp::SystemInfo_SystemType_Other, sysInfo.systemType);
     EXPECT_FALSE(sysInfo.isSimulation);
@@ -36,7 +36,7 @@ TEST(SystemInfoTest, ConstructorDefault)
     EXPECT_EQ(0, sysInfo.digitalIOModuleCount);
 }
 
-TEST(SystemInfoTest, ConstructorGRPC)
+TEST(App_SystemInfoTest, ConstructorGRPC)
 {
     robotcontrolapp::SystemInfo sysInfoGrpc;
 
@@ -44,7 +44,7 @@ TEST(SystemInfoTest, ConstructorGRPC)
     sysInfoGrpc.set_version_minor(34);
     sysInfoGrpc.set_version_patch(56);
     sysInfoGrpc.set_version("V123-045-6 RC1");
-    
+
     sysInfoGrpc.set_project_file("Type/MyProjectFile.prj");
     sysInfoGrpc.set_project_title("My Rebel");
     sysInfoGrpc.set_project_author("MAB");
@@ -67,7 +67,6 @@ TEST(SystemInfoTest, ConstructorGRPC)
     sysInfoGrpc.set_tool_axis_count(1);
     sysInfoGrpc.set_platform_axis_count(4);
     sysInfoGrpc.set_digital_io_module_count(3);
-
 
     App::DataTypes::SystemInfo sysInfo(sysInfoGrpc);
 

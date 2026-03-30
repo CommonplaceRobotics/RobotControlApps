@@ -3,7 +3,7 @@
 
 #include "../../src/DataTypes/RobotState.h"
 
-TEST(RobotStateJointTest, ConstructorDefault)
+TEST(App_RobotStateJointTest, ConstructorDefault)
 {
     App::DataTypes::RobotState::Joint joint;
 
@@ -19,7 +19,7 @@ TEST(RobotStateJointTest, ConstructorDefault)
     EXPECT_FLOAT_EQ(0, joint.targetVelocity);
 }
 
-TEST(RobotStateJointTest, ConstructorGRPC)
+TEST(App_RobotStateJointTest, ConstructorGRPC)
 {
     {
         robotcontrolapp::Joint jointGrpc;
@@ -75,7 +75,7 @@ TEST(RobotStateJointTest, ConstructorGRPC)
     }
 }
 
-TEST(RobotStateTest, ConstructorDefault)
+TEST(App_RobotStateTest, ConstructorDefault)
 {
     App::DataTypes::RobotState robotState;
 
@@ -124,7 +124,7 @@ TEST(RobotStateTest, ConstructorDefault)
     EXPECT_EQ(App::DataTypes::RobotState::ReferencingState::NOT_REFERENCED, robotState.referencingState);
 }
 
-TEST(RobotStateTest, ConstructorGRPC)
+TEST(App_RobotStateTest, ConstructorGRPC)
 {
     {
         robotcontrolapp::RobotState robotStateGrpc;

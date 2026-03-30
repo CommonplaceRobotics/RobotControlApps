@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
+#include <robotcontrolapp.grpc.pb.h>
 
 #include "../../src/DataTypes/MotionState.h"
 
-#include <robotcontrolapp.grpc.pb.h>
-
-TEST(MotionStateTest, ConstructorDefault) {
+TEST(App_MotionStateTest, ConstructorDefault)
+{
     App::DataTypes::MotionState ms;
 
     // motion program
@@ -43,8 +43,7 @@ TEST(MotionStateTest, ConstructorDefault) {
     EXPECT_EQ(0, ms.positionInterface.port);
 }
 
-
-TEST(MotionStateTest, ConstructorGRPC)
+TEST(App_MotionStateTest, ConstructorGRPC)
 {
     {
         robotcontrolapp::MotionState grpcState;

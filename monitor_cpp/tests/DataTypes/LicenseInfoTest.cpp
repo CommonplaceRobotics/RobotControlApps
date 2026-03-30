@@ -2,7 +2,7 @@
 
 #include "../../src/DataTypes/LicenseDetails.h"
 
-TEST(LicenseDetailsTest, ConstructorDefault)
+TEST(App_LicenseDetailsTest, ConstructorDefault)
 {
     App::DataTypes::LicenseDetails ld;
     EXPECT_STREQ("", ld.featureID.c_str());
@@ -10,7 +10,7 @@ TEST(LicenseDetailsTest, ConstructorDefault)
     EXPECT_STREQ("", ld.expiryDate.c_str());
 }
 
-TEST(LicenseDetailsTest, ConstructorGRPC)
+TEST(App_LicenseDetailsTest, ConstructorGRPC)
 {
     {
         robotcontrolapp::LicenseInfoResponse_LicenseDetails grpc;
@@ -68,14 +68,14 @@ TEST(LicenseDetailsTest, ConstructorGRPC)
     }
 }
 
-TEST(LicenseInfoTest, ConstructorDefault)
+TEST(App_LicenseInfoTest, ConstructorDefault)
 {
     App::DataTypes::LicenseInfo li;
     EXPECT_EQ(0, li.testDurationRemaining);
     EXPECT_TRUE(li.features.empty());
 }
 
-TEST(LicenseInfoTest, ConstructorGRPC)
+TEST(App_LicenseInfoTest, ConstructorGRPC)
 {
     {
         robotcontrolapp::LicenseInfoResponse grpc;
@@ -190,7 +190,7 @@ TEST(LicenseInfoTest, ConstructorGRPC)
     }
 }
 
-TEST(LicenseInfoTest, HasFeature)
+TEST(App_LicenseInfoTest, HasFeature)
 {
     {
         App::DataTypes::LicenseInfo li;
@@ -222,7 +222,7 @@ TEST(LicenseInfoTest, HasFeature)
     }
 }
 
-TEST(LicenseInfoTest, GetFeature)
+TEST(App_LicenseInfoTest, GetFeature)
 {
     {
         App::DataTypes::LicenseInfo li;

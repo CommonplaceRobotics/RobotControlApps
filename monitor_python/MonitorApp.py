@@ -1,12 +1,9 @@
-import sys
 from AppClient import AppClient
 from DataTypes import RobotState
-from DataTypes.Matrix44 import Matrix44
 from robotcontrolapp_pb2 import (
     AppFunction,
     AppUIElement,
     ButtonState,
-    CheckboxState,
     HardwareState,
     ReferencingState,
     SystemInfo,

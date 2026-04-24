@@ -3,6 +3,7 @@ import unittest
 from DataTypes.SystemInfo import SystemInfo
 import robotcontrolapp_pb2
 
+
 class SystemInfoTest(unittest.TestCase):
     def test_init(self):
         sysInfo = SystemInfo()
@@ -86,6 +87,7 @@ class SystemInfoTest(unittest.TestCase):
         self.assertEqual(2, sysInfo.toolAxisCount)
         self.assertEqual(4, sysInfo.platformAxisCount)
         self.assertEqual(3, sysInfo.digitalIOModuleCount)
+
 
 if __name__ == "__main__":
     unittest.main()

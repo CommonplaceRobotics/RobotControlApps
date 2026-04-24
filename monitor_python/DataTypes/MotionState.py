@@ -16,11 +16,19 @@ class InterpolatorState:
         """Name of the (sub-)program that is currently being executed"""
 
         self.currentProgramIndex = 0
-        """Index of the (sub-)program that is currently being executed: 0 is the main program, higher numbers are sub-programs"""
+        """
+        Index of the (sub-)program that is currently being executed: 0 is the main program, higher numbers are sub-programs
+        """
         self.programCount = 0
-        """Number of loaded programs: 0 - no programs, 1 - only the main program, higher values - the main and sub programs are loaded"""
+        """
+        Number of loaded programs: 0 - no programs, 1 - only the main program, higher values - the main and sub programs are
+        loaded
+        """
         self.currentCommandIndex = 0
-        """Index of the current command that is being executed. 0 is the first command in the current (sub-)program, -1 when not running."""
+        """
+        Index of the current command that is being executed. 0 is the first command in the current (sub-)program, -1 when
+        not running.
+        """
         self.commandCount = 0
         """Number of commands in the current (sub-)program"""
 
@@ -71,7 +79,10 @@ class MotionState:
         self.positionInterface = PositionInterfaceState()
         """State of the fast position interface"""
         self.requestSuccessful = False
-        """If this MotionState was sent in response to a request (specifically program load, start and move-to starts) this value is set true if the request was successful"""
+        """
+        If this MotionState was sent in response to a request (specifically program load, start and move-to starts) this value
+        is set true if the request was successful
+        """
 
     def FromGrpc(grpc: robotcontrolapp_pb2.MotionState):
         """Initializes an object from GRPC MotionState"""

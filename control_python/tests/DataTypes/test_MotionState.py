@@ -3,6 +3,7 @@ import unittest
 from DataTypes.MotionState import InterpolatorState, MotionState, PositionInterfaceState
 import robotcontrolapp_pb2
 
+
 class MotionStateTest(unittest.TestCase):
     def testInterpolatorState_init(self):
         state = InterpolatorState()
@@ -129,6 +130,7 @@ class MotionStateTest(unittest.TestCase):
         self.assertEqual("Bar", state.logicProgram.mainProgram)
         self.assertEqual("Baz", state.moveTo.mainProgram)
         self.assertEqual(789, state.positionInterface.port)
+
 
 if __name__ == "__main__":
     unittest.main()

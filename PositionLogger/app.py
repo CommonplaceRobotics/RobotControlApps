@@ -1,7 +1,6 @@
 import datetime
 import sys
 from time import sleep
-from AppClient import AppClient
 from PositionLogger import PositionLogger
 
 # Start the app

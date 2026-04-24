@@ -111,25 +111,25 @@ class Matrix44Test(unittest.TestCase):
         try:
             matrix.Get(-1, 0)
             self.fail()
-        except:
+        except Exception:
             pass
 
         try:
             matrix.Get(0, -1)
             self.fail()
-        except:
+        except Exception:
             pass
 
         try:
             matrix.Get(4, 0)
             self.fail()
-        except:
+        except Exception:
             pass
 
         try:
             matrix.Get(0, 4)
             self.fail()
-        except:
+        except Exception:
             pass
 
     def test_Set(self):
@@ -161,25 +161,25 @@ class Matrix44Test(unittest.TestCase):
         try:
             matrix.Set(-1, 0, 1234)
             self.fail()
-        except:
+        except Exception:
             pass
 
         try:
             matrix.Set(0, -1, 1234)
             self.fail()
-        except:
+        except Exception:
             pass
 
         try:
             matrix.Set(4, 0, 1234)
             self.fail()
-        except:
+        except Exception:
             pass
 
         try:
             matrix.Set(0, 4, 1234)
             self.fail()
-        except:
+        except Exception:
             pass
 
     def test_GetX(self):
@@ -233,7 +233,7 @@ class Matrix44Test(unittest.TestCase):
         matrix.SetOrientation(0, 20, 0)
         self.assertAlmostEqual(20, matrix.GetB())
 
-    def test_GetA(self):
+    def test_GetC(self):
         matrix = Matrix44()
         matrix.SetOrientation(0, 0, 30)
         self.assertAlmostEqual(30, matrix.GetC())
@@ -267,7 +267,8 @@ class Matrix44Test(unittest.TestCase):
         self.assertAlmostEqual(0, matrix.GetC())
 
     def test_SetB(self):
-        # Note: different but effectively equivalent angles are returned due to how ABC is calculated from the matrix representation.
+        # Note: different but effectively equivalent angles are returned
+        # due to how ABC is calculated from the matrix representation.
 
         matrix = Matrix44()
         matrix.SetB(100)

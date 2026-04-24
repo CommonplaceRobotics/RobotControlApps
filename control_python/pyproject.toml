@@ -1,0 +1,16 @@
+[project]
+name = "ControlApp Python"
+dynamic = ["version", "dependencies"]
+description = "Contains examples for controlling the robot control via the app interface"
+readme = "README.md"
+requires-python = ">=3.9.2"
+authors = [
+    { name = "MAB", email = "support@cpr-robots.com" },
+]
+license = "MIT"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.isort]
+profile = "black"

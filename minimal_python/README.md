@@ -21,13 +21,13 @@ Depending on your system you may need to adapt the following commands.
 [Download Python 3](https://www.python.org/downloads/) and install it. Then run the following commands in a command line to install gRPC for Python.
 
 ### Standalone:
-```
+```sh
 python3 -m pip install --upgrade pip
 python3 -m pip install -r .\requirements.txt
 ```
 
 ### Python install manager:
-```
+```sh
 py -V:3.9.2 -m venv ../venv
 ..\venv\Scripts\activate.bat
 py -V:3.9.2 -m pip install -r .\requirements.txt
@@ -36,7 +36,7 @@ py -V:3.9.2 -m pip install -r .\requirements.txt
 ## Embedded Robot Control (Raspberry Pi)
 Python is already installed on the embedded robot control. You still need to install gRPC for Python. To do this (temporarily) connect the robot control to the internet (e.g. connect it to a WiFi hotspot), then run the following commands:
 
-```
+```sh
 sudo apt update
 sudo mount -o remount,rw /boot/
 sudo apt upgrade
@@ -61,12 +61,30 @@ The GRPC python API (```robotcontrolapp_pb2...```) is generated from the ```prot
 The files can be regenerated with the following commands:
 
 ### Standalone python (see the version requirements above, otherwise the app won't run on the embedded control):
-```
+```sh
 python3 -m grpc_tools.protoc -Iprotos --python_out=. --pyi_out=. --grpc_python_out=. protos/robotcontrolapp.proto
 ```
 
 ### Python install manager:
-```
+```sh
 ..\venv\Scripts\activate.bat
 py -V:3.9.2 -m grpc_tools.protoc -Iprotos --python_out=. --pyi_out=. --grpc_python_out=. protos/robotcontrolapp.proto
+```
+
+# Testing
+Use the following commands to run the unit tests:
+
+Install pytest for standalone Python:
+```sh
+python3 -m pip install pytest
+```
+Or for Python install manager:
+```sh
+py -V:3.9.2 -m pip install pytest
+```
+
+Then run the tests by calling one of the following commands:
+```sh
+python3 -m pytest
+py -V:3.9.2 -m pytest
 ```

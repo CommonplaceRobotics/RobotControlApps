@@ -2,6 +2,9 @@
 The AppClient class provides a simple interface to the igus Robot Control App Interface.
 """
 
+__version__ = "14.6.6"
+"""The app API version is equal to the minimum supported Robot Control version"""
+
 from io import BufferedReader
 from queue import Queue
 import sys
@@ -30,11 +33,12 @@ class AppClient:
 
     # Constructor, arguments are the name of the app and the target socket
     def __init__(self, appName: str, target: str):
-        self.VERSION_MAJOR_MIN = 14
+        versionSplit = __version__.split(".")
+        self.VERSION_MAJOR_MIN = int(versionSplit[0])
         """Minimum required major version of the RobotControl Core"""
-        self.VERSION_MINOR_MIN = 6
+        self.VERSION_MINOR_MIN = int(versionSplit[1])
         """Minimum required minor version of the RobotControl Core"""
-        self.VERSION_PATCH_MIN = 6
+        self.VERSION_PATCH_MIN = int(versionSplit[2])
         """Minimum required patch version of the RobotControl Core"""
 
         self.logDebug = False
@@ -54,7 +58,7 @@ class AppClient:
         """Mutex for adding UI updates to the queue"""
 
     def __enter__(self):
-        pass  # do nothint
+        pass  # do nothing
 
     def __exit__(self, type, value, traceback):
         self.Disconnect()
@@ -91,7 +95,10 @@ class AppClient:
                 systemInfo = self.GetSystemInfo()
                 if not self.CheckCoreVersion(systemInfo):
                     print(
-                        f"WARNING: The connected robot does not support all features of this app API (V{systemInfo.versionMajor}.{systemInfo.versionMinor}.{systemInfo.versionPatch} < V{self.VERSION_MAJOR_MIN}.{self.VERSION_MINOR_MIN}.{self.VERSION_PATCH_MIN}). This app may not work correctly."
+                        f"WARNING: The connected robot does not support all features of this app API "
+                        f"(V{systemInfo.versionMajor}.{systemInfo.versionMinor}.{systemInfo.versionPatch} "
+                        f"< V{self.VERSION_MAJOR_MIN}.{self.VERSION_MINOR_MIN}.{self.VERSION_PATCH_MIN}). "
+                        f"This app may not work correctly."
                     )
             except Exception:
                 self.Disconnect()
@@ -373,7 +380,8 @@ class AppClient:
         e3: float,
     ):
         """
-        Sets a position variable with joint angles and cartesian position. Warning: joint angles and cartesian may refer to different positions!
+        Sets a position variable with joint angles and cartesian position. Warning: joint angles and cartesian may refer to
+        different positions!
         Parameters:
             name: name of the variable
             cartesianPosition: cartesian position and orientation
@@ -412,7 +420,8 @@ class AppClient:
 
     def SendFunctionDone(self, callId: int):
         """
-        Announces to the robot control that the app function call finished. This allows the robot program to continue with the next command.
+        Announces to the robot control that the app function call finished. This allows the robot program to continue
+        with the next command.
         Parameters:
             callId: function call ID from the function call request
         """
@@ -479,7 +488,8 @@ class AppClient:
     def ReferenceAllJoints(self, withReferencingProgram: bool):
         """
         Starts referencing all joints.
-        Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the motors.
+        Note that axes will enter position lag error when successfully referenced, this is no issue,
+        simply re-enable the motors.
         Parameters:
             withReferencingProgram: if true: call referencing program after referencing, then reference again
         """
@@ -489,13 +499,14 @@ class AppClient:
         request = robotcontrolapp_pb2.ReferenceJointsRequest()
         request.app_name = self.GetAppName()
         request.reference_all = True
-        request.referencing_program = withReferencingProgram == True
+        request.referencing_program = withReferencingProgram
         self.__grpcStub.ReferenceJoints(request)
 
     def ReferencingProgram(self):
         """
         Runs the referencing program, then references again. Does not reference before calling the program.
-        Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the motors.
+        Note that axes will enter position lag error when successfully referenced, this is no issue,
+        simply re-enable the motors.
         """
         if not self.IsConnected():
             raise NotConnectedException()
@@ -509,7 +520,8 @@ class AppClient:
     def ReferenceRobotJoint(self, n: int):
         """
         Starts referencing a robot joint.
-        Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the motors.
+        Note that axes will enter position lag error when successfully referenced, this is no issue,
+        simply re-enable the motors.
         Parameters:
             n: joint number 0..5
         """
@@ -526,7 +538,8 @@ class AppClient:
     def ReferenceExternalJoint(self, n: int):
         """
         Starts referencing an external joint.
-        Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the motors.
+        Note that axes will enter position lag error when successfully referenced, this is no issue,
+        simply re-enable the motors.
         Parameters:
             n: joint number 0..3
         """
@@ -543,7 +556,8 @@ class AppClient:
     def ReferenceJoints(self, robotJoints: set[int], externalJoints: set[int]):
         """
         Starts referencing robot and external joints without delay.
-        Note that axes will enter position lag error when successfully referenced, this is no issue, simply re-enable the motors.
+        Note that axes will enter position lag error when successfully referenced, this is no issue,
+        simply re-enable the motors.
         Paramters:
             robotJoints: set of robot joint numbers 0..6
             externalJoints: set of external joint numbers 0..3
@@ -601,7 +615,8 @@ class AppClient:
         """
         Sets the states of the digital inputs (only in simulation). This bundles all changes in one request.
         Parameters:
-            inputs: map of digital inputs to set. First element of each tuple is the signal number (0..99), the second element is the requested state (boolean).
+            inputs: map of digital inputs to set. First element of each tuple is the signal number (0..99),
+                the second element is the requested state (boolean).
         """
         if not self.IsConnected():
             raise NotConnectedException()
@@ -643,7 +658,8 @@ class AppClient:
         """
         Sets the states of the digital outputs. This bundles all changes in one request.
         Parameters:
-            outputs: map of digital outputs to set. First element of each tuple is the signal number (0..99), the second element is the requested state (boolean).
+            outputs: map of digital outputs to set. First element of each tuple is the signal number (0..99),
+                the second element is the requested state (boolean).
         """
         if not self.IsConnected():
             raise NotConnectedException()
@@ -685,8 +701,10 @@ class AppClient:
         """
         Sets the states of the global signals. This bundles all changes in one request.
         Parameters:
-            signals: Set of tuples: first element of each tuple is the signal number (0..99), the second element is the requested state (boolean)
-            signals: map of global signals to set. First element of each tuple is the signal number (0..99), the second element is the requested state (boolean).
+            signals: Set of tuples: first element of each tuple is the signal number (0..99), the second element is the
+                requested state (boolean)
+            signals: map of global signals to set. First element of each tuple is the signal number (0..99), the second
+                element is the requested state (boolean).
         """
         if not self.IsConnected():
             raise NotConnectedException()
@@ -763,7 +781,10 @@ class AppClient:
         return self.SetMotionProgramRunState(robotcontrolapp_pb2.RunState.RUNNING)
 
     # def StartMotionProgramAt(self, commandIdx: int, subProgram: str) -> MotionState:
-    #     """Pauses the motion program at a specific command. Note: if you pass a program that is not loaded as main or sub-program it will be loaded as main"""
+    #     """
+    #     Pauses the motion program at a specific command. Note: if you pass a program that is not loaded as main or
+    #     sub-program it will be loaded as main
+    #     """
     #     if not self.IsConnected():
     #         raise NotConnectedException()
 
@@ -1308,16 +1329,6 @@ class AppClient:
             return info.features[id].isLicensed
         return False
 
-    def GetTCP(self) -> Matrix44:
-        """Gets the tool center point position and orientation"""
-        if not self.IsConnected():
-            raise NotConnectedException()
-
-        request = robotcontrolapp_pb2.RobotStateRequest()
-        request.app_name = self.GetAppName()
-        response = self.__grpcStub.GetRobotState(request)
-        return Matrix44.FromGrpc(response.tcp)
-
     def GetVelocityOverride(self) -> float:
         """
         Gets the current velocity override
@@ -1371,9 +1382,11 @@ class AppClient:
             a: A orientation of the TCP in degrees
             b: B orientation of the TCP in degrees
             c: C orientation of the TCP in degrees
-            initialJoints: 6 robot joints and 3 external joints. These are used to derive the initial joint configuration, e.g. whether the elbow points left or right. Set them to 0 if not relevant.
+            initialJoints: 6 robot joints and 3 external joints. These are used to derive the initial joint configuration,
+            e.g. whether the elbow points left or right. Set them to 0 if not relevant.
         Returns:
-            tuple consisting of a list of joints (6 robot joints, 3 external joints) and the kinematic state. This is 0 if the conversion was successful or a different value on error.
+            tuple consisting of a list of joints (6 robot joints, 3 external joints) and the kinematic state. This is 0 if
+            the conversion was successful or a different value on error.
         """
         if not self.IsConnected():
             raise NotConnectedException()
@@ -1418,7 +1431,8 @@ class AppClient:
         self, joints: list[float]
     ) -> tuple[Matrix44, robotcontrolapp_pb2.KinematicState]:
         """
-        Translates joint positions to a cartesian position. Note that out-of-range joint values may give you a successful result that may not be reachable or could cause collisions.
+        Translates joint positions to a cartesian position. Note that out-of-range joint values may give you a
+        successful result that may not be reachable or could cause collisions.
         Parameters:
             joints: joint positions to translate
         Returns:
@@ -1679,13 +1693,19 @@ class AppClient:
                 self.__queuedUIUpdates = robotcontrolapp_pb2.AppAction()
 
     def RequestUIElementState(self, elementName: str):
-        """Requests the state of a UI element. The robot control will respond with a call of UiUpdateHandler() if the element exists and if it was changed after"""
+        """
+        Requests the state of a UI element. The robot control will respond with a call of UiUpdateHandler()
+        if the element exists and if it was changed after
+        """
         request = robotcontrolapp_pb2.AppAction()
         request.request_ui_state.append(elementName)
         self.SendAction(request)
 
     def RequestUIElementStates(self, elementNames: set[str]):
-        """Requests the state of several UI elements. The robot control will respond with a call of UiUpdateHandler() if the element exists and if it was changed"""
+        """
+        Requests the state of several UI elements. The robot control will respond with a call of UiUpdateHandler()
+        if the element exists and if it was changed
+        """
         request = robotcontrolapp_pb2.AppAction()
         request.request_ui_state.extend(elementNames)
         self.SendAction(request)
@@ -1759,7 +1779,7 @@ class AppClient:
             uiElement.element_name = elementName
         uiElement.state.dropdown_state.selected_option = selectedValue
 
-    def SetDropDownState(
+    def SetDropDownStateList(
         self, elementName: str, selectedValue: str, selectableEntries: List[str]
     ):
         """Sets the selected value and the list of selectable values of a drop down box"""
@@ -1770,7 +1790,7 @@ class AppClient:
         uiElement.state.dropdown_state.options.extend(selectableEntries)
         self.SendAction(request)
 
-    def QueueSetDropDownState(
+    def QueueSetDropDownStateList(
         self, elementName: str, selectedValue: str, selectableEntries: List[str]
     ):
         """Queues setting the selected value and the list of selectable values of a drop down box"""
@@ -1825,11 +1845,14 @@ class AppClient:
             elementName: UI element name
             uiWidth: Width of the image in the UI in pixels - currently not used yet
             uiHeight: Height of the image in the UI in pixels - currently not used yet
-            imageData: Image bytes. All shown images combined must be less than 290kB, otherwise the UI may fail to load after reconnect!
+            imageData: Image bytes. All shown images combined must be less than 290kB, otherwise the UI may fail to
+                load after reconnect!
             encoding: Image encoding
         """
-        # Check the image size. The CRI input buffer currently is 400kB and image data is transmitted base64 encoded. This means an upper limit of less than 300kB.
-        # Note that this limit effectively decreases when using more images or UI elements! The entire UI XML including all images must fit, otherwise it will not be shown after reconnect.
+        # Check the image size. The CRI input buffer currently is 400kB and image data is transmitted base64 encoded.
+        # This means an upper limit of less than 300kB.
+        # Note that this limit effectively decreases when using more images or UI elements! The entire UI XML including all
+        # images must fit, otherwise it will not be shown after reconnect.
         if len(imageData) > (290 * 1024):
             raise RuntimeError("Image too big! Images must be smaller than 290kB!")
 
@@ -1873,7 +1896,8 @@ class AppClient:
     ):
         """Queues setting the image of an image element in the UI"""
 
-        # Check the image size. The CRI input buffer currently is 400kB and image data is transmitted base64 encoded. This means an upper limit of less than 300kB.
+        # Check the image size. The CRI input buffer currently is 400kB and image data is transmitted base64 encoded.
+        # This means an upper limit of less than 300kB.
         if len(imageData) > (290 * 1024):
             raise RuntimeError("Image too big! Images must be smaller than 290kB!")
 
@@ -1893,7 +1917,8 @@ class AppClient:
     ):
         """
         Shows a dialog window to the user.
-        Note: If iRC is not connected the dialog will never be shown. Currently there is no way for the app to find out whether this is the case. If iRC is older than V14-004 only error messages are shown.
+        Note: If iRC is not connected the dialog will never be shown. Currently there is no way for the app to find out
+        whether this is the case. If iRC is older than V14-004 only error messages are shown.
         Parameters:
             message: The message to be displayed
             title: The dialog title
@@ -1912,7 +1937,8 @@ class AppClient:
     def ShowInfoDialog(self, message: str, title: str):
         """
         Shows an info dialog window to the user.
-        Note: If iRC is not connected or older than V14-004 the dialog will never be shown. Currently there is no way for the app to find out whether this is the case.
+        Note: If iRC is not connected or older than V14-004 the dialog will never be shown. Currently there is no way for
+        the app to find out whether this is the case.
         Parameters:
             message: The message to be displayed
             title: The dialog title
@@ -1924,7 +1950,8 @@ class AppClient:
     def ShowWarningDialog(self, message: str, title: str):
         """
         Shows an info dialog window to the user.
-        Note: If iRC is not connected or older than V14-004 the dialog will never be shown. Currently there is no way for the app to find out whether this is the case.
+        Note: If iRC is not connected or older than V14-004 the dialog will never be shown. Currently there is no way for the
+        app to find out whether this is the case.
         Parameters:
             message: The message to be displayed
             title: The dialog title
@@ -1936,7 +1963,8 @@ class AppClient:
     def ShowErrorDialog(self, message: str, title: str):
         """
         Shows an info dialog window to the user.
-        Note: If iRC is not connected the dialog will never be shown. Currently there is no way for the app to find out whether this is the case.
+        Note: If iRC is not connected the dialog will never be shown. Currently there is no way for the app to find out
+        whether this is the case.
         Parameters:
             message: The message to be displayed
             title: The dialog title

@@ -51,7 +51,7 @@ class PositionVariable(ProgramVariable):
         """Makes a joint position variable"""
         result = PositionVariable(name)
         result.SetRobotAxes(robotAxes)
-        if not externalAxes is None:
+        if externalAxes is not None:
             result.SetExternalAxes(externalAxes)
         return result
 
@@ -64,7 +64,7 @@ class PositionVariable(ProgramVariable):
         result = PositionVariable(name)
         result.SetCartesian(cartesian)
 
-        if not externalAxes is None:
+        if externalAxes is not None:
             result.SetExternalAxes(externalAxes)
         return result
 
@@ -76,7 +76,7 @@ class PositionVariable(ProgramVariable):
         result.SetCartesian(cartesian)
 
         result.SetRobotAxes(robotAxes)
-        if not externalAxes is None:
+        if externalAxes is not None:
             result.SetExternalAxes(externalAxes)
         return result
 

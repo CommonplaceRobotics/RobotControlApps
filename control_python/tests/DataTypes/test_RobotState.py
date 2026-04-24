@@ -4,6 +4,7 @@ from DataTypes.Matrix44 import Matrix44
 from DataTypes.RobotState import RobotState, Joint
 import robotcontrolapp_pb2
 
+
 class JointTest(unittest.TestCase):
     def test_init(self):
         joint = Joint()
@@ -12,8 +13,12 @@ class JointTest(unittest.TestCase):
         self.assertEqual("", joint.name)
         self.assertEqual(0, joint.actualPosition)
         self.assertEqual(0, joint.targetPosition)
-        self.assertEqual(robotcontrolapp_pb2.HardwareState.ERROR_MODULE_DEAD, joint.hardwareState)
-        self.assertEqual(robotcontrolapp_pb2.ReferencingState.NOT_REFERENCED, joint.referencingState)
+        self.assertEqual(
+            robotcontrolapp_pb2.HardwareState.ERROR_MODULE_DEAD, joint.hardwareState
+        )
+        self.assertEqual(
+            robotcontrolapp_pb2.ReferencingState.NOT_REFERENCED, joint.referencingState
+        )
         self.assertEqual(0, joint.temperatureBoard)
         self.assertEqual(0, joint.temperatureMotor)
         self.assertEqual(0, joint.current)
@@ -23,9 +28,12 @@ class JointTest(unittest.TestCase):
         grpc = robotcontrolapp_pb2.Joint()
         grpc.id = 123
         grpc.name = "A5"
-        grpc.position.position =12.3
+        grpc.position.position = 12.3
         grpc.position.target_position = 34.5
-        grpc.state = robotcontrolapp_pb2.HardwareState.ERROR_MOTOR_NOT_ENABLED | robotcontrolapp_pb2.HardwareState.ERROR_ENCODER
+        grpc.state = (
+            robotcontrolapp_pb2.HardwareState.ERROR_MOTOR_NOT_ENABLED
+            | robotcontrolapp_pb2.HardwareState.ERROR_ENCODER
+        )
         grpc.referencing_state = robotcontrolapp_pb2.ReferencingState.IS_REFERENCED
         grpc.temperature_board = 25.1
         grpc.temperature_motor = 27.2
@@ -38,11 +46,14 @@ class JointTest(unittest.TestCase):
         self.assertAlmostEqual(12.3, joint.actualPosition, 4)
         self.assertAlmostEqual(34.5, joint.targetPosition, 4)
         self.assertEqual(0x24, joint.hardwareState)
-        self.assertEqual(robotcontrolapp_pb2.ReferencingState.IS_REFERENCED, joint.referencingState)
+        self.assertEqual(
+            robotcontrolapp_pb2.ReferencingState.IS_REFERENCED, joint.referencingState
+        )
         self.assertAlmostEqual(25.1, joint.temperatureBoard, 4)
         self.assertAlmostEqual(27.2, joint.temperatureMotor, 4)
         self.assertAlmostEqual(1234.5, joint.current, 4)
         self.assertAlmostEqual(87.6, joint.targetVelocity, 4)
+
 
 class RobotStateTest(unittest.TestCase):
     def test_init(self):
@@ -102,7 +113,9 @@ class RobotStateTest(unittest.TestCase):
         self.assertEqual(0, state.supplyVoltage)
         self.assertEqual(0, state.currentAll)
 
-        self.assertEqual(robotcontrolapp_pb2.ReferencingState.NOT_REFERENCED, state.referencingState)
+        self.assertEqual(
+            robotcontrolapp_pb2.ReferencingState.NOT_REFERENCED, state.referencingState
+        )
 
     def test_FromGrpc(self):
         grpc = robotcontrolapp_pb2.RobotState()
@@ -195,7 +208,9 @@ class RobotStateTest(unittest.TestCase):
         self.assertFalse(state.globalSignals[3])
 
         self.assertEqual("MNE_ENC", state.hardwareState)
-        self.assertEqual(robotcontrolapp_pb2.KINEMATIC_ERROR_JOINT_LIMIT_MAX, state.kinematicState)
+        self.assertEqual(
+            robotcontrolapp_pb2.KINEMATIC_ERROR_JOINT_LIMIT_MAX, state.kinematicState
+        )
 
         self.assertAlmostEqual(0.34, state.velocityOverride, 4)
         self.assertAlmostEqual(45.6, state.cartesianVelocity, 4)
@@ -204,7 +219,10 @@ class RobotStateTest(unittest.TestCase):
         self.assertAlmostEqual(24.5, state.supplyVoltage, 4)
         self.assertAlmostEqual(1267.8, state.currentAll, 4)
 
-        self.assertEqual(robotcontrolapp_pb2.ReferencingState.IS_REFERENCING, state.referencingState)
+        self.assertEqual(
+            robotcontrolapp_pb2.ReferencingState.IS_REFERENCING, state.referencingState
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

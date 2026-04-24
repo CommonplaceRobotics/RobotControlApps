@@ -29,7 +29,10 @@ class LicenseInfo:
 
     def __init__(self):
         self.testDurationRemaining = 0
-        """Number of remaining seconds in the feature test duration or 0 if expired. Within this duration some features can be tested without a license."""
+        """
+        Number of remaining seconds in the feature test duration or 0 if expired. Within this duration some features can
+        be tested without a license.
+        """
         self.features = dict()
         """Licensed features and their validity. Key is the feature ID, value an instance of LicenseInfo"""
 

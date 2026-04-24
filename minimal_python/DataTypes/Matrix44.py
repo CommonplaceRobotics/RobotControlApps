@@ -6,7 +6,10 @@ import robotcontrolapp_pb2
 
 
 class Matrix44:
-    """A 4x4 matrix for cartesian positions and transformations. Values are to be interpreted as mm for positions and degrees for angles."""
+    """
+    A 4x4 matrix for cartesian positions and transformations. Values are to be interpreted as mm for positions and degrees
+    for angles.
+    """
 
     def __init__(self):
         """Initializes a 4x4 matrix data as a unit matrix"""

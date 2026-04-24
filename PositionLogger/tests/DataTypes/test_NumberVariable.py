@@ -1,6 +1,5 @@
 import unittest
 
-from DataTypes.Matrix44 import Matrix44
 from DataTypes.ProgramVariable import NumberVariable
 
 

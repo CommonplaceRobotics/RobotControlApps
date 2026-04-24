@@ -1,7 +1,5 @@
-import datetime
 import sys
 from time import sleep
-from AppClient import AppClient
 from MathToolsApp import MathToolsApp
 
 # Start the app

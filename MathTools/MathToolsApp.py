@@ -8,11 +8,15 @@ from google.protobuf.internal import containers as protobufContainers
 
 class MathToolsApp(AppClient):
     def __init__(self, appName: str, target: str):
-        """Initializes the app. Pass the app name (as defined in rcapp.xml) and socket to connect to (default: "localhost:5000")"""
+        """
+        Initializes the app. Pass the app name (as defined in rcapp.xml) and socket to connect to (default: "localhost:5000")
+        """
         AppClient.__init__(self, appName, target)
         self.__startTime = datetime.datetime.now()
 
-    def _UiUpdateHandler(self, updates: protobufContainers.RepeatedCompositeFieldContainer[AppUIElement]):
+    def _UiUpdateHandler(
+        self, updates: protobufContainers.RepeatedCompositeFieldContainer[AppUIElement]
+    ):
         """Gets called on remote UI update requests received from the robot control"""
         return
 
@@ -51,10 +55,13 @@ class MathToolsApp(AppClient):
         except Exception as ex:
             print(f"Function call failed: {ex}")
             self.SendFunctionFailed(function.call_id, str(ex))
-            #raise # uncomment for debugging
+            # raise # uncomment for debugging
 
     def GetNumber(self, statement: str) -> float:
-        """Evaluates the statement for a number or scalar variable, returns the number or variable value. This allows entering both variables and numbers in text boxes."""
+        """
+        Evaluates the statement for a number or scalar variable, returns the number or variable value. This allows entering
+        both variables and numbers in text boxes.
+        """
 
         if statement is None or len(statement) == 0:
             raise RuntimeError("no number or variable given")
@@ -65,21 +72,33 @@ class MathToolsApp(AppClient):
         variable = self.GetNumberVariable(statement)
         return variable.GetValue()
 
-    def GetParameter(self, function: AppFunction, parameterName: str, fieldType: str) -> AppFunction.Parameter:
+    def GetParameter(
+        self, function: AppFunction, parameterName: str, fieldType: str
+    ) -> AppFunction.Parameter:
         """Helper function to get the requested parameter from the parameter list"""
         for parameter in function.parameters:
             if parameter.name == parameterName:
                 if parameter.HasField(fieldType + "_value"):
                     return parameter
                 else:
-                    raise RuntimeError("invalid parameter type '" + fieldType + "' for '" + parameterName + "'")
+                    raise RuntimeError(
+                        "invalid parameter type '"
+                        + fieldType
+                        + "' for '"
+                        + parameterName
+                        + "'"
+                    )
         raise RuntimeError("missing parameter '" + parameterName + "'")
 
     def JointToCart(self, function: AppFunction):
         """Translates the joint components of a variable to cartesian position"""
         # Get parameters
-        sourceVariableName = self.GetParameter(function, "source_variable", "string").string_value
-        targetVariableName = self.GetParameter(function, "target_variable", "string").string_value
+        sourceVariableName = self.GetParameter(
+            function, "source_variable", "string"
+        ).string_value
+        targetVariableName = self.GetParameter(
+            function, "target_variable", "string"
+        ).string_value
         abortOnError = self.GetParameter(function, "abort_on_error", "bool").bool_value
         successGSig = self.GetParameter(function, "success_gsig", "int64").int64_value
 
@@ -91,24 +110,43 @@ class MathToolsApp(AppClient):
         for i in range(0, min(6, len(sourceVariable.GetRobotAxes()))):
             joints[i] = sourceVariable.GetRobotAxes()[i]
         for i in range(0, min(3, len(sourceVariable.GetExternalAxes()))):
-            joints[6+i] = sourceVariable.GetExternalAxes()[i]
+            joints[6 + i] = sourceVariable.GetExternalAxes()[i]
         (position, state) = self.TranslateJointToCart(joints)
 
         if state == KinematicState.KINEMATIC_NORMAL:
             self.SetGlobalSignal(successGSig, True)
-            self.SetPositionVariableBoth(targetVariableName, position, joints[0], joints[1], joints[2], joints[3], joints[4], joints[5], joints[6], joints[7], joints[8])
+            self.SetPositionVariableBoth(
+                targetVariableName,
+                position,
+                joints[0],
+                joints[1],
+                joints[2],
+                joints[3],
+                joints[4],
+                joints[5],
+                joints[6],
+                joints[7],
+                joints[8],
+            )
         else:
             self.SetGlobalSignal(successGSig, False)
             if abortOnError:
-                self.SendFunctionFailed(function.call_id, f"Joint-to-Cart translation failed: Kinematic error {state}")
+                self.SendFunctionFailed(
+                    function.call_id,
+                    f"Joint-to-Cart translation failed: Kinematic error {state}",
+                )
                 return
         self.SendFunctionDone(function.call_id)
-    
+
     def CartToJoint(self, function: AppFunction):
         """Translates the cartesian components of a variable to joint positions"""
         # Get parameters
-        sourceVariableName = self.GetParameter(function, "source_variable", "string").string_value
-        targetVariableName = self.GetParameter(function, "target_variable", "string").string_value
+        sourceVariableName = self.GetParameter(
+            function, "source_variable", "string"
+        ).string_value
+        targetVariableName = self.GetParameter(
+            function, "target_variable", "string"
+        ).string_value
         abortOnError = self.GetParameter(function, "abort_on_error", "bool").bool_value
         successGSig = self.GetParameter(function, "success_gsig", "int64").int64_value
 
@@ -120,26 +158,51 @@ class MathToolsApp(AppClient):
         for i in range(0, min(6, len(sourceVariable.GetRobotAxes()))):
             initialJoints[i] = sourceVariable.GetRobotAxes()[i]
         for i in range(0, min(3, len(sourceVariable.GetExternalAxes()))):
-            initialJoints[6+i] = sourceVariable.GetExternalAxes()[i]
+            initialJoints[6 + i] = sourceVariable.GetExternalAxes()[i]
         sourcePosition = sourceVariable.GetCartesian()
-        (jointsResult, state) = self.TranslateCartToJoint(sourcePosition.GetX(), sourcePosition.GetY(), sourcePosition.GetZ(), sourcePosition.GetA(), sourcePosition.GetB(), sourcePosition.GetC(), initialJoints)
+        (jointsResult, state) = self.TranslateCartToJoint(
+            sourcePosition.GetX(),
+            sourcePosition.GetY(),
+            sourcePosition.GetZ(),
+            sourcePosition.GetA(),
+            sourcePosition.GetB(),
+            sourcePosition.GetC(),
+            initialJoints,
+        )
 
         if state == KinematicState.KINEMATIC_NORMAL:
             self.SetGlobalSignal(successGSig, True)
-            self.SetPositionVariableBoth(targetVariableName, sourcePosition, jointsResult[0], jointsResult[1], jointsResult[2], jointsResult[3], jointsResult[4], jointsResult[5], jointsResult[6], jointsResult[7], jointsResult[8])
+            self.SetPositionVariableBoth(
+                targetVariableName,
+                sourcePosition,
+                jointsResult[0],
+                jointsResult[1],
+                jointsResult[2],
+                jointsResult[3],
+                jointsResult[4],
+                jointsResult[5],
+                jointsResult[6],
+                jointsResult[7],
+                jointsResult[8],
+            )
         else:
             self.SetGlobalSignal(successGSig, False)
             if abortOnError:
-                self.SendFunctionFailed(function.call_id, f"Cart-to-Joint translation failed: Kinematic error {state}")
+                self.SendFunctionFailed(
+                    function.call_id,
+                    f"Cart-to-Joint translation failed: Kinematic error {state}",
+                )
                 return
         self.SendFunctionDone(function.call_id)
-    
+
     def XYZDistance(self, function: AppFunction):
         """Calculates the cartesian distance"""
         # Get parameters
         posAVarName = self.GetParameter(function, "position_a", "string").string_value
         posBVarName = self.GetParameter(function, "position_b", "string").string_value
-        posResultVarName = self.GetParameter(function, "target_variable", "string").string_value
+        posResultVarName = self.GetParameter(
+            function, "target_variable", "string"
+        ).string_value
 
         # Get variables
         posAVar = self.GetPositionVariable(posAVarName)
@@ -149,7 +212,7 @@ class MathToolsApp(AppClient):
         dy = posAVar.GetCartesian().GetY() - posBVar.GetCartesian().GetY()
         dz = posAVar.GetCartesian().GetZ() - posBVar.GetCartesian().GetZ()
 
-        dist = math.sqrt(dx*dx + dy*dy + dz*dz)
+        dist = math.sqrt(dx * dx + dy * dy + dz * dz)
         self.SetNumberVariable(posResultVarName, dist)
 
         self.SendFunctionDone(function.call_id)
@@ -159,7 +222,9 @@ class MathToolsApp(AppClient):
         # Get parameters
         posAVarName = self.GetParameter(function, "position_a", "string").string_value
         posBVarName = self.GetParameter(function, "position_b", "string").string_value
-        distMaxStatement = self.GetParameter(function, "dist_max", "string").string_value
+        distMaxStatement = self.GetParameter(
+            function, "dist_max", "string"
+        ).string_value
         successGSig = self.GetParameter(function, "success_gsig", "int64").int64_value
 
         # Get variables
@@ -171,12 +236,12 @@ class MathToolsApp(AppClient):
         dz = posAVar.GetCartesian().GetZ() - posBVar.GetCartesian().GetZ()
 
         distMax = self.GetNumber(distMaxStatement)
-        dist = math.sqrt(dx*dx + dy*dy + dz*dz)
+        dist = math.sqrt(dx * dx + dy * dy + dz * dz)
         if dist <= distMax:
             self.SetGlobalSignal(successGSig, True)
         else:
             self.SetGlobalSignal(successGSig, False)
-        
+
         self.SendFunctionDone(function.call_id)
 
     def SquareRoot(self, function: AppFunction):
@@ -198,7 +263,9 @@ class MathToolsApp(AppClient):
         """Calculates the exponentiation"""
         # Get parameters
         baseStatement = self.GetParameter(function, "base", "string").string_value
-        expnentStatement = self.GetParameter(function, "exponent", "string").string_value
+        expnentStatement = self.GetParameter(
+            function, "exponent", "string"
+        ).string_value
         resultVar = self.GetParameter(function, "result", "string").string_value
 
         # Get values
@@ -298,7 +365,7 @@ class MathToolsApp(AppClient):
             b = fromVariable.GetCartesian().GetB()
         if copyC:
             c = fromVariable.GetCartesian().GetC()
-        targetMat.SetOrientation(a,b,c)
+        targetMat.SetOrientation(a, b, c)
 
         if copyA1:
             a1 = fromVariable.GetRobotAxes()[0]
@@ -318,31 +385,42 @@ class MathToolsApp(AppClient):
             e2 = fromVariable.GetExternalAxes()[1]
         if copyE3:
             e3 = fromVariable.GetExternalAxes()[2]
-        
-        self.SetPositionVariableBoth(toVariableName, targetMat, a1,a2,a3,a4,a5,a6,e1,e2,e3)
+
+        self.SetPositionVariableBoth(
+            toVariableName, targetMat, a1, a2, a3, a4, a5, a6, e1, e2, e3
+        )
 
         self.SendFunctionDone(function.call_id)
 
     def GetTimeSeconds(self, function: AppFunction):
         """Gets a steadily counting time value"""
         seconds = (datetime.datetime.now() - self.__startTime).total_seconds()
-        self.SetNumberVariable(self.GetParameter(function, "target", "string").string_value, seconds)
+        self.SetNumberVariable(
+            self.GetParameter(function, "target", "string").string_value, seconds
+        )
         self.SendFunctionDone(function.call_id)
-        
+
     def GetTimeMinutes(self, function: AppFunction):
         """Gets a steadily counting time value"""
         seconds = (datetime.datetime.now() - self.__startTime).total_seconds()
-        self.SetNumberVariable(self.GetParameter(function, "target", "string").string_value, seconds / 60)
+        self.SetNumberVariable(
+            self.GetParameter(function, "target", "string").string_value, seconds / 60
+        )
         self.SendFunctionDone(function.call_id)
 
     def GetTimeHours(self, function: AppFunction):
         """Gets a steadily counting time value"""
         seconds = (datetime.datetime.now() - self.__startTime).total_seconds()
-        self.SetNumberVariable(self.GetParameter(function, "target", "string").string_value, seconds / (60 * 60))
+        self.SetNumberVariable(
+            self.GetParameter(function, "target", "string").string_value,
+            seconds / (60 * 60),
+        )
         self.SendFunctionDone(function.call_id)
 
     def WaitByVariable(self, function: AppFunction):
         """Gets a steadily counting time value"""
-        durationSeconds = self.GetNumberVariable(self.GetParameter(function, "duration", "string").string_value).GetValue()
+        durationSeconds = self.GetNumberVariable(
+            self.GetParameter(function, "duration", "string").string_value
+        ).GetValue()
         time.sleep(durationSeconds)
         self.SendFunctionDone(function.call_id)

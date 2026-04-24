@@ -27,7 +27,10 @@ class Joint:
         """Current draw of this joint in mA"""
 
         self.targetVelocity = 0
-        """Target velocity in degrees/s, mm/s or user defined units per second - only usable with external axes in velocity mode"""
+        """
+        Target velocity in degrees/s, mm/s or user defined units per second - only usable with external axes in velocity
+        mode
+        """
 
     def FromGrpc(grpc: robotcontrolapp_pb2.Joint):
         """Initializes an object from GRPC MotionState"""
@@ -69,7 +72,9 @@ class RobotState:
             Joint(),
             Joint(),
         ]
-        """Joint angles/positions in degrees, mm or user defined units. Indices 0-5 are robot joints, 6-8 are external joints."""
+        """
+        Joint angles/positions in degrees, mm or user defined units. Indices 0-5 are robot joints, 6-8 are external joints.
+        """
         self.joints[0].id = 0
         self.joints[1].id = 1
         self.joints[2].id = 2

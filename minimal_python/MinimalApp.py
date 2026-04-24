@@ -115,7 +115,7 @@ class MinimalApp(AppClient):
                 f'Calculated {baseValue}^{exponentValue} = {resultValue}, result was written to variable "{resultVariableName}"'
             )
         except Exception as ex:
-            print(f'Function call "exponentiation" failed', file=sys.stderr)
+            print('Function call "exponentiation" failed', file=sys.stderr)
             print(ex, file=sys.stderr)
 
     def ExamplePrintUIEvents(self, updates):

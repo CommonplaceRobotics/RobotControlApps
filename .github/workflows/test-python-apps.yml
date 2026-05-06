@@ -5,9 +5,9 @@ name: Test python apps
 
 on:
   push:
-    branches: [ "master", "v14-006-6_sbom" ]
+    branches: [ "master", "v14-006-6" ]
   pull_request:
-    branches: [ "master", "v14-006-6_sbom" ]
+    branches: [ "master", "v14-006-6" ]
 
 permissions:
   contents: read

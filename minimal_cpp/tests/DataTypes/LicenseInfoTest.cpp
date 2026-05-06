@@ -97,7 +97,7 @@ TEST(App_LicenseInfoTest, ConstructorGRPC)
         robotcontrolapp::LicenseInfoResponse grpc;
         grpc.set_test_duration_remaining_seconds(1234);
 
-        robotcontrolapp::LicenseInfoResponse_LicenseDetails* feature1 = grpc.add_licensed_features();
+        /*robotcontrolapp::LicenseInfoResponse_LicenseDetails* feature1 =*/grpc.add_licensed_features();
         // error: feature has no ID
 
         App::DataTypes::LicenseInfo li(grpc);

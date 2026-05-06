@@ -9,6 +9,7 @@
 #include <grpc/grpc.h>
 
 #include <atomic>
+#include <list>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -484,8 +485,14 @@ public:
      * @param e2 velocity of external axis 2 in user-defined units or 0 if not in velocity mode
      * @param e3 velocity of external axis 3 in user-defined units or 0 if not in velocity mode
      */
-    void GetTargetVelocity(float& e1, float& e2, float& e3);
-
+    void GetTargetVelocities(float& e1, float& e2, float& e3);
+    /**
+     * @brief Sets the target velocities of external axes in velocity mode. Axes that are not in velocity mode are ignored.
+     * @param e1 target velocity of external axis 1 in user-defined units
+     * @param e2 target velocity of external axis 2 in user-defined units
+     * @param e3 target velocity of external axis 3 in user-defined units
+     */
+    void SetTargetVelocities(float e1, float e2, float e3);
     /**
      * @brief Sets the target velocity of external axis 1 in velocity mode
      * @param vel target velocity in user-defined units
@@ -504,13 +511,6 @@ public:
      * @return new target velocity or 0 if not in velocity mode
      */
     float SetTargetVelocityE3(float vel);
-    /**
-     * @brief Sets the target velocities of external axes in velocity mode. Axes that are not in velocity mode are ignored.
-     * @param e1 target velocity of external axis 1 in user-defined units
-     * @param e2 target velocity of external axis 2 in user-defined units
-     * @param e3 target velocity of external axis 3 in user-defined units
-     */
-    void SetTargetVelocities(float e1, float e2, float e3);
 
     /**
      * @brief Returns true if the robot moves automatically. This does not indicate other motion types, like jog motion!

@@ -1433,7 +1433,7 @@ DataTypes::MotionState AppClient::MoveToStop()
  * @param e2 velocity of external axis 2 in user-defined units or 0 if not in velocity mode
  * @param e3 velocity of external axis 3 in user-defined units or 0 if not in velocity mode
  */
-void AppClient::GetTargetVelocity(float& e1, float& e2, float& e3)
+void AppClient::GetTargetVelocities(float& e1, float& e2, float& e3)
 {
     if (!IsConnected()) throw NotConnectedException();
 
@@ -1450,9 +1450,35 @@ void AppClient::GetTargetVelocity(float& e1, float& e2, float& e3)
     }
 
     e1 = e2 = e3 = 0;
-    if (request.has_velocity_e1()) e1 = request.velocity_e1();
-    if (request.has_velocity_e2()) e2 = request.velocity_e2();
-    if (request.has_velocity_e3()) e3 = request.velocity_e3();
+    if (response.has_velocity_e1()) e1 = response.velocity_e1();
+    if (response.has_velocity_e2()) e2 = response.velocity_e2();
+    if (response.has_velocity_e3()) e3 = response.velocity_e3();
+}
+
+/**
+ * @brief Sets the target velocities of external axes in velocity mode. Axes that are not in velocity mode are ignored.
+ * @param e1 target velocity of external axis 1 in user-defined units
+ * @param e2 target velocity of external axis 2 in user-defined units
+ * @param e3 target velocity of external axis 3 in user-defined units
+ */
+void AppClient::SetTargetVelocities(float e1, float e2, float e3)
+{
+    if (!IsConnected()) throw NotConnectedException();
+
+    robotcontrolapp::TargetVelocityRequest request;
+    request.set_app_name(GetAppName());
+    request.set_velocity_e1(e1);
+    request.set_velocity_e2(e2);
+    request.set_velocity_e3(e3);
+
+    robotcontrolapp::TargetVelocityResponse response;
+    grpc::ClientContext context;
+    auto status = m_grpcStub->SetTargetVelocity(&context, request, &response);
+
+    if (!status.ok())
+    {
+        throw std::runtime_error("request SetTargetVelocity failed: " + status.error_message());
+    }
 }
 
 /**
@@ -1537,32 +1563,6 @@ float AppClient::SetTargetVelocityE3(float vel)
         return response.velocity_e3();
     else
         return 0;
-}
-
-/**
- * @brief Sets the target velocities of external axes in velocity mode. Axes that are not in velocity mode are ignored.
- * @param e1 target velocity of external axis 1 in user-defined units
- * @param e2 target velocity of external axis 2 in user-defined units
- * @param e3 target velocity of external axis 3 in user-defined units
- */
-void AppClient::SetTargetVelocities(float e1, float e2, float e3)
-{
-    if (!IsConnected()) throw NotConnectedException();
-
-    robotcontrolapp::TargetVelocityRequest request;
-    request.set_app_name(GetAppName());
-    request.set_velocity_e1(e1);
-    request.set_velocity_e2(e2);
-    request.set_velocity_e3(e3);
-
-    robotcontrolapp::TargetVelocityResponse response;
-    grpc::ClientContext context;
-    auto status = m_grpcStub->SetTargetVelocity(&context, request, &response);
-
-    if (!status.ok())
-    {
-        throw std::runtime_error("request SetTargetVelocity failed: " + status.error_message());
-    }
 }
 
 /**

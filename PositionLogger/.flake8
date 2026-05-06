@@ -2,3 +2,5 @@
 exclude = robotcontrolapp_pb2_grpc.py,
     robotcontrolapp_pb2.py,
     robotcontrolapp_pb2.pyi
+
+max-line-length = 128

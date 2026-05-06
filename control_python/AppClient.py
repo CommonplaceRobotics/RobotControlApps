@@ -1142,7 +1142,7 @@ class AppClient:
         request.stop.SetInParent()
         return MotionState.FromGrpc(self.__grpcStub.MoveTo(request))
 
-    def GetTargetVelocity(self) -> tuple[float, float, float]:
+    def GetTargetVelocities(self) -> tuple[float, float, float]:
         """
         Gets the velocities of external axes in velocity mode (e.g. conveyor drives etc.)
         Returns:
@@ -1153,6 +1153,39 @@ class AppClient:
 
         request = robotcontrolapp_pb2.TargetVelocityRequest()
         request.app_name = self.GetAppName()
+
+        e1 = 0
+        e2 = 0
+        e3 = 0
+
+        response = self.__grpcStub.SetTargetVelocity(request)
+        if response.HasField("velocity_e1"):
+            e1 = response.velocity_e1
+        if response.HasField("velocity_e2"):
+            e2 = response.velocity_e2
+        if response.HasField("velocity_e3"):
+            e3 = response.velocity_e3
+
+        return (e1, e2, e3)
+
+    def SetTargetVelocities(self, e1: float, e2: float, e3: float) -> float:
+        """
+        Sets the target velocities of external axes in velocity mode. Axes that are not in velocity mode are ignored.
+        Parameters:
+            e1: target velocity of external axis 1 in user-defined units
+            e2: target velocity of external axis 2 in user-defined units
+            e3: target velocity of external axis 3 in user-defined units
+        Returns:
+            tuple of the velocities of e1, e2 and e3 if in velocity mode, otherwise 0. Values are in user-defined units.
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.TargetVelocityRequest()
+        request.app_name = self.GetAppName()
+        request.velocity_e1 = e1
+        request.velocity_e2 = e2
+        request.velocity_e3 = e3
 
         e1 = 0
         e2 = 0
@@ -1230,39 +1263,6 @@ class AppClient:
             return response.velocity_e3
         else:
             return 0
-
-    def SetTargetVelocities(self, e1: float, e2: float, e3: float) -> float:
-        """
-        Sets the target velocities of external axes in velocity mode. Axes that are not in velocity mode are ignored.
-        Parameters:
-            e1: target velocity of external axis 1 in user-defined units
-            e2: target velocity of external axis 2 in user-defined units
-            e3: target velocity of external axis 3 in user-defined units
-        Returns:
-            tuple of the velocities of e1, e2 and e3 if in velocity mode, otherwise 0. Values are in user-defined units.
-        """
-        if not self.IsConnected():
-            raise NotConnectedException()
-
-        request = robotcontrolapp_pb2.TargetVelocityRequest()
-        request.app_name = self.GetAppName()
-        request.velocity_e1 = e1
-        request.velocity_e2 = e2
-        request.velocity_e3 = e3
-
-        e1 = 0
-        e2 = 0
-        e3 = 0
-
-        response = self.__grpcStub.SetTargetVelocity(request)
-        if response.HasField("velocity_e1"):
-            e1 = response.velocity_e1
-        if response.HasField("velocity_e2"):
-            e2 = response.velocity_e2
-        if response.HasField("velocity_e3"):
-            e3 = response.velocity_e3
-
-        return (e1, e2, e3)
 
     def IsAutomaticMotion(self) -> bool:
         """
@@ -1632,7 +1632,7 @@ class AppClient:
         """
         Removes a file from the robot control
         Parameters:
-            file file on the robot control, relative to the Data directory
+            file: file on the robot control, relative to the Data directory
         Returns:
             true on success
         """

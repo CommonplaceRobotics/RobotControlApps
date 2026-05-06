@@ -177,6 +177,11 @@ class RobotControlAppStub(object):
                 request_serializer=robotcontrolapp__pb2.ShowDialogRequest.SerializeToString,
                 response_deserializer=robotcontrolapp__pb2.ShowDialogResponse.FromString,
                 _registered_method=True)
+        self.GetStatistics = channel.unary_unary(
+                '/robotcontrolapp.RobotControlApp/GetStatistics',
+                request_serializer=robotcontrolapp__pb2.StatisticsRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.StatisticsResponse.FromString,
+                _registered_method=True)
 
 
 class RobotControlAppServicer(object):
@@ -368,6 +373,13 @@ class RobotControlAppServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetStatistics(self, request, context):
+        """Statistics
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_RobotControlAppServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -505,6 +517,11 @@ def add_RobotControlAppServicer_to_server(servicer, server):
                     servicer.ShowDialog,
                     request_deserializer=robotcontrolapp__pb2.ShowDialogRequest.FromString,
                     response_serializer=robotcontrolapp__pb2.ShowDialogResponse.SerializeToString,
+            ),
+            'GetStatistics': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetStatistics,
+                    request_deserializer=robotcontrolapp__pb2.StatisticsRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.StatisticsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -1239,6 +1256,33 @@ class RobotControlApp(object):
             '/robotcontrolapp.RobotControlApp/ShowDialog',
             robotcontrolapp__pb2.ShowDialogRequest.SerializeToString,
             robotcontrolapp__pb2.ShowDialogResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetStatistics(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/robotcontrolapp.RobotControlApp/GetStatistics',
+            robotcontrolapp__pb2.StatisticsRequest.SerializeToString,
+            robotcontrolapp__pb2.StatisticsResponse.FromString,
             options,
             channel_credentials,
             insecure,

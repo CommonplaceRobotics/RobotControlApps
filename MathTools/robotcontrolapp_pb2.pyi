@@ -962,3 +962,37 @@ class AppAction(_message.Message):
     ui_changes: _containers.RepeatedCompositeFieldContainer[AppUIElement]
     request_ui_state: _containers.RepeatedScalarFieldContainer[str]
     def __init__(self, app_name: _Optional[str] = ..., set_variables: _Optional[_Iterable[_Union[ProgramVariable, _Mapping]]] = ..., done_functions: _Optional[_Iterable[int]] = ..., failed_functions: _Optional[_Iterable[_Union[FailedFunction, _Mapping]]] = ..., ui_changes: _Optional[_Iterable[_Union[AppUIElement, _Mapping]]] = ..., request_ui_state: _Optional[_Iterable[str]] = ...) -> None: ...
+
+class StatisticsRequest(_message.Message):
+    __slots__ = ("app_name", "reset_parts_counter")
+    APP_NAME_FIELD_NUMBER: _ClassVar[int]
+    RESET_PARTS_COUNTER_FIELD_NUMBER: _ClassVar[int]
+    app_name: str
+    reset_parts_counter: bool
+    def __init__(self, app_name: _Optional[str] = ..., reset_parts_counter: bool = ...) -> None: ...
+
+class StatisticsResponse(_message.Message):
+    __slots__ = ("uptime_complete", "uptime_last", "uptime_enabled", "uptime_motion", "program_starts_total", "program_starts_last", "program_duration_last", "parts_good", "parts_bad", "robot_axis_direction_changes", "external_axis_direction_changes")
+    UPTIME_COMPLETE_FIELD_NUMBER: _ClassVar[int]
+    UPTIME_LAST_FIELD_NUMBER: _ClassVar[int]
+    UPTIME_ENABLED_FIELD_NUMBER: _ClassVar[int]
+    UPTIME_MOTION_FIELD_NUMBER: _ClassVar[int]
+    PROGRAM_STARTS_TOTAL_FIELD_NUMBER: _ClassVar[int]
+    PROGRAM_STARTS_LAST_FIELD_NUMBER: _ClassVar[int]
+    PROGRAM_DURATION_LAST_FIELD_NUMBER: _ClassVar[int]
+    PARTS_GOOD_FIELD_NUMBER: _ClassVar[int]
+    PARTS_BAD_FIELD_NUMBER: _ClassVar[int]
+    ROBOT_AXIS_DIRECTION_CHANGES_FIELD_NUMBER: _ClassVar[int]
+    EXTERNAL_AXIS_DIRECTION_CHANGES_FIELD_NUMBER: _ClassVar[int]
+    uptime_complete: int
+    uptime_last: int
+    uptime_enabled: int
+    uptime_motion: int
+    program_starts_total: int
+    program_starts_last: int
+    program_duration_last: float
+    parts_good: float
+    parts_bad: float
+    robot_axis_direction_changes: _containers.RepeatedScalarFieldContainer[int]
+    external_axis_direction_changes: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, uptime_complete: _Optional[int] = ..., uptime_last: _Optional[int] = ..., uptime_enabled: _Optional[int] = ..., uptime_motion: _Optional[int] = ..., program_starts_total: _Optional[int] = ..., program_starts_last: _Optional[int] = ..., program_duration_last: _Optional[float] = ..., parts_good: _Optional[float] = ..., parts_bad: _Optional[float] = ..., robot_axis_direction_changes: _Optional[_Iterable[int]] = ..., external_axis_direction_changes: _Optional[_Iterable[int]] = ...) -> None: ...

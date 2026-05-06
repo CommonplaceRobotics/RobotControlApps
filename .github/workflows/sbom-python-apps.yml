@@ -2,9 +2,9 @@ name: Generate SBOMs for python apps
 
 on:
   push:
-    branches: [ "master", "v14-006-6" ]
+    branches: [ "master", "v14-006-7" ]
   pull_request:
-    branches: [ "master", "v14-006-6" ]
+    branches: [ "master", "v14-006-7" ]
 
 permissions:
   contents: read

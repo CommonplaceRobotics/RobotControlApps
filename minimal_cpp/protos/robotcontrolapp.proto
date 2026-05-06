@@ -65,6 +65,9 @@ service RobotControlApp {
 
     // UI
     rpc ShowDialog(ShowDialogRequest) returns (ShowDialogResponse);
+
+    // Statistics
+    rpc GetStatistics(StatisticsRequest) returns (StatisticsResponse);
 }
 
 message CapabilitiesRequest
@@ -937,4 +940,45 @@ message AppAction {
     // List of UI updates
     repeated AppUIElement ui_changes = 10;
     repeated string request_ui_state = 11;
+}
+
+/*******************************************************************************
+ * Statistics
+ ******************************************************************************/
+// Requests statistics data
+message StatisticsRequest {
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // Set true to reset parts_good and parts_bad to 0
+    bool reset_parts_counter = 2;
+}
+
+// Response to a statistics data request
+message StatisticsResponse {
+    // Total uptime in minutes
+    uint32 uptime_complete = 1;
+    // Uptime till previous shutdown in minutes
+    uint32 uptime_last = 2;
+    // Total time in motors enabled state in minutes
+    uint32 uptime_enabled = 3;
+    // Total time with axes in motion in minutes
+    uint32 uptime_motion = 4;
+
+    // Total number of program starts
+    uint32 program_starts_total = 5;
+    // Number of program starts since startup
+    uint32 program_starts_last = 6;
+    // Duration of the previous program run in seconds
+    float program_duration_last = 7;
+
+    // Number of good parts (number variable #parts-good)
+    float parts_good = 8;
+    // Number of bad parts (number variable #parts-bad)
+    float parts_bad = 9;
+
+    // Number of direction changes of the robot axes
+    repeated uint32 robot_axis_direction_changes = 10;
+    // Number of direction changes of the external axes
+    repeated uint32 external_axis_direction_changes = 11;
 }

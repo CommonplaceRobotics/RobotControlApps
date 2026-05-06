@@ -27,6 +27,7 @@
 #include "DataTypes/MotionState.h"
 #include "DataTypes/ProgramVariable.h"
 #include "DataTypes/RobotState.h"
+#include "DataTypes/Statistics.h"
 #include "DataTypes/SystemInfo.h"
 #include "robotcontrolapp.grpc.pb.h"
 
@@ -55,7 +56,7 @@ public:
     // Minimum required minor version of the RobotControl Core
     static constexpr int VERSION_MINOR_MIN = 6;
     // Minimum required patch version of the RobotControl Core
-    static constexpr int VERSION_PATCH_MIN = 6;
+    static constexpr int VERSION_PATCH_MIN = 7;
 
     /**
      * @brief If set true additional output is written to stdout
@@ -679,6 +680,16 @@ public:
      * @return Description of the directory's content
      */
     DirectoryContent ListFiles(const std::string& directory);
+
+    // =========================================================================
+    // Statistics
+    // =========================================================================
+    /**
+     * @brief Gets the statistics data
+     * @param resetPartsCounter Set true to reset the parts counters (number variables #parts-good and #parts-bad) to 0
+     * @return Statistics data
+     */
+    DataTypes::Statistics GetStatistics(bool resetPartsCounter = false);
 
     // =========================================================================
     // App UI

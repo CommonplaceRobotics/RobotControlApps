@@ -2079,6 +2079,29 @@ AppClient::DirectoryContent AppClient::ListFiles(const std::string& directory)
 }
 
 /**
+ * @brief Gets the statistics data
+ * @param resetPartsCounter Set true to reset the parts counters (number variables #parts-good and #parts-bad) to 0
+ * @return Statistics data
+ */
+DataTypes::Statistics AppClient::GetStatistics(bool resetPartsCounter)
+{
+    if (!IsConnected()) throw NotConnectedException();
+
+    robotcontrolapp::StatisticsRequest request;
+    request.set_reset_parts_counter(resetPartsCounter);
+    request.set_app_name(GetAppName());
+    robotcontrolapp::StatisticsResponse response;
+    grpc::ClientContext context;
+    auto status = m_grpcStub->GetStatistics(&context, request, &response);
+    if (!status.ok())
+    {
+        throw std::runtime_error("request GetStatistics failed: " + status.error_message());
+    }
+
+    return DataTypes::Statistics(response);
+}
+
+/**
  * @brief Announces to the robot control that the app function call finished. This allows the robot program to continue with the next command.
  * @param callId function call ID from the function call request
  */

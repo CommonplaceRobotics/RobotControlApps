@@ -2,9 +2,6 @@
 The AppClient class provides a simple interface to the igus Robot Control App Interface.
 """
 
-__version__ = "14.6.6"
-"""The app API version is equal to the minimum supported Robot Control version"""
-
 from io import BufferedReader
 from queue import Queue
 import sys
@@ -14,6 +11,7 @@ import time
 from typing import List
 import grpc
 from google.protobuf.internal import containers as protobufContainers
+from DataTypes.Statistics import Statistics
 from DataTypes.Matrix44 import Matrix44
 from DataTypes.ProgramVariable import NumberVariable, PositionVariable, ProgramVariable
 from DataTypes.SystemInfo import SystemInfo
@@ -22,6 +20,9 @@ from DataTypes.MotionState import MotionState
 from DataTypes.LicenseInfo import LicenseInfo
 import robotcontrolapp_pb2
 from robotcontrolapp_pb2_grpc import RobotControlAppStub
+
+__version__ = "14.6.7"
+"""The app API version is equal to the minimum supported Robot Control version"""
 
 
 class NotConnectedException(RuntimeError):
@@ -1681,6 +1682,22 @@ class AppClient:
         request.app_name = self.GetAppName()
         request.path = directory
         return AppClient.DirectoryContent.FromGrcp(self.__grpcStub.ListFiles(request))
+
+    def GetStatistics(self, resetPartsCounters: bool) -> Statistics:
+        """
+        Gets the statistics data
+        Parameters:
+            resetPartsCounter: Set true to reset the parts counters (number variables #parts-good and #parts-bad) to 0
+        Returns:
+            Statistics data
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.StatisticsRequest()
+        request.app_name = self.GetAppName()
+        request.reset_parts_counter = resetPartsCounters
+        return Statistics.Statistics.FromGrpc(self.__grpcStub.GetStatistics(request))
 
     # =========================================================================
     # App UI

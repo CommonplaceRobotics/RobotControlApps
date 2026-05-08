@@ -1,113 +1,116 @@
+from dataclasses import dataclass
 from typing import List
 
 from DataTypes.Matrix44 import Matrix44
 
 
+@dataclass
 class ProgramVariable:
     """Program variable base type"""
 
-    def __init__(self, name: str):
-        self.__name = name
-
-    def GetName(self) -> str:
-        """Gets the variable name"""
-        return self.__name
-
-    def SetName(self, name: str):
-        """Sets the variable name"""
-        self.__name = name
+    name: str = ""
+    """Name of the variable. Case insensitive, must not contain spaces or special characters."""
 
 
+@dataclass
 class NumberVariable(ProgramVariable):
     """Number variable"""
 
-    __value: float
+    value: float = 0.0
+    """Value of the number variable"""
 
-    def __init__(self, name: str, value: float = 0):
+    def __init__(self, name: str, value: float = 0.0):
+        """
+        Constructor
+        Parameters:
+            name: Name of the variable. Case insensitive, must not contain spaces or special characters.
+            value: Value of the variable
+        """
         ProgramVariable.__init__(self, name)
-        self.__value = value
-
-    def GetValue(self) -> float:
-        """Gets the variable value"""
-        return self.__value
-
-    def SetValue(self, value: float):
-        """Sets the variable value"""
-        self.__value = value
+        self.value = value
 
 
 class PositionVariable(ProgramVariable):
     """Position variable"""
 
     def __init__(self, name: str):
+        """
+        Constructor
+        Parameters:
+            name: Name of the variable. Case insensitive, must not contain spaces or special characters.
+        """
         ProgramVariable.__init__(self, name)
-        self.__cartesian = Matrix44()
-        self.__robotAxes = [0, 0, 0, 0, 0, 0]
-        self.__externalAxes = [0, 0, 0]
-
-    def MakeJoint(
-        name: str, robotAxes: List[int], externalAxes: List[int]
-    ) -> ProgramVariable:
-        """Makes a joint position variable"""
-        result = PositionVariable(name)
-        result.SetRobotAxes(robotAxes)
-        if externalAxes is not None:
-            result.SetExternalAxes(externalAxes)
-        return result
-
-    def MakeCartesian(
-        name: str,
-        cartesian: Matrix44,
-        externalAxes: List[int],
-    ) -> ProgramVariable:
-        """Makes a cartesian position variable"""
-        result = PositionVariable(name)
-        result.SetCartesian(cartesian)
-
-        if externalAxes is not None:
-            result.SetExternalAxes(externalAxes)
-        return result
-
-    def MakeBoth(
-        name: str, cartesian: Matrix44, robotAxes: List[int], externalAxes: List[int]
-    ) -> ProgramVariable:
-        """Makes a position variable with both joints and cartesian values"""
-        result = PositionVariable(name)
-        result.SetCartesian(cartesian)
-
-        result.SetRobotAxes(robotAxes)
-        if externalAxes is not None:
-            result.SetExternalAxes(externalAxes)
-        return result
-
-    def GetCartesian(self) -> Matrix44:
-        """Gets the cartesian position and orientation"""
-        return self.__cartesian
-
-    def SetCartesian(self, cartesian: Matrix44):
-        """Sets the cartesian position and orientation"""
-        self.__cartesian = cartesian
-
-    def GetRobotAxes(self):
-        """Gets the robot axes"""
-        return self.__robotAxes
+        self.cartesian = Matrix44()
+        self.robotAxes = [0, 0, 0, 0, 0, 0]
+        self.externalAxes = [0, 0, 0]
 
     def SetRobotAxes(self, robotAxes: List[int]):
         """Sets the robot axes"""
-        length = min(len(self.__robotAxes), len(robotAxes))
-        for i in range(length, len(self.__robotAxes)):
-            self.__robotAxes[i] = 0
+        self.robotAxes = [0] * 6
+        length = min(len(self.robotAxes), len(robotAxes))
         for i in range(length):
-            self.__robotAxes[i] = robotAxes[i]
-
-    def GetExternalAxes(self):
-        """Sets the external axes"""
-        return self.__externalAxes
+            self.robotAxes[i] = robotAxes[i]
 
     def SetExternalAxes(self, externalAxes: list[int]):
         """Sets the external axes"""
-        length = min(len(self.__externalAxes), len(externalAxes))
-        for i in range(length, 3):
-            self.__externalAxes[i] = 0
+        self.externalAxes = [0] * 3
+        length = min(len(self.externalAxes), len(externalAxes))
         for i in range(length):
-            self.__externalAxes[i] = externalAxes[i]
+            self.externalAxes[i] = externalAxes[i]
+
+
+def MakePositionVariableJoint(
+    name: str, robotAxes: List[int], externalAxes: List[int]
+) -> PositionVariable:
+    """
+    Makes a joint position variable with joint position only
+    Parameters:
+        name: Name of the variable. Case insensitive, must not contain spaces or special characters.
+        robotAxes: Up to 6 robot axis values
+        externalAxes: Up to 3 external axis values
+    """
+    result = PositionVariable(name)
+    result.SetRobotAxes(robotAxes)
+    if externalAxes is not None:
+        result.SetExternalAxes(externalAxes)
+    return result
+
+
+def MakePositionVariableCartesian(
+    name: str, cartesian: Matrix44, externalAxes: List[int]
+) -> PositionVariable:
+    """
+    Makes a joint position variable with cartesian and external axes position only
+    Parameters:
+        name: Name of the variable. Case insensitive, must not contain spaces or special characters.
+        cartesian: Matrix defining the cartesian position and orientation
+        externalAxes: Up to 3 external axis values
+    """
+    """Makes a cartesian position variable"""
+    result = PositionVariable(name)
+    result.cartesian = cartesian
+
+    if externalAxes is not None:
+        result.SetExternalAxes(externalAxes)
+    return result
+
+
+def MakePositionVariableBoth(
+    name: str, cartesian: Matrix44, robotAxes: List[int], externalAxes: List[int]
+) -> PositionVariable:
+    """
+    Makes a joint position variable with both cartesian and joint position
+    Parameters:
+        name: Name of the variable. Case insensitive, must not contain spaces or special characters.
+        cartesian: Matrix defining the cartesian position and orientation
+        robotAxes: Up to 6 robot axis values
+        externalAxes: Up to 3 external axis values
+    """
+    """Makes a position variable with both joints and cartesian values"""
+    result = PositionVariable(name)
+    result.cartesian = cartesian
+
+    result.SetRobotAxes(robotAxes)
+    if externalAxes is not None:
+        result.SetExternalAxes(externalAxes)
+    return result

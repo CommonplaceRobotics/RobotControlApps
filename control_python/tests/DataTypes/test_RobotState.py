@@ -1,7 +1,7 @@
 import unittest
 
 from DataTypes.Matrix44 import Matrix44
-from DataTypes.RobotState import RobotState, Joint
+from DataTypes.RobotState import JointFromGrpc, RobotState, Joint, RobotStateFromGrpc
 import robotcontrolapp_pb2
 
 
@@ -40,7 +40,7 @@ class JointTest(unittest.TestCase):
         grpc.current = 1234.5
         grpc.target_velocity = 87.6
 
-        joint = Joint.FromGrpc(grpc)
+        joint = JointFromGrpc(grpc)
         self.assertEqual(123, joint.id)
         self.assertEqual("A5", joint.name)
         self.assertAlmostEqual(12.3, joint.actualPosition, 4)
@@ -172,7 +172,7 @@ class RobotStateTest(unittest.TestCase):
 
         grpc.referencing_state = robotcontrolapp_pb2.ReferencingState.IS_REFERENCING
 
-        state = RobotState.FromGrpc(grpc)
+        state = RobotStateFromGrpc(grpc)
         self.assertEqual(123, state.tcp.GetX())
         self.assertEqual(456, state.tcp.GetY())
         self.assertEqual(789, state.tcp.GetZ())

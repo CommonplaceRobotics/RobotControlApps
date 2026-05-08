@@ -1,7 +1,6 @@
 import unittest
 
 from AppClient import AppClient
-import robotcontrolapp_pb2
 
 
 class AppClientTest(unittest.TestCase):

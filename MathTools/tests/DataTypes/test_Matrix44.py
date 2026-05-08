@@ -1,6 +1,6 @@
 import unittest
 
-from DataTypes.Matrix44 import Matrix44
+from DataTypes.Matrix44 import Matrix44, Matrix44FromGrpc
 import robotcontrolapp_pb2
 
 
@@ -32,7 +32,7 @@ class Matrix44Test(unittest.TestCase):
         for i in range(16):
             original.data.append(10 * (i + 1))
 
-        result = Matrix44.FromGrpc(original)
+        result = Matrix44FromGrpc(original)
         self.assertTrue(isinstance(result, Matrix44))
 
         self.assertEqual(10, result._data[0])

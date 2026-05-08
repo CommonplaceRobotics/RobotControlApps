@@ -1,6 +1,7 @@
 import unittest
+import unittest
 
-from DataTypes.SystemInfo import SystemInfo
+from DataTypes.SystemInfo import SystemInfo, SystemInfoFromGrpc
 import robotcontrolapp_pb2
 
 
@@ -61,7 +62,7 @@ class SystemInfoTest(unittest.TestCase):
         grpc.platform_axis_count = 4
         grpc.digital_io_module_count = 3
 
-        sysInfo = SystemInfo.FromGrpc(grpc)
+        sysInfo = SystemInfoFromGrpc(grpc)
         self.assertEqual(14, sysInfo.versionMajor)
         self.assertEqual(4, sysInfo.versionMinor)
         self.assertEqual(1, sysInfo.versionPatch)

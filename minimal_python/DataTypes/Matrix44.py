@@ -32,18 +32,6 @@ class Matrix44:
             1.0,
         ]
 
-    def FromGrpc(grpcMatrix: robotcontrolapp_pb2.Matrix44):
-        """Constructor, copies values from GRPC matrix"""
-        if len(grpcMatrix.data) != 16:
-            raise Exception(
-                "could not initialize Matrix44, GRPC matrix had invalid element count "
-                + len(grpcMatrix.data)
-            )
-        result = Matrix44()
-        for i in range(16):
-            result._data[i] = grpcMatrix.data[i]
-        return result
-
     def ToGrpc(self) -> robotcontrolapp_pb2.Matrix44:
         """Creates a GRPC matrix and copies the values"""
         result = robotcontrolapp_pb2.Matrix44()
@@ -163,3 +151,16 @@ class Matrix44:
         self._data[8] = -sb
         self._data[9] = cb * sg
         self._data[10] = cb * cg
+
+
+def Matrix44FromGrpc(grpcMatrix: robotcontrolapp_pb2.Matrix44) -> Matrix44:
+    """Constructor, copies values from GRPC matrix"""
+    if len(grpcMatrix.data) != 16:
+        raise Exception(
+            "could not initialize Matrix44, GRPC matrix had invalid element count "
+            + str(len(grpcMatrix.data))
+        )
+    result = Matrix44()
+    for i in range(16):
+        result._data[i] = grpcMatrix.data[i]
+    return result

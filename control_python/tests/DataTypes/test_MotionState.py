@@ -1,6 +1,13 @@
 import unittest
 
-from DataTypes.MotionState import InterpolatorState, MotionState, PositionInterfaceState
+from DataTypes.MotionState import (
+    InterpolatorState,
+    InterpolatorStateFromGrpc,
+    MotionState,
+    MotionStateFromGrpc,
+    PositionInterfaceState,
+    PositionInterfaceStateFromGrpc,
+)
 import robotcontrolapp_pb2
 
 
@@ -27,7 +34,7 @@ class MotionStateTest(unittest.TestCase):
         grpc.current_command_idx = 3
         grpc.command_count = 4
 
-        state = InterpolatorState.FromGrpc(grpc)
+        state = InterpolatorStateFromGrpc(grpc)
         self.assertEqual(robotcontrolapp_pb2.PAUSED, state.runState)
         self.assertEqual(robotcontrolapp_pb2.REPEAT, state.replayMode)
         self.assertEqual("Foo", state.mainProgram)
@@ -47,7 +54,7 @@ class MotionStateTest(unittest.TestCase):
         grpc.current_command_idx = 3
         grpc.command_count = 4
 
-        state = InterpolatorState.FromGrpc(grpc)
+        state = InterpolatorStateFromGrpc(grpc)
         self.assertEqual(robotcontrolapp_pb2.RUNNING, state.runState)
         self.assertEqual(robotcontrolapp_pb2.STEP, state.replayMode)
         self.assertEqual("Foo", state.mainProgram)
@@ -67,7 +74,7 @@ class MotionStateTest(unittest.TestCase):
         grpc.current_command_idx = 3
         grpc.command_count = 4
 
-        state = InterpolatorState.FromGrpc(grpc)
+        state = InterpolatorStateFromGrpc(grpc)
         self.assertEqual(robotcontrolapp_pb2.NOT_RUNNING, state.runState)
         self.assertEqual(robotcontrolapp_pb2.SINGLE, state.replayMode)
         self.assertEqual("Foo", state.mainProgram)
@@ -88,7 +95,7 @@ class MotionStateTest(unittest.TestCase):
         grpc1.is_enabled = True
         grpc1.is_in_use = True
         grpc1.port = 123
-        state1 = PositionInterfaceState.FromGrpc(grpc1)
+        state1 = PositionInterfaceStateFromGrpc(grpc1)
         self.assertTrue(state1.isEnabled)
         self.assertTrue(state1.isInUse)
         self.assertEqual(123, state1.port)
@@ -97,7 +104,7 @@ class MotionStateTest(unittest.TestCase):
         grpc2.is_enabled = False
         grpc2.is_in_use = True
         grpc2.port = 123
-        state2 = PositionInterfaceState.FromGrpc(grpc2)
+        state2 = PositionInterfaceStateFromGrpc(grpc2)
         self.assertFalse(state2.isEnabled)
         self.assertTrue(state2.isInUse)
         self.assertEqual(123, state2.port)
@@ -106,7 +113,7 @@ class MotionStateTest(unittest.TestCase):
         grpc3.is_enabled = True
         grpc3.is_in_use = False
         grpc3.port = 456
-        state3 = PositionInterfaceState.FromGrpc(grpc3)
+        state3 = PositionInterfaceStateFromGrpc(grpc3)
         self.assertTrue(state3.isEnabled)
         self.assertFalse(state3.isInUse)
         self.assertEqual(456, state3.port)
@@ -125,7 +132,7 @@ class MotionStateTest(unittest.TestCase):
         grpc.move_to_ipo.main_program_name = "Baz"
         grpc.position_interface.port = 789
 
-        state = MotionState.FromGrpc(grpc)
+        state = MotionStateFromGrpc(grpc)
         self.assertEqual("Foo", state.motionProgram.mainProgram)
         self.assertEqual("Bar", state.logicProgram.mainProgram)
         self.assertEqual("Baz", state.moveTo.mainProgram)

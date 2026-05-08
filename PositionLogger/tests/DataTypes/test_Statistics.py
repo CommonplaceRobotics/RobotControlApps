@@ -8,17 +8,7 @@ class StatisticsTest(unittest.TestCase):
     def test_init(self):
         stat = Statistics.Statistics()
         self.assertEqual(0, len(stat.externalAxisDirectionChanges))
-        # self.assertEqual(0, stat.externalAxisDirectionChanges[0])
-        # self.assertEqual(0, stat.externalAxisDirectionChanges[1])
-        # self.assertEqual(0, stat.externalAxisDirectionChanges[2])
-
         self.assertEqual(0, len(stat.robotAxisDirectionChanges))
-        # self.assertEqual(0, stat.robotAxisDirectionChanges[0])
-        # self.assertEqual(0, stat.robotAxisDirectionChanges[1])
-        # self.assertEqual(0, stat.robotAxisDirectionChanges[2])
-        # self.assertEqual(0, stat.robotAxisDirectionChanges[3])
-        # self.assertEqual(0, stat.robotAxisDirectionChanges[4])
-        # self.assertEqual(0, stat.robotAxisDirectionChanges[5])
 
         self.assertEqual(0, stat.partsBad)
         self.assertEqual(0, stat.partsGood)
@@ -55,7 +45,7 @@ class StatisticsTest(unittest.TestCase):
         grpc1.external_axis_direction_changes.append(170)
         grpc1.external_axis_direction_changes.append(180)
 
-        stat = Statistics.Statistics.FromGrpc(grpc1)
+        stat = Statistics.StatisticsFromGrpc(grpc1)
         self.assertEqual(3, len(stat.externalAxisDirectionChanges))
         self.assertEqual(160, stat.externalAxisDirectionChanges[0])
         self.assertEqual(170, stat.externalAxisDirectionChanges[1])

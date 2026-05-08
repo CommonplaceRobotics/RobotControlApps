@@ -1,6 +1,6 @@
 import unittest
 
-from DataTypes.LicenseInfo import LicenseInfo, LicenseDetails
+from DataTypes.LicenseInfo import LicenseInfo, LicenseDetails, LicenseInfoFromGrpc
 import robotcontrolapp_pb2
 
 
@@ -19,7 +19,7 @@ class LicenseInfoTest(unittest.TestCase):
         grpc1 = robotcontrolapp_pb2.LicenseInfoResponse()
         grpc1.test_duration_remaining_seconds = 42
 
-        result1 = LicenseInfo.FromGrpc(grpc1)
+        result1 = LicenseInfoFromGrpc(grpc1)
         self.assertEqual(42, result1.testDurationRemaining)
         self.assertEqual(0, len(result1.features))
 
@@ -39,7 +39,7 @@ class LicenseInfoTest(unittest.TestCase):
         ld3.feature_id = "ThirdFeature"
         ld3.is_licensed = False
 
-        result2 = LicenseInfo.FromGrpc(grpc2)
+        result2 = LicenseInfoFromGrpc(grpc2)
         self.assertEqual(123, result2.testDurationRemaining)
         self.assertEqual(3, len(result2.features))
 

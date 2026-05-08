@@ -11,13 +11,14 @@ import time
 from typing import List
 import grpc
 from google.protobuf.internal import containers as protobufContainers
-from DataTypes.Statistics import Statistics
-from DataTypes.Matrix44 import Matrix44
-from DataTypes.ProgramVariable import NumberVariable, PositionVariable, ProgramVariable
-from DataTypes.SystemInfo import SystemInfo
-from DataTypes.RobotState import RobotState
-from DataTypes.MotionState import MotionState
-from DataTypes.LicenseInfo import LicenseInfo
+from DataTypes.DirectoryContent import DirectoryContent, DirectoryContentFromGrcp
+from DataTypes.Statistics import Statistics, StatisticsFromGrpc
+from DataTypes.Matrix44 import Matrix44, Matrix44FromGrpc
+import DataTypes.ProgramVariable
+from DataTypes.SystemInfo import SystemInfo, SystemInfoFromGrpc
+from DataTypes.RobotState import RobotState, RobotStateFromGrpc
+from DataTypes.MotionState import MotionState, MotionStateFromGrpc
+from DataTypes.LicenseInfo import LicenseInfo, LicenseInfoFromGrpc
 import robotcontrolapp_pb2
 from robotcontrolapp_pb2_grpc import RobotControlAppStub
 
@@ -166,9 +167,11 @@ class AppClient:
         request = robotcontrolapp_pb2.GetTCPRequest()
         request.app_name = self.GetAppName()
         response = self.__grpcStub.GetTCP(request)
-        return Matrix44.FromGrpc(response)
+        return Matrix44FromGrpc(response)
 
-    def GetProgramVariable(self, variableName: str) -> ProgramVariable:
+    def GetProgramVariable(
+        self, variableName: str
+    ) -> DataTypes.ProgramVariable.ProgramVariable:
         """
         Gets the program variable, throws exception on error, e.g. if the variable does not exist
         Parameters:
@@ -188,7 +191,9 @@ class AppClient:
             f"failed to get variable '{variableName}': variable does not exist"
         )
 
-    def GetNumberVariable(self, variableName: str) -> NumberVariable:
+    def GetNumberVariable(
+        self, variableName: str
+    ) -> DataTypes.ProgramVariable.NumberVariable:
         """
         Gets the given number variable, throws on error, e.g. if the variable does not exist or is of a different type
         Parameters:
@@ -197,13 +202,15 @@ class AppClient:
             number variable
         """
         variable = self.GetProgramVariable(variableName)
-        if not isinstance(variable, NumberVariable):
+        if not isinstance(variable, DataTypes.ProgramVariable.NumberVariable):
             raise RuntimeError(
                 f"requested variable '{variableName}' is no number variable"
             )
         return variable
 
-    def GetPositionVariable(self, variableName: str) -> PositionVariable:
+    def GetPositionVariable(
+        self, variableName: str
+    ) -> DataTypes.ProgramVariable.PositionVariable:
         """
         Gets the given position variable, throws on error, e.g. if the variable does not exist or is of a different type
         Parameters:
@@ -212,7 +219,7 @@ class AppClient:
             position variable
         """
         variable = self.GetProgramVariable(variableName)
-        if not isinstance(variable, PositionVariable):
+        if not isinstance(variable, DataTypes.ProgramVariable.PositionVariable):
             raise RuntimeError(
                 f"requested variable '{variableName}' is no position variable"
             )
@@ -220,7 +227,7 @@ class AppClient:
 
     def GetProgramVariables(
         self, variableNames: set[str]
-    ) -> dict[str, ProgramVariable]:
+    ) -> dict[str, DataTypes.ProgramVariable.ProgramVariable]:
         """
         Gets program variables
         Parameters:
@@ -240,30 +247,38 @@ class AppClient:
         resultVariables = dict()
         for grpcVariable in self.__grpcStub.GetProgramVariables(request):
             if grpcVariable.HasField("number"):
-                resultVariables[grpcVariable.name] = NumberVariable(
-                    grpcVariable.name, grpcVariable.number
+                resultVariables[grpcVariable.name] = (
+                    DataTypes.ProgramVariable.NumberVariable(
+                        grpcVariable.name, grpcVariable.number
+                    )
                 )
             elif grpcVariable.HasField("position"):
                 if grpcVariable.position.HasField("robot_joints"):
-                    resultVariables[grpcVariable.name] = PositionVariable.MakeJoint(
-                        grpcVariable.name,
-                        grpcVariable.position.robot_joints.joints,
-                        grpcVariable.position.external_joints,
+                    resultVariables[grpcVariable.name] = (
+                        DataTypes.ProgramVariable.MakePositionVariableJoint(
+                            grpcVariable.name,
+                            grpcVariable.position.robot_joints.joints,
+                            grpcVariable.position.external_joints,
+                        )
                     )
                 elif grpcVariable.position.HasField("both"):
-                    cartesian = Matrix44.FromGrpc(grpcVariable.position.both.cartesian)
-                    resultVariables[grpcVariable.name] = PositionVariable.MakeBoth(
-                        grpcVariable.name,
-                        cartesian,
-                        grpcVariable.position.both.robot_joints.joints,
-                        grpcVariable.position.external_joints,
+                    cartesian = Matrix44FromGrpc(grpcVariable.position.both.cartesian)
+                    resultVariables[grpcVariable.name] = (
+                        DataTypes.ProgramVariable.MakePositionVariableBoth(
+                            grpcVariable.name,
+                            cartesian,
+                            grpcVariable.position.both.robot_joints.joints,
+                            grpcVariable.position.external_joints,
+                        )
                     )
                 elif grpcVariable.position.HasField("cartesian"):
-                    cartesian = Matrix44.FromGrpc(grpcVariable.position.cartesian)
-                    resultVariables[grpcVariable.name] = PositionVariable.MakeCartesian(
-                        grpcVariable.name,
-                        cartesian,
-                        grpcVariable.position.external_joints,
+                    cartesian = Matrix44FromGrpc(grpcVariable.position.cartesian)
+                    resultVariables[grpcVariable.name] = (
+                        DataTypes.ProgramVariable.MakePositionVariableCartesian(
+                            grpcVariable.name,
+                            cartesian,
+                            grpcVariable.position.external_joints,
+                        )
                     )
         return resultVariables
 
@@ -589,7 +604,7 @@ class AppClient:
 
         request = robotcontrolapp_pb2.RobotStateRequest()
         request.app_name = self.GetAppName()
-        return RobotState.FromGrpc(self.__grpcStub.GetRobotState(request))
+        return RobotStateFromGrpc(self.__grpcStub.GetRobotState(request))
 
     def SetDigitalInput(self, number: int, state: bool):
         """
@@ -729,7 +744,7 @@ class AppClient:
 
         request = robotcontrolapp_pb2.GetMotionStateRequest()
         request.app_name = self.GetAppName()
-        return MotionState.FromGrpc(self.__grpcStub.GetMotionState(request))
+        return MotionStateFromGrpc(self.__grpcStub.GetMotionState(request))
 
     def LoadMotionProgram(self, program: str) -> MotionState:
         """
@@ -745,7 +760,7 @@ class AppClient:
         request = robotcontrolapp_pb2.MotionInterpolatorRequest()
         request.app_name = self.GetAppName()
         request.main_program = program
-        return MotionState.FromGrpc(self.__grpcStub.SetMotionInterpolator(request))
+        return MotionStateFromGrpc(self.__grpcStub.SetMotionInterpolator(request))
 
     def UnloadMotionProgram(self) -> MotionState:
         """
@@ -771,7 +786,7 @@ class AppClient:
         request = robotcontrolapp_pb2.MotionInterpolatorRequest()
         request.app_name = self.GetAppName()
         request.runstate = replayMode
-        return MotionState.FromGrpc(self.__grpcStub.SetMotionInterpolator(request))
+        return MotionStateFromGrpc(self.__grpcStub.SetMotionInterpolator(request))
 
     def StartMotionProgram(self) -> MotionState:
         """
@@ -794,7 +809,7 @@ class AppClient:
     #     request.runstate = robotcontrolapp_pb2.RunState.RUNNING
     #     request.start_at.program = subProgram
     #     request.start_at.command = commandIdx
-    #     return MotionState.FromGrpc(self.__grpcStub.SetMotionInterpolator(request))
+    #     return MotionStateFromGrpc(self.__grpcStub.SetMotionInterpolator(request))
 
     def PauseMotionProgram(self) -> MotionState:
         """
@@ -828,7 +843,7 @@ class AppClient:
         request = robotcontrolapp_pb2.MotionInterpolatorRequest()
         request.app_name = self.GetAppName()
         request.replay_mode = replayMode
-        return MotionState.FromGrpc(self.__grpcStub.SetMotionInterpolator(request))
+        return MotionStateFromGrpc(self.__grpcStub.SetMotionInterpolator(request))
 
     def SetMotionProgramSingle(self) -> MotionState:
         """
@@ -868,7 +883,7 @@ class AppClient:
         request = robotcontrolapp_pb2.LogicInterpolatorRequest()
         request.app_name = self.GetAppName()
         request.main_program = program
-        return MotionState.FromGrpc(self.__grpcStub.SetLogicInterpolator(request))
+        return MotionStateFromGrpc(self.__grpcStub.SetLogicInterpolator(request))
 
     def UnloadLogicProgram(self) -> MotionState:
         """
@@ -925,7 +940,7 @@ class AppClient:
         request.joint.external_joints.append(e1)
         request.joint.external_joints.append(e2)
         request.joint.external_joints.append(e3)
-        return MotionState.FromGrpc(self.__grpcStub.MoveTo(request))
+        return MotionStateFromGrpc(self.__grpcStub.MoveTo(request))
 
     def MoveToJointRelative(
         self,
@@ -974,7 +989,7 @@ class AppClient:
         request.joint_relative.external_joints.append(e1)
         request.joint_relative.external_joints.append(e2)
         request.joint_relative.external_joints.append(e3)
-        return MotionState.FromGrpc(self.__grpcStub.MoveTo(request))
+        return MotionStateFromGrpc(self.__grpcStub.MoveTo(request))
 
     def MoveToLinear(
         self,
@@ -1026,7 +1041,7 @@ class AppClient:
         request.cart.external_joints.append(e2)
         request.cart.external_joints.append(e3)
         request.cart.frame = frame
-        return MotionState.FromGrpc(self.__grpcStub.MoveTo(request))
+        return MotionStateFromGrpc(self.__grpcStub.MoveTo(request))
 
     def MoveToLinearRelativeBase(
         self,
@@ -1078,7 +1093,7 @@ class AppClient:
         request.cart_relative_base.external_joints.append(e2)
         request.cart_relative_base.external_joints.append(e3)
         request.cart_relative_base.frame = frame
-        return MotionState.FromGrpc(self.__grpcStub.MoveTo(request))
+        return MotionStateFromGrpc(self.__grpcStub.MoveTo(request))
 
     def MoveToLinearRelativeTool(
         self,
@@ -1127,7 +1142,7 @@ class AppClient:
         request.cart_relative_tool.external_joints.append(e1)
         request.cart_relative_tool.external_joints.append(e2)
         request.cart_relative_tool.external_joints.append(e3)
-        return MotionState.FromGrpc(self.__grpcStub.MoveTo(request))
+        return MotionStateFromGrpc(self.__grpcStub.MoveTo(request))
 
     def MoveToStop(self) -> MotionState:
         """
@@ -1141,7 +1156,7 @@ class AppClient:
         request = robotcontrolapp_pb2.MoveToRequest()
         request.app_name = self.GetAppName()
         request.stop.SetInParent()
-        return MotionState.FromGrpc(self.__grpcStub.MoveTo(request))
+        return MotionStateFromGrpc(self.__grpcStub.MoveTo(request))
 
     def GetTargetVelocities(self) -> tuple[float, float, float]:
         """
@@ -1169,7 +1184,9 @@ class AppClient:
 
         return (e1, e2, e3)
 
-    def SetTargetVelocities(self, e1: float, e2: float, e3: float) -> float:
+    def SetTargetVelocities(
+        self, e1: float, e2: float, e3: float
+    ) -> tuple[float, float, float]:
         """
         Sets the target velocities of external axes in velocity mode. Axes that are not in velocity mode are ignored.
         Parameters:
@@ -1306,7 +1323,7 @@ class AppClient:
 
         request = robotcontrolapp_pb2.SystemInfoRequest()
         request.app_name = self.GetAppName()
-        return SystemInfo.FromGrpc(self.__grpcStub.GetSystemInfo(request))
+        return SystemInfoFromGrpc(self.__grpcStub.GetSystemInfo(request))
 
     def GetLicenseInfo(self) -> LicenseInfo:
         """Gets the license information"""
@@ -1315,7 +1332,7 @@ class AppClient:
 
         request = robotcontrolapp_pb2.LicenseInfoRequest()
         request.app_name = self.GetAppName()
-        return LicenseInfo.FromGrpc(self.__grpcStub.GetLicensedFeatures(request))
+        return LicenseInfoFromGrpc(self.__grpcStub.GetLicensedFeatures(request))
 
     def IsFeatureLicensed(self, id: str) -> bool:
         """
@@ -1449,7 +1466,7 @@ class AppClient:
         request.joints.extend(joints)
 
         response = self.__grpcStub.TranslateJointToCart(request)
-        return (Matrix44.FromGrpc(response.position), response.kinematicState)
+        return (Matrix44FromGrpc(response.position), response.kinematicState)
 
     # =========================================================================
     # File access
@@ -1573,7 +1590,7 @@ class AppClient:
             result = self.__grpcStub.UploadFile(iterator)
             return (result.success, result.error)
         except Exception as ex:
-            return (False, ex)
+            return (False, repr(ex))
 
     def DownloadFileToFile(self, sourceFile: str, targetFile: str) -> tuple[bool, str]:
         """
@@ -1600,7 +1617,7 @@ class AppClient:
                         file.close()
                         return (False, chunk.error)
             except Exception as ex:
-                return (False, ex)
+                return (False, repr(ex))
         return (True, "")
 
     def DownloadFileToMemory(self, sourceFile: str) -> tuple[bool, str, bytearray]:
@@ -1627,7 +1644,7 @@ class AppClient:
                     return (False, chunk.error, resultData)
             return (True, "", resultData)
         except Exception as ex:
-            return (False, ex, bytearray())
+            return (False, repr(ex), bytearray())
 
     def RemoveFile(self, file: str) -> tuple[bool, str]:
         """
@@ -1653,26 +1670,6 @@ class AppClient:
 
         return (False, "unknown error")
 
-    class DirectoryContent:
-        """Description of a directory's content"""
-
-        def __init__(self):
-            self.success = False
-            self.errorMessage = ""
-            self.entries = []
-
-        def FromGrcp(grpc: robotcontrolapp_pb2.ListFilesResponse):
-            """
-            Creates an object from a GRPC ListFilesResponse
-            Returns:
-                A new DirectoryContent object
-            """
-            self = AppClient.DirectoryContent()
-            self.success = grpc.success
-            self.errorMessage = grpc.error
-            self.entries.extend(grpc.entries)
-            return self
-
     def ListFiles(self, directory: str) -> DirectoryContent:
         """Gets the content of a directory"""
         if not self.IsConnected():
@@ -1681,7 +1678,7 @@ class AppClient:
         request = robotcontrolapp_pb2.ListFilesRequest()
         request.app_name = self.GetAppName()
         request.path = directory
-        return AppClient.DirectoryContent.FromGrcp(self.__grpcStub.ListFiles(request))
+        return DirectoryContentFromGrcp(self.__grpcStub.ListFiles(request))
 
     def GetStatistics(self, resetPartsCounters: bool) -> Statistics:
         """
@@ -1697,7 +1694,7 @@ class AppClient:
         request = robotcontrolapp_pb2.StatisticsRequest()
         request.app_name = self.GetAppName()
         request.reset_parts_counter = resetPartsCounters
-        return Statistics.Statistics.FromGrpc(self.__grpcStub.GetStatistics(request))
+        return StatisticsFromGrpc(self.__grpcStub.GetStatistics(request))
 
     # =========================================================================
     # App UI

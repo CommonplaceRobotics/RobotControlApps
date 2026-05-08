@@ -883,12 +883,12 @@ protected:
      * @brief Gets called on remote app function calls received from the robot control
      * @param function app function data
      */
-    virtual void AppFunctionHandler(const robotcontrolapp::AppFunction& function){};
+    virtual void AppFunctionHandler(const robotcontrolapp::AppFunction& function) {};
     /**
      * @brief Gets called on remote UI update requests received from the robot control
      * @param updates updated UI elements. Key is the element name, value contains the changes.
      */
-    virtual void UiUpdateHandler(const std::map<std::string, const robotcontrolapp::AppUIElement*>& updates){};
+    virtual void UiUpdateHandler(const std::map<std::string, const robotcontrolapp::AppUIElement*>& updates) {};
 
     /**
      * @brief GRPC client stub: This is the generated GRPC client interface.

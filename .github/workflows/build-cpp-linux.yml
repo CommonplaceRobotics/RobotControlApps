@@ -385,7 +385,7 @@ jobs:
     - name: Install CycloneDX CLI tool
       run: |
         cd ~
-        wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.32.0/cyclonedx-linux-arm64
+        wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.32.0/cyclonedx-linux-x64
         chmod +x cyclonedx-linux-arm64
 
     # This generates sbomify.json with lifecycle info

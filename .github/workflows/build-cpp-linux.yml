@@ -480,6 +480,7 @@ jobs:
     - name: Export SBOMs
       uses: actions/upload-artifact@v7
       with:
+        name: sboms
         path: sboms
         archive: true
 

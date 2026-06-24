@@ -435,15 +435,13 @@ jobs:
         conan sbom:cyclonedx --format 1.4_json monitor_cpp | ~/cyclonedx-linux-x64 convert --input-format json --output-format json --output-version v1_6 > monitor_cpp/sbom.cdx.json
         conan sbom:cyclonedx --format 1.4_json control_cpp | ~/cyclonedx-linux-x64 convert --input-format json --output-format json --output-version v1_6 > control_cpp/sbom.cdx.json
         
-    - name: Prepare sbomify for MinimalApp
-      run: cp minimal_cpp/out/build/Linux/armv8_32/Release/sbomify.json .
-        
     - name: Create SBOM for MinimalApp
       uses: sbomify/sbomify-action@master
       env:
-        #LOCK_FILE: minimal_cpp/conan.lock
-        SBOM_FILE: minimal_cpp/sbom.cdx.json
-        OUTPUT_FILE: sboms/sbom_minimal_app_cpp.cdx.json
+        WORKING_DIR: minimal_cpp
+        #LOCK_FILE: conan.lock
+        SBOM_FILE: sbom.cdx.json
+        OUTPUT_FILE: ../sboms/sbom_minimal_app_cpp.cdx.json
         COMPONENT_NAME: Minimal App C++
         COMPONENT_VERSION: ${{ env.MINIMAL_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
@@ -458,9 +456,10 @@ jobs:
     - name: Create SBOM for MonitorApp
       uses: sbomify/sbomify-action@master
       env:
-        #LOCK_FILE: monitor_cpp/conan.lock
-        SBOM_FILE: monitor_cpp/sbom.cdx.json
-        OUTPUT_FILE: sboms/sbom_monitor_app_cpp.cdx.json
+        WORKING_DIR: monitor_cpp
+        #LOCK_FILE: conan.lock
+        SBOM_FILE: sbom.cdx.json
+        OUTPUT_FILE: ../sboms/sbom_monitor_app_cpp.cdx.json
         COMPONENT_NAME: Monitor App C++
         COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
@@ -475,9 +474,10 @@ jobs:
     - name: Create SBOM for ControlApp
       uses: sbomify/sbomify-action@master
       env:
-        #LOCK_FILE: control_cpp/conan.lock
-        SBOM_FILE: control_cpp/sbom.cdx.json
-        OUTPUT_FILE: sboms/sbom_control_app_cpp.cdx.json
+        WORKING_DIR: control_cpp
+        #LOCK_FILE: conan.lock
+        SBOM_FILE: sbom.cdx.json
+        OUTPUT_FILE: ../sboms/sbom_control_app_cpp.cdx.json
         COMPONENT_NAME: Control App C++
         COMPONENT_VERSION: ${{ env.CONTROL_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen

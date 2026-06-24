@@ -436,7 +436,7 @@ jobs:
         conan sbom:cyclonedx --format 1.4_json control_cpp | ~/cyclonedx-linux-x64 convert --input-format json --output-format json --output-version v1_6 > control_cpp/sbom.cdx.json
         
     - name: Prepare sbomify for MinimalApp
-      run: cp minimal_cpp/out/build/Linux/x86_64/Release/sbomify.json .
+      run: cp minimal_cpp/out/build/Linux/armv8_32/Release/sbomify.json .
         
     - name: Create SBOM for MinimalApp
       uses: sbomify/sbomify-action@master
@@ -453,7 +453,7 @@ jobs:
         UPLOAD: false
 
     - name: Prepare sbomify for MinimalApp
-      run: cp monitor_cpp/out/build/Linux/x86_64/Release/sbomify.json .
+      run: cp monitor_cpp/out/build/Linux/armv8_32/Release/sbomify.json .
 
     - name: Create SBOM for MonitorApp
       uses: sbomify/sbomify-action@master
@@ -470,7 +470,7 @@ jobs:
         UPLOAD: false
 
     - name: Prepare sbomify for MinimalApp
-      run: cp control_cpp/out/build/Linux/x86_64/Release/sbomify.json .
+      run: cp control_cpp/out/build/Linux/armv8_32/Release/sbomify.json .
 
     - name: Create SBOM for ControlApp
       uses: sbomify/sbomify-action@master

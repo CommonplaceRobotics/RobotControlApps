@@ -10,7 +10,7 @@ name: Build and Test Apps for Linux
 
 on:
   push:
-    branches: [ "master", "v1*", "v2*", "v3*" ]
+    branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
   pull_request:
     branches: [ "master", "v1*", "v2*", "v3*" ]
 
@@ -374,6 +374,14 @@ jobs:
         sudo wget --quiet https://downloads.cpr-robots.com/Software/CI/gcc_armv8-rpi4-linux-gnueabihf.tar.gz
         sudo tar -xf gcc_armv8-rpi4-linux-gnueabihf.tar.gz
 
+    - name: Install Conan
+      uses: conan-io/setup-conan@v1
+
+    - name: Install CycloneDX extension for Conan
+      run: |
+        pip install 'cyclonedx-python-lib>=5.0.0,<6'
+        conan config install https://github.com/conan-io/conan-extensions.git
+
     # This generates sbomify.json with lifecycle info
     - name: Configure CMake for MinimalApp
       run: |
@@ -415,16 +423,17 @@ jobs:
         echo "CONTROL_APP_VER=$CONTROL_APP_VER" >> $GITHUB_ENV
 
     # Sbomify seems to identify lock files by name
-    - name: Rename SBOM files
+    - name: Create SBOM files
       run: |
-        mv minimal_cpp/conan_linux.lock minimal_cpp/conan.lock
-        mv monitor_cpp/conan_linux.lock monitor_cpp/conan.lock
-        mv control_cpp/conan_linux.lock control_cpp/conan.lock
+        conan sbom:cyclonedx --format 1.4_json minimal_cpp > minimal_cpp/sbom.cdx.json
+        conan sbom:cyclonedx --format 1.4_json monitor_cpp > monitor_cpp/sbom.cdx.json
+        conan sbom:cyclonedx --format 1.4_json control_cpp > control_cpp/sbom.cdx.json
 
     - name: Create SBOM for MinimalApp
       uses: sbomify/sbomify-action@master
       env:
-        LOCK_FILE: minimal_cpp/conan.lock
+        #LOCK_FILE: minimal_cpp/conan.lock
+        SBOM_FILE: minimal_cpp/sbom.cdx.json
         OUTPUT_FILE: sboms/sbom_minimal_app_cpp.cdx.json
         COMPONENT_NAME: Minimal App C++
         COMPONENT_VERSION: ${{ env.MINIMAL_APP_VER }}
@@ -437,7 +446,8 @@ jobs:
     - name: Create SBOM for MonitorApp
       uses: sbomify/sbomify-action@master
       env:
-        LOCK_FILE: monitor_cpp/conan.lock
+        #LOCK_FILE: monitor_cpp/conan.lock
+        SBOM_FILE: monitor_cpp/sbom.cdx.json
         OUTPUT_FILE: sboms/sbom_monitor_app_cpp.cdx.json
         COMPONENT_NAME: Monitor App C++
         COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}
@@ -450,7 +460,8 @@ jobs:
     - name: Create SBOM for ControlApp
       uses: sbomify/sbomify-action@master
       env:
-        LOCK_FILE: control_cpp/conan.lock
+        #LOCK_FILE: control_cpp/conan.lock
+        SBOM_FILE: control_cpp/sbom.cdx.json
         OUTPUT_FILE: sboms/sbom_control_app_cpp.cdx.json
         COMPONENT_NAME: Control App C++
         COMPONENT_VERSION: ${{ env.CONTROL_APP_VER }}

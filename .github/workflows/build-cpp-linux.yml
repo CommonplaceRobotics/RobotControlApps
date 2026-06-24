@@ -434,6 +434,8 @@ jobs:
         conan sbom:cyclonedx --format 1.4_json minimal_cpp | ~/cyclonedx-linux-x64 convert --input-format json --output-format json --output-version v1_6 > minimal_cpp/sbom.cdx.json
         conan sbom:cyclonedx --format 1.4_json monitor_cpp | ~/cyclonedx-linux-x64 convert --input-format json --output-format json --output-version v1_6 > monitor_cpp/sbom.cdx.json
         conan sbom:cyclonedx --format 1.4_json control_cpp | ~/cyclonedx-linux-x64 convert --input-format json --output-format json --output-version v1_6 > control_cpp/sbom.cdx.json
+        mkdir sboms
+        cp minimal_cpp/sbom.cdx.json sboms/minimal_test.cdx.json
         
     - name: Create SBOM for MinimalApp
       uses: sbomify/sbomify-action@master
@@ -452,8 +454,8 @@ jobs:
     - name: Create SBOM for MonitorApp
       uses: sbomify/sbomify-action@master
       env:
-        #LOCK_FILE: monitor_cpp/conan.lock
-        SBOM_FILE: monitor_cpp/sbom.cdx.json
+        LOCK_FILE: monitor_cpp/conan.lock
+        #SBOM_FILE: monitor_cpp/sbom.cdx.json
         OUTPUT_FILE: sboms/sbom_monitor_app_cpp.cdx.json
         COMPONENT_NAME: Monitor App C++
         COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}

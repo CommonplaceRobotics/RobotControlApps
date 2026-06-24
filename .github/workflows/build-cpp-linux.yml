@@ -482,15 +482,15 @@ jobs:
 
     # Checks compliance with the latest version of BSI TR-03183-2
     - name: Check CRA compliance for MinimalApp
-      run: sbomqs compliance --bsi --color sboms/sbom_minimal_app_cpp.cdx.json
+      run: sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_cpp.cdx.json
 
     # Checks compliance with the latest version of BSI TR-03183-2
     - name: Check CRA compliance for MonitorApp
-      run: sbomqs compliance --bsi --color sboms/sbom_monitor_app_cpp.cdx.json
+      run: sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_cpp.cdx.json
 
     # Checks compliance with the latest version of BSI TR-03183-2
     - name: Check CRA compliance for ControlApp
-      run: sbomqs compliance --bsi --color sboms/sbom_control_app_cpp.cdx.json
+      run: sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_cpp.cdx.json
 
     - name: List component licenses for MinimalApp
       run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_minimal_app_cpp.cdx.json

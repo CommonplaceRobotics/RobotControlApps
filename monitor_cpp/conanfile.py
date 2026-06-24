@@ -32,6 +32,8 @@ class Recipe(ConanFile):
             
         # Needed for protoc only, auto-picks the version req'd by grpc
         self.tool_requires("protobuf/[^6.0.0]")
+        
+        self.test_requires("gtest/[^1.13]")
             
     def layout(self):
         # Defines the directory structure

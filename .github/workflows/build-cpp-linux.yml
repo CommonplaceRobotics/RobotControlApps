@@ -1,0 +1,520 @@
+# Dieser Workflow
+# - Baut die Tests für x86_64 führt sie aus
+# - Erstellt SBOM wird und prüft sie auf Schwachstellen in den Abhängigkeiten
+# Dazu werden zunächst die Abhängigkeiten gebaut und gecached.
+#
+# Vorbedingung:
+# - Die Conan-Lockdatei (conan_linux.lock) muss existieren.
+
+name: Build and Test Apps for Linux
+
+on:
+  push:
+    branches: [ "master", "v1*", "v2*", "v3*" ]
+  pull_request:
+    branches: [ "master", "v1*", "v2*", "v3*" ]
+
+jobs:
+  # Bereitet die Abhängigkeiten für Linux x86_64 vor.
+  # Dies ist ein separater Job, da dies sehr lange dauern (30-60 Min, falls alles gebaut werden muss) kann und das Ergebnis gecached werden soll, auch wenn das Bauen später fehlschlägt.
+#  build_dependencies_pc:
+#    runs-on: ubuntu-latest
+#    timeout-minutes: 120
+#
+#    steps:
+#    - uses: actions/checkout@v7
+#      with:
+#        submodules: true
+#
+#    # Quick cache check without copying files
+#    - name: Check whether cache exists
+#      id: cache_test
+#      uses: actions/cache/restore@v5
+#      with:
+#        path: |
+#          ~/.conan2
+#          minimal_cpp/out
+#          monitor_cpp/out
+#          control_cpp/out
+#        key: conan-${{ runner.os }}-x86_64-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+#        lookup-only: true
+#
+#    - name: Restore cached dependencies
+#      if: steps.cache_test.outputs.cache-hit != 'true'
+#      uses: actions/cache@v5
+#      with:
+#        path: |
+#          ~/.conan2
+#          minimal_cpp/out
+#          monitor_cpp/out
+#          control_cpp/out
+#        key: conan-${{ runner.os }}-x86_64-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+#        restore-keys: |
+#          conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+#          conan-${{ runner.os }}-
+#
+#    - name: Install Conan
+#      if: steps.cache_test.outputs.cache-hit != 'true'
+#      uses: conan-io/setup-conan@v1
+#
+#    - name: Install Conan profiles
+#      if: steps.cache_test.outputs.cache-hit != 'true'
+#      run: cp api_cpp/tools/conan/profiles/Linux/* ~/.conan2/profiles
+#
+#    - name: Build Conan dependencies for MinimalApp (PC)
+#      if: steps.cache_test.outputs.cache-hit != 'true'
+#      run: |
+#        cd minimal_cpp
+#        conan install . --lockfile=./conan_linux.lock --lockfile-partial --build=missing --profile=cpr_linux_x86_64_release -c tools.cmake.cmake_layout:build_folder_vars="['settings.os', 'settings.arch']"
+#
+#    - name: Build Conan dependencies for MonitorApp (PC)
+#      if: steps.cache_test.outputs.cache-hit != 'true'
+#      run: |
+#        cd monitor_cpp
+#        conan install . --lockfile=./conan_linux.lock --lockfile-partial --build=missing --profile=cpr_linux_x86_64_release -c tools.cmake.cmake_layout:build_folder_vars="['settings.os', 'settings.arch']"
+#
+#    - name: Build Conan dependencies for ControlApp (PC)
+#      if: steps.cache_test.outputs.cache-hit != 'true'
+#      run: |
+#        cd control_cpp
+#        conan install . --lockfile=./conan_linux.lock --lockfile-partial --build=missing --profile=cpr_linux_x86_64_release -c tools.cmake.cmake_layout:build_folder_vars="['settings.os', 'settings.arch']"
+#
+#    - name: Clear old dependencies
+#      if: steps.cache_test.outputs.cache-hit != 'true'
+#      run: conan remove --lru=8w "*"
+
+
+  # Bereitet die Abhängigkeiten für RPi vor.
+  # Separater Job mit selber Begründung wie oben.
+  build_dependencies_rpi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 130
+    # Damit die x86_64-Tools nicht doppelt gebaut werden müssen
+    #needs: build_dependencies_pc
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
+
+    # Fail fast
+    - name: Check whether cache exists
+      id: cache_test
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ~/.conan2
+          minimal_cpp/out
+        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+        lookup-only: true
+
+    - name: Restore cached dependencies
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/.conan2
+          minimal_cpp/out
+          monitor_cpp/out
+          control_cpp/out
+        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+        restore-keys: |
+          conan-${{ runner.os }}-armv8_32-
+          conan-${{ runner.os }}-x86_64-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+          conan-${{ runner.os }}-x86_64-
+
+    - name: Install RPi Cross-Compiler
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      run: |
+        mkdir -p /opt/gcc
+        cd /opt/gcc
+        sudo wget --quiet https://downloads.cpr-robots.com/Software/CI/gcc_armv8-rpi4-linux-gnueabihf.tar.gz
+        sudo tar -xf gcc_armv8-rpi4-linux-gnueabihf.tar.gz
+
+    - name: Install Conan
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      uses: conan-io/setup-conan@v1
+
+    - name: Install Conan profiles
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      run: cp api_cpp/tools/conan/profiles/Linux/* ~/.conan2/profiles
+
+    - name: Build Conan dependencies for MinimalApp (RPi)
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      run: |
+        cd minimal_cpp
+        conan install . --lockfile=./conan_linux.lock --lockfile-partial --build=missing --profile:host=cpr_linux_rpi4_gcc10_release --profile:build=cpr_linux_x86_64_release -c tools.cmake.cmake_layout:build_folder_vars="['settings.os', 'settings.arch']"
+
+    - name: Build Conan dependencies for MonitorApp (RPi)
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      run: |
+        cd monitor_cpp
+        conan install . --lockfile=./conan_linux.lock --lockfile-partial --build=missing --profile:host=cpr_linux_rpi4_gcc10_release --profile:build=cpr_linux_x86_64_release -c tools.cmake.cmake_layout:build_folder_vars="['settings.os', 'settings.arch']"
+
+    - name: Build Conan dependencies for ControlApp (RPi)
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      run: |
+        cd control_cpp
+        conan install . --lockfile=./conan_linux.lock --lockfile-partial --build=missing --profile:host=cpr_linux_rpi4_gcc10_release --profile:build=cpr_linux_x86_64_release -c tools.cmake.cmake_layout:build_folder_vars="['settings.os', 'settings.arch']"
+
+    - name: Clear old dependencies
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      run: conan remove --lru=8w "*"
+
+
+  # Builds the Minimal App for RPi
+  build_minimal_app_rpi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build_dependencies_rpi
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
+
+    - name: Restore cached dependencies
+      id: cache
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ~/.conan2
+          minimal_cpp/out
+          monitor_cpp/out
+          control_cpp/out
+        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+        fail-on-cache-miss: true
+
+    - name: Install RPi Cross-Compiler
+      run: |
+        mkdir -p /opt/gcc
+        cd /opt/gcc
+        sudo wget --quiet https://downloads.cpr-robots.com/Software/CI/gcc_armv8-rpi4-linux-gnueabihf.tar.gz
+        sudo tar -xf gcc_armv8-rpi4-linux-gnueabihf.tar.gz
+
+    - name: Install Conan
+      uses: conan-io/setup-conan@v1
+
+    - name: Configure CMake
+      run: |
+        cd minimal_cpp
+        rm -f CMakePresets.json
+        echo "{\"version\": 4,\"include\":[\"out/conan/Linux/armv8_32/Release/generators/CMakePresets.json\"]}" >> CMakePresets.json
+        cmake --preset conan-linux-armv8_32-release .
+
+    - name: Build for Linux armhf (RPi)
+      run: |
+        cd minimal_cpp/out/build/Linux/armv8_32/Release
+        cmake --build . --target minimalapp
+
+    - name: Package App
+      run: |
+        cd minimal_cpp
+        mkdir -p package/minimal_cpp
+        cp rcapp.xml ui.xml Licenses*.pdf package/minimal_cpp
+        cp out/build/Linux/armv8_32/Release/minimalapp package/minimal_cpp
+        cd package
+
+    - name: Export binary
+      uses: actions/upload-artifact@v7
+      with:
+        name: minimal_app_rpi
+        path: minimal_cpp/package
+
+
+  # Builds the Monitor App for RPi
+  build_monitor_app_rpi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build_dependencies_rpi
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
+
+    - name: Restore cached dependencies
+      id: cache
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ~/.conan2
+          minimal_cpp/out
+          monitor_cpp/out
+          control_cpp/out
+        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+        fail-on-cache-miss: true
+
+    - name: Install RPi Cross-Compiler
+      run: |
+        mkdir -p /opt/gcc
+        cd /opt/gcc
+        sudo wget --quiet https://downloads.cpr-robots.com/Software/CI/gcc_armv8-rpi4-linux-gnueabihf.tar.gz
+        sudo tar -xf gcc_armv8-rpi4-linux-gnueabihf.tar.gz
+
+    - name: Install Conan
+      uses: conan-io/setup-conan@v1
+
+    - name: Configure CMake
+      run: |
+        cd monitor_cpp
+        rm -f CMakePresets.json
+        echo "{\"version\": 4,\"include\":[\"out/conan/Linux/armv8_32/Release/generators/CMakePresets.json\"]}" >> CMakePresets.json
+        cmake --preset conan-linux-armv8_32-release .
+
+    - name: Build for Linux armhf (RPi)
+      run: |
+        cd monitor_cpp/out/build/Linux/armv8_32/Release
+        cmake --build . --target monitorapp
+
+    - name: Package App
+      run: |
+        cd monitor_cpp
+        mkdir -p package/monitor_cpp
+        cp rcapp.xml ui.xml Licenses*.pdf package/monitor_cpp
+        cp out/build/Linux/armv8_32/Release/monitorapp package/monitor_cpp
+        cd package
+
+    - name: Export binary
+      uses: actions/upload-artifact@v7
+      with:
+        name: monitor_app_rpi
+        path: monitor_cpp/package
+
+
+  # Builds the Control App for RPi
+  build_control_app_rpi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build_dependencies_rpi
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
+
+    - name: Restore cached dependencies
+      id: cache
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ~/.conan2
+          minimal_cpp/out
+          monitor_cpp/out
+          control_cpp/out
+        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+        fail-on-cache-miss: true
+
+    - name: Install RPi Cross-Compiler
+      run: |
+        mkdir -p /opt/gcc
+        cd /opt/gcc
+        sudo wget --quiet https://downloads.cpr-robots.com/Software/CI/gcc_armv8-rpi4-linux-gnueabihf.tar.gz
+        sudo tar -xf gcc_armv8-rpi4-linux-gnueabihf.tar.gz
+
+    - name: Install Conan
+      uses: conan-io/setup-conan@v1
+
+    - name: Configure CMake
+      run: |
+        cd control_cpp
+        rm -f CMakePresets.json
+        echo "{\"version\": 4,\"include\":[\"out/conan/Linux/armv8_32/Release/generators/CMakePresets.json\"]}" >> CMakePresets.json
+        cmake --preset conan-linux-armv8_32-release .
+
+    - name: Build for Linux armhf (RPi)
+      run: |
+        cd control_cpp/out/build/Linux/armv8_32/Release
+        cmake --build . --target controlapp
+
+    - name: Package App
+      run: |
+        cd control_cpp
+        mkdir -p package/control_cpp
+        cp rcapp.xml ui.xml Licenses*.pdf SampleProgram.xml package/control_cpp
+        cp out/build/Linux/armv8_32/Release/controlapp package/control_cpp
+        cd package
+
+    - name: Export binary
+      uses: actions/upload-artifact@v7
+      with:
+        name: control_app_rpi
+        path: control_cpp/package
+
+
+  # Erstellt die SBOMs, prüft ihre Compliance und führt einen Schwachstellenscan durch
+  sbom:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    #needs: build_dependencies_pc
+    needs: build_dependencies_rpi
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
+
+    - name: Restore cached dependencies
+      id: cache
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ~/.conan2
+          minimal_cpp/out
+          monitor_cpp/out
+          control_cpp/out
+        #key: conan-${{ runner.os }}-x86_64-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+        fail-on-cache-miss: true
+
+    - name: Install RPi Cross-Compiler
+      run: |
+        mkdir -p /opt/gcc
+        cd /opt/gcc
+        sudo wget --quiet https://downloads.cpr-robots.com/Software/CI/gcc_armv8-rpi4-linux-gnueabihf.tar.gz
+        sudo tar -xf gcc_armv8-rpi4-linux-gnueabihf.tar.gz
+
+    # This generates sbomify.json with lifecycle info
+    - name: Configure CMake for MinimalApp
+      run: |
+        cd minimal_cpp
+        rm -f CMakePresets.json
+        echo "{\"version\": 4,\"include\":[\"out/conan/Linux/armv8_32/Release/generators/CMakePresets.json\"]}" >> CMakePresets.json
+        cmake --preset conan-linux-armv8_32-release
+        mv out/build/Linux/armv8_32/Release/sbomify.json .
+
+    # This generates sbomify.json with lifecycle info
+    - name: Configure CMake for MonitorApp
+      run: |
+        cd monitor_cpp
+        rm -f CMakePresets.json
+        echo "{\"version\": 4,\"include\":[\"out/conan/Linux/armv8_32/Release/generators/CMakePresets.json\"]}" >> CMakePresets.json
+        cmake --preset conan-linux-armv8_32-release
+        mv out/build/Linux/armv8_32/Release/sbomify.json .
+
+    # This generates sbomify.json with lifecycle info
+    - name: Configure CMake for ControlApp
+      run: |
+        cd control_cpp
+        rm -f CMakePresets.json
+        echo "{\"version\": 4,\"include\":[\"out/conan/Linux/armv8_32/Release/generators/CMakePresets.json\"]}" >> CMakePresets.json
+        cmake --preset conan-linux-armv8_32-release
+        mv out/build/Linux/armv8_32/Release/sbomify.json .
+
+    # Liest die Core-Version aus CMakeLists.txt
+    - name: Get software versions
+      run: |
+        MINIMAL_APP_VER=`grep -E -o "VERSION[[:blank:]]+[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" minimal_cpp/CMakeLists.txt | sed "s/[^0-9.]*//g"`
+        MONITOR_APP_VER=`grep -E -o "VERSION[[:blank:]]+[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" monitor_cpp/CMakeLists.txt | sed "s/[^0-9.]*//g"`
+        CONTROL_APP_VER=`grep -E -o "VERSION[[:blank:]]+[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" control_cpp/CMakeLists.txt | sed "s/[^0-9.]*//g"`
+        echo "Minimal App version '$MINIMAL_APP_VER' detected"
+        echo "Monitor App version '$MONITOR_APP_VER' detected"
+        echo "Control App version '$CONTROL_APP_VER' detected"
+        echo "MINIMAL_APP_VER=$MINIMAL_APP_VER" >> $GITHUB_ENV
+        echo "MONITOR_APP_VER=$MONITOR_APP_VER" >> $GITHUB_ENV
+        echo "CONTROL_APP_VER=$CONTROL_APP_VER" >> $GITHUB_ENV
+
+    # Sbomify seems to identify lock files by name
+    - name: Rename SBOM files
+      run: |
+        mv minimal_cpp/conan_linux.lock minimal_cpp/conan.lock
+        mv monitor_cpp/conan_linux.lock monitor_cpp/conan.lock
+        mv control_cpp/conan_linux.lock control_cpp/conan.lock
+
+    - name: Create SBOM for MinimalApp
+      uses: sbomify/sbomify-action@master
+      env:
+        LOCK_FILE: minimal_cpp/conan.lock
+        OUTPUT_FILE: sboms/sbom_minimal_app_cpp.cdx.json
+        COMPONENT_NAME: Minimal App C++
+        COMPONENT_VERSION: ${{ env.MINIMAL_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+
+    - name: Create SBOM for MonitorApp
+      uses: sbomify/sbomify-action@master
+      env:
+        LOCK_FILE: monitor_cpp/conan.lock
+        OUTPUT_FILE: sboms/sbom_monitor_app_cpp.cdx.json
+        COMPONENT_NAME: Monitor App C++
+        COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+
+    - name: Create SBOM for ControlApp
+      uses: sbomify/sbomify-action@master
+      env:
+        LOCK_FILE: control_cpp/conan.lock
+        OUTPUT_FILE: sboms/sbom_control_app_cpp.cdx.json
+        COMPONENT_NAME: Control App C++
+        COMPONENT_VERSION: ${{ env.CONTROL_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+
+    - name: Export SBOMs
+      uses: actions/upload-artifact@v7
+      with:
+        path: sboms
+        archive: true
+
+    - uses: actions/setup-go@v6
+
+    - name: Install SBOM QA tool
+      run: go install github.com/interlynk-io/sbomqs@latest
+
+    - name: SBOM quality score for MinimalApp
+      run: sbomqs score sboms/sbom_minimal_app_cpp.cdx.json
+
+    - name: SBOM quality score for MonitorApp
+      run: sbomqs score sboms/sbom_monitor_app_cpp.cdx.json
+
+    - name: SBOM quality score for ControlApp
+      run: sbomqs score sboms/sbom_control_app_cpp.cdx.json
+
+    # Checks compliance with the latest version of BSI TR-03183-2
+    - name: Check CRA compliance for MinimalApp
+      run: sbomqs compliance --bsi --color sboms/sbom_minimal_app_cpp.cdx.json
+
+    # Checks compliance with the latest version of BSI TR-03183-2
+    - name: Check CRA compliance for MonitorApp
+      run: sbomqs compliance --bsi --color sboms/sbom_monitor_app_cpp.cdx.json
+
+    # Checks compliance with the latest version of BSI TR-03183-2
+    - name: Check CRA compliance for ControlApp
+      run: sbomqs compliance --bsi --color sboms/sbom_control_app_cpp.cdx.json
+
+    - name: List component licenses for MinimalApp
+      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_minimal_app_cpp.cdx.json
+
+    - name: List component licenses for MonitorApp
+      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_monitor_app_cpp.cdx.json
+
+    - name: List component licenses for Control App
+      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_control_app_cpp.cdx.json
+
+    # TODO: Nicht CRA-konforme Felder füllen
+
+    # Security Audit
+    - name: Scan for vulnerabilities for MinimalApp
+      uses: anchore/scan-action@v7
+      with:
+        sbom: sboms/sbom_minimal_app_cpp.cdx.json
+
+    - name: Scan for vulnerabilities for MonitorApp
+      uses: anchore/scan-action@v7
+      with:
+        sbom: sboms/sbom_monitor_app_cpp.cdx.json
+
+    - name: Scan for vulnerabilities for ControlApp
+      uses: anchore/scan-action@v7
+      with:
+        sbom: sboms/sbom_control_app_cpp.cdx.json

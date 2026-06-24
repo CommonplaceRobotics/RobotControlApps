@@ -1,0 +1,255 @@
+# Dieser Workflow
+# - Baut die Tests für x86_64 führt sie aus
+# - Erstellt SBOM wird und prüft sie auf Schwachstellen in den Abhängigkeiten
+# Dazu werden zunächst die Abhängigkeiten gebaut und gecached.
+#
+# Vorbedingung:
+# - Die Conan-Lockdatei (conan_windows.lock) muss existieren.
+
+name: Build and Test Apps for Windows
+
+on:
+  push:
+    branches: [ "master", "v1*", "v2*", "v3*" ]
+  pull_request:
+    branches: [ "master", "v1*", "v2*", "v3*" ]
+
+jobs:
+  # Bereitet die Abhängigkeiten für Windows vor.
+  # Dies ist ein separater Job, da dies sehr lange dauern (30-60 Min, falls alles gebaut werden muss) kann und das Ergebnis gecached werden soll, auch wenn das Bauen später fehlschlägt.
+  build_dependencies:
+    runs-on: windows-2025
+    timeout-minutes: 250
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
+
+    # Quick cache check without copying files
+    - name: Check whether cache exists
+      id: cache_test
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ~/.conan2
+          minimal_cpp/out
+          monitor_cpp/out
+          control_cpp/out
+        key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
+        lookup-only: true
+
+    - name: Restore cached dependencies
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      uses: actions/cache@v5
+      with:
+        path: |
+          ~/.conan2
+          minimal_cpp/out
+          monitor_cpp/out
+          control_cpp/out
+        key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
+        restore-keys: |
+          conan-${{ runner.os }}-
+
+    - name: Install Conan
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      uses: conan-io/setup-conan@v1
+
+    - name: Install Conan profiles
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      run: cp api_cpp/tools/conan/profiles/Windows/* ~/.conan2/profiles
+
+    - name: Build Conan dependencies for MinimalApp
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      run: |
+        cd minimal_cpp
+        conan install . --lockfile=./conan_windows.lock --lockfile-partial --build=missing --profile=cpr_windows_x86_64_release -c tools.cmake.cmake_layout:build_folder_vars="['settings.os', 'settings.arch']" -s:b compiler.cppstd=17
+
+    - name: Build Conan dependencies for MonitorApp
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      run: |
+        cd monitor_cpp
+        conan install . --lockfile=./conan_windows.lock --lockfile-partial --build=missing --profile=cpr_windows_x86_64_release -c tools.cmake.cmake_layout:build_folder_vars="['settings.os', 'settings.arch']" -s:b compiler.cppstd=17
+
+    - name: Build Conan dependencies for ControlApp
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      run: |
+        cd control_cpp
+        conan install . --lockfile=./conan_windows.lock --lockfile-partial --build=missing --profile=cpr_windows_x86_64_release -c tools.cmake.cmake_layout:build_folder_vars="['settings.os', 'settings.arch']" -s:b compiler.cppstd=17
+
+    - name: Clear old dependencies
+      if: steps.cache_test.outputs.cache-hit != 'true'
+      run: conan remove --lru=8w "*"
+
+
+  # Builds the Minimal App
+  build_minimal_app:
+    runs-on: windows-2025
+    timeout-minutes: 10
+    needs: build_dependencies
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
+
+    # Get the MSVC environment
+    - uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Restore cached dependencies
+      id: cache
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ~/.conan2
+          minimal_cpp/out
+          monitor_cpp/out
+          control_cpp/out
+        key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
+        fail-on-cache-miss: true
+
+    - name: Install Conan
+      uses: conan-io/setup-conan@v1
+
+    - name: Configure CMake
+      run: |
+        cd minimal_cpp
+        cp ..\.github\workflows\CMakePresets_Windows.json CMakePresets.json
+        cmake --preset conan-windows-x86_64-release .
+
+    - name: Build App
+      run: |
+        cd minimal_cpp/out/build/Windows/Release
+        cmake --build . --target minimalapp.exe
+
+    - name: Package App
+      run: |
+        cd minimal_cpp
+        mkdir -p package/minimal_cpp
+        cp rcapp.xml package/minimal_cpp/
+        cp ui.xml package/minimal_cpp/
+        cp Licenses_SampleApps.pdf package/minimal_cpp/
+        cp out/build/Windows/Release/minimalapp.exe package/minimal_cpp/
+        cd package
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: minimal_app_windows
+        path: minimal_cpp/package
+
+
+  # Builds the Monitor App
+  build_monitor_app:
+    runs-on: windows-2025
+    timeout-minutes: 10
+    needs: build_dependencies
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
+
+    # Get the MSVC environment
+    - uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Restore cached dependencies
+      id: cache
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ~/.conan2
+          minimal_cpp/out
+          monitor_cpp/out
+          control_cpp/out
+        key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
+        fail-on-cache-miss: true
+
+    - name: Install Conan
+      uses: conan-io/setup-conan@v1
+
+    - name: Configure CMake
+      run: |
+        cd monitor_cpp
+        cp ..\.github\workflows\CMakePresets_Windows.json CMakePresets.json
+        cmake --preset conan-windows-x86_64-release .
+
+    - name: Build App
+      run: |
+        cd monitor_cpp/out/build/Windows/Release
+        cmake --build . --target monitorapp
+
+    - name: Package App
+      run: |
+        cd monitor_cpp
+        mkdir -p package/monitor_cpp
+        cp rcapp.xml package/monitor_cpp/
+        cp ui.xml package/monitor_cpp/
+        cp Licenses_SampleApps.pdf package/monitor_cpp/
+        cp out/build/Windows/Release/monitorapp.exe package/monitor_cpp/
+        cd package
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: monitor_app_windows
+        path: monitor_cpp/package
+
+
+  # Builds the Control App
+  build_control_app:
+    runs-on: windows-2025
+    timeout-minutes: 10
+    needs: build_dependencies
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
+
+    # Get the MSVC environment
+    - uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Restore cached dependencies
+      id: cache
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ~/.conan2
+          minimal_cpp/out
+          monitor_cpp/out
+          control_cpp/out
+        key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
+        fail-on-cache-miss: true
+
+    - name: Install Conan
+      uses: conan-io/setup-conan@v1
+
+    - name: Configure CMake
+      run: |
+        cd control_cpp
+        cp ..\.github\workflows\CMakePresets_Windows.json CMakePresets.json
+        cmake --preset conan-windows-x86_64-release .
+
+    - name: Build App
+      run: |
+        cd control_cpp/out/build/Windows/Release
+        cmake --build . --target controlapp
+
+    - name: Package App
+      run: |
+        cd control_cpp
+        mkdir -p package/control_cpp
+        cp rcapp.xml package/control_cpp/
+        cp ui.xml package/control_cpp/
+        cp Licenses_SampleApps.pdf package/control_cpp/
+        cp SampleProgram.xml package/control_cpp/
+        cp out/build/Windows/Release/controlapp.exe package/control_cpp/
+        cd package
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: control_app_windows
+        path: control_cpp/package

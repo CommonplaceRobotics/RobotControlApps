@@ -1,4 +1,8 @@
 # Robot Control Apps
+[![.github/workflows/build-cpp-linux.yml](https://github.com/CommonplaceRobotics/RobotControlApps/actions/workflows/build-cpp-linux.yml/badge.svg)](https://github.com/CommonplaceRobotics/RobotControlApps/actions/workflows/build-cpp-linux.yml)
+[![.github/workflows/build-cpp-linux.yml](https://github.com/CommonplaceRobotics/RobotControlApps/actions/workflows/build-cpp-windows.yml/badge.svg)](https://github.com/CommonplaceRobotics/RobotControlApps/actions/workflows/build-cpp-linux.yml)
+[![Test python apps](https://github.com/CommonplaceRobotics/RobotControlApps/actions/workflows/test-python.yml/badge.svg)](https://github.com/CommonplaceRobotics/RobotControlApps/actions/workflows/test-python.yml)
+[![Generate SBOMs for python apps](https://github.com/CommonplaceRobotics/RobotControlApps/actions/workflows/sbom-python.yml/badge.svg)](https://github.com/CommonplaceRobotics/RobotControlApps/actions/workflows/sbom-python.yml)
 
 Since [version 14](https://wiki.cpr-robots.com/index.php/IgusRobotControl-Release14-EN) the Commonplace Robotics (CPRog) / igus Robot Control (iRC) can be extended by apps. This repository contains guides, APIs and examples for creating your own apps.
 

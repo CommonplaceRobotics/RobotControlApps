@@ -1,0 +1,3 @@
+[submodule "api_cpp"]
+	path = api_cpp
+	url = https://github.com/CommonplaceRobotics/AppAPI_CPP.git

@@ -1,0 +1,23 @@
+{
+    "version": "0.5",
+    "requires": [
+        "zlib/1.3.1#cac0f6daea041b0ccf42934163defb20%1765284699.337",
+        "re2/20251105#8579cfd0bda4daf0683f9e3898f964b4%1772560729.95",
+        "protobuf/6.33.5#ff253ead763bd8d9904a52979cd21e81%1778763145.334",
+        "openssl/3.6.2#36f92686a9285adfe2ccd1c1dbf9ea35%1775635547.022",
+        "gtest/1.13.0#fffefb07abcafc4b7fd76bce7b9b1b75%1743410808.889",
+        "grpc/1.81.0#b42f805297382dbb0baa7f755a6a0487%1781086054.102",
+        "c-ares/1.34.6#545240bb1c40e2cacd4362d6b8967650%1766500685.317",
+        "abseil/20260107.1#883e95a7be2b767999f64669ac642e5d%1773137897.755"
+    ],
+    "build_requires": [
+        "zlib/1.3.1#cac0f6daea041b0ccf42934163defb20%1765284699.337",
+        "strawberryperl/5.32.1.1#8d114504d172cfea8ea1662d09b6333e%1751971032.423",
+        "protobuf/6.33.5#ff253ead763bd8d9904a52979cd21e81%1778763145.334",
+        "nasm/2.16.01#31e26f2ee3c4346ecd347911bd126904%1745483323.489",
+        "cmake/4.3.2#c740c22f711eb5ef0cec51c40b84657b%1776934625.055",
+        "abseil/20260107.1#883e95a7be2b767999f64669ac642e5d%1773137897.755"
+    ],
+    "python_requires": [],
+    "config_requires": []
+}

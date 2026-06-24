@@ -1,0 +1,16 @@
+{
+  "lifecycle_phase": "build",
+  "supplier": {
+    "name": "Commonplace Robotics GmbH",
+    "url": ["https://commonplacerobotics.de"],
+    "contacts": [{"name": "Support", "email": "support@commonplacerobotics.de"}]
+  },
+  "authors": [
+	{"name": "Commonplace Robotics GmbH", "email": "support@commonplacerobotics.de"}
+  ],
+  "licenses": ["MIT"],
+  "security_contact": "mailto:support@commonplacerobotics.de",
+  "release_date": "@RELEASE_DATE@",
+  "support_period_end": "@SUPPORT_PERIOD_END@",
+  "end_of_life": "@END_OF_LIFE@"
+}

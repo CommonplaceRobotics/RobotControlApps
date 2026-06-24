@@ -1,0 +1,211 @@
+name: SBOMs for Python Apps
+
+on:
+  push:
+    branches: [ "master", "v1*", "v2*", "v3*" ]
+  pull_request:
+    branches: [ "master", "v1*", "v2*", "v3*" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+        
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.x"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install cyclonedx-bom
+
+    # Liest die Core-Version aus CMakeLists.txt
+    - name: Get software versions
+      run: |
+        MINIMAL_APP_VER=`grep -E -o "version[[:blank:]]*=[[:blank:]]*\"[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" minimal_python/rcapp.xml | sed "s/[^0-9.]*//g"`
+        MONITOR_APP_VER=`grep -E -o "version[[:blank:]]*=[[:blank:]]*\"[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" monitor_python/rcapp.xml | sed "s/[^0-9.]*//g"`
+        CONTROL_APP_VER=`grep -E -o "version[[:blank:]]*=[[:blank:]]*\"[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" control_python/rcapp.xml | sed "s/[^0-9.]*//g"`
+        MATH_TOOLS_APP_VER=`grep -E -o "version[[:blank:]]*=[[:blank:]]*\"[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" MathTools/rcapp.xml | sed "s/[^0-9.]*//g"`
+        POSITION_LOGGER_APP_VER=`grep -E -o "version[[:blank:]]*=[[:blank:]]*\"[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" PositionLogger/rcapp.xml | sed "s/[^0-9.]*//g"`
+        echo "Minimal App version '$MINIMAL_APP_VER' detected"
+        echo "Monitor App version '$MONITOR_APP_VER' detected"
+        echo "Control App version '$CONTROL_APP_VER' detected"
+        echo "Math Tools App version '$MATH_TOOLS_APP_VER' detected"
+        echo "Position Logger App version '$POSITION_LOGGER_APP_VER' detected"
+        echo "MINIMAL_APP_VER=$MINIMAL_APP_VER" >> $GITHUB_ENV
+        echo "MONITOR_APP_VER=$MONITOR_APP_VER" >> $GITHUB_ENV
+        echo "CONTROL_APP_VER=$CONTROL_APP_VER" >> $GITHUB_ENV
+        echo "MATH_TOOLS_APP_VER=$MATH_TOOLS_APP_VER" >> $GITHUB_ENV
+        echo "POSITION_LOGGER_APP_VER=$POSITION_LOGGER_APP_VER" >> $GITHUB_ENV
+        
+    - name: Create output directory
+      run: |
+        mkdir ~/sboms
+
+    - name: Create SBOM for MinimalApp
+      uses: sbomify/sbomify-action@master
+      env:
+        WORKING_DIR: minimal_python
+        LOCK_FILE: requirements.txt
+        OUTPUT_FILE: ../sboms/sbom_minimal_app_python.cdx.json
+        COMPONENT_NAME: Minimal App Python
+        COMPONENT_VERSION: ${{ env.MINIMAL_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+
+    - name: Create SBOM for MonitorApp
+      uses: sbomify/sbomify-action@master
+      env:
+        WORKING_DIR: monitor_python
+        LOCK_FILE: requirements.txt
+        OUTPUT_FILE: ../sboms/sbom_monitor_app_python.cdx.json
+        COMPONENT_NAME: Monitor App Python
+        COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+
+    - name: Create SBOM for ControlApp
+      uses: sbomify/sbomify-action@master
+      env:
+        WORKING_DIR: control_python
+        LOCK_FILE: requirements.txt
+        OUTPUT_FILE: ../sboms/sbom_control_app_python.cdx.json
+        COMPONENT_NAME: Control App Python
+        COMPONENT_VERSION: ${{ env.CONTROL_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+        
+    - name: Create SBOM for MathTools
+      uses: sbomify/sbomify-action@master
+      env:
+        WORKING_DIR: MathTools
+        LOCK_FILE: requirements.txt
+        OUTPUT_FILE: ../sboms/sbom_math_tools_app.cdx.json
+        COMPONENT_NAME: Math Tools App
+        COMPONENT_VERSION: ${{ env.MATH_TOOLS_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+        
+    - name: Create SBOM for PositionLogger
+      uses: sbomify/sbomify-action@master
+      env:
+        WORKING_DIR: PositionLogger
+        LOCK_FILE: requirements.txt
+        OUTPUT_FILE: ../sboms/sbom_position_logger_app.cdx.json
+        COMPONENT_NAME: Position Logger App
+        COMPONENT_VERSION: ${{ env.POSITION_LOGGER_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+
+    - name: Export SBOMs
+      uses: actions/upload-artifact@v7
+      with:
+        name: sboms
+        path: sboms
+        archive: true
+
+    - uses: actions/setup-go@v6
+
+    - name: Install SBOM QA tool
+      run: go install github.com/interlynk-io/sbomqs@latest
+
+    - name: SBOM quality score for MinimalApp
+      run: sbomqs score sboms/sbom_minimal_app_python.cdx.json
+
+    - name: SBOM quality score for MonitorApp
+      run: sbomqs score sboms/sbom_monitor_app_python.cdx.json
+
+    - name: SBOM quality score for ControlApp
+      run: sbomqs score sboms/sbom_control_app_python.cdx.json
+      
+    - name: SBOM quality score for MathTools
+      run: sbomqs score sboms/sbom_math_tools_app.cdx.json
+      
+    - name: SBOM quality score for PositionLogger
+      run: sbomqs score sboms/sbom_position_logger_app.cdx.json
+
+    # Checks compliance with the latest version of BSI TR-03183-2
+    - name: Check CRA compliance for MinimalApp
+      run: sbomqs compliance --bsi --color sboms/sbom_minimal_app_python.cdx.json
+
+    # Checks compliance with the latest version of BSI TR-03183-2
+    - name: Check CRA compliance for MonitorApp
+      run: sbomqs compliance --bsi --color sboms/sbom_monitor_app_python.cdx.json
+
+    # Checks compliance with the latest version of BSI TR-03183-2
+    - name: Check CRA compliance for ControlApp
+      run: sbomqs compliance --bsi --color sboms/sbom_control_app_python.cdx.json
+      
+    # Checks compliance with the latest version of BSI TR-03183-2
+    - name: Check CRA compliance for MathTools
+      run: sbomqs compliance --bsi --color sboms/sbom_math_tools_app.cdx.json
+      
+    # Checks compliance with the latest version of BSI TR-03183-2
+    - name: Check CRA compliance for PositionLogger
+      run: sbomqs compliance --bsi --color sboms/sbom_position_logger_app.cdx.json
+
+    - name: List component licenses for MinimalApp
+      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_minimal_app_python.cdx.json
+
+    - name: List component licenses for MonitorApp
+      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_monitor_app_python.cdx.json
+
+    - name: List component licenses for Control App
+      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_control_app_python.cdx.json
+      
+    - name: List component licenses for MathTools
+      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_math_tools_app.cdx.json
+      
+    - name: List component licenses for PositionLogger
+      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_position_logger_app.cdx.json
+
+    # TODO: Nicht CRA-konforme Felder füllen
+
+    # Security Audit
+    - name: Scan for vulnerabilities for MinimalApp
+      uses: anchore/scan-action@v7
+      with:
+        sbom: sboms/sbom_minimal_app_python.cdx.json
+
+    - name: Scan for vulnerabilities for MonitorApp
+      uses: anchore/scan-action@v7
+      with:
+        sbom: sboms/sbom_monitor_app_python.cdx.json
+
+    - name: Scan for vulnerabilities for ControlApp
+      uses: anchore/scan-action@v7
+      with:
+        sbom: sboms/sbom_control_app_python.cdx.json
+        
+    - name: Scan for vulnerabilities for MathTools
+      uses: anchore/scan-action@v7
+      with:
+        sbom: sboms/sbom_math_tools_app.cdx.json
+        
+    - name: Scan for vulnerabilities for PositionLogger
+      uses: anchore/scan-action@v7
+      with:
+        sbom: sboms/sbom_position_logger_app.cdx.json

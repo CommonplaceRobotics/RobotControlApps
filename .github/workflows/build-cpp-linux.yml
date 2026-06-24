@@ -382,6 +382,12 @@ jobs:
         pip install 'cyclonedx-python-lib>=5.0.0,<6'
         conan config install https://github.com/conan-io/conan-extensions.git
 
+    - name: Install CycloneDX CLI tool
+      run: |
+        cd ~
+        wget https://github.com/CycloneDX/cyclonedx-cli/releases/download/v0.32.0/cyclonedx-linux-arm64
+        chmod +x cyclonedx-linux-arm64
+
     # This generates sbomify.json with lifecycle info
     - name: Configure CMake for MinimalApp
       run: |
@@ -425,10 +431,10 @@ jobs:
     # Sbomify seems to identify lock files by name
     - name: Create SBOM files
       run: |
-        conan sbom:cyclonedx --format 1.4_json minimal_cpp > minimal_cpp/sbom.cdx.json
-        conan sbom:cyclonedx --format 1.4_json monitor_cpp > monitor_cpp/sbom.cdx.json
-        conan sbom:cyclonedx --format 1.4_json control_cpp > control_cpp/sbom.cdx.json
-
+        conan sbom:cyclonedx --format 1.4_json minimal_cpp | ~/cyclonedx-linux-arm64 convert --input-format json --output-format json --output-version v1_7 > minimal_cpp/sbom.cdx.json
+        conan sbom:cyclonedx --format 1.4_json monitor_cpp | ~/cyclonedx-linux-arm64 convert --input-format json --output-format json --output-version v1_7 > monitor_cpp/sbom.cdx.json
+        conan sbom:cyclonedx --format 1.4_json control_cpp | ~/cyclonedx-linux-arm64 convert --input-format json --output-format json --output-version v1_7 > control_cpp/sbom.cdx.json
+        
     - name: Create SBOM for MinimalApp
       uses: sbomify/sbomify-action@master
       env:

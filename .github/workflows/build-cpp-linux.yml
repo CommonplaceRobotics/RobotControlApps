@@ -450,9 +450,6 @@ jobs:
         ENRICH: true
         UPLOAD: false
 
-    - name: Prepare sbomify for MinimalApp
-      run: cp monitor_cpp/out/build/Linux/armv8_32/Release/sbomify.json .
-
     - name: Create SBOM for MonitorApp
       uses: sbomify/sbomify-action@master
       env:
@@ -467,9 +464,6 @@ jobs:
         # Metadaten aus Paket-Registry hinzufügen
         ENRICH: true
         UPLOAD: false
-
-    - name: Prepare sbomify for MinimalApp
-      run: cp control_cpp/out/build/Linux/armv8_32/Release/sbomify.json .
 
     - name: Create SBOM for ControlApp
       uses: sbomify/sbomify-action@master

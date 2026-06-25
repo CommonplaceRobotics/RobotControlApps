@@ -14,6 +14,9 @@ on:
   pull_request:
     branches: [ "master", "v1*", "v2*", "v3*" ]
 
+permissions:
+  contents: read
+
 jobs:
   # Bereitet die Abhängigkeiten für Linux x86_64 vor.
   # Dies ist ein separater Job, da dies sehr lange dauern (30-60 Min, falls alles gebaut werden muss) kann und das Ergebnis gecached werden soll, auch wenn das Bauen später fehlschlägt.

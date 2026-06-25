@@ -346,13 +346,36 @@ jobs:
   sbom:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    #needs: build_dependencies_pc
-    needs: build_dependencies_rpi
+    needs: [build_minimal_app_rpi, build_monitor_app_rpi, build_control_app_rpi]
 
     steps:
     - uses: actions/checkout@v7
       with:
         submodules: true
+
+    - name: Get the SBOM enrichment tool
+      uses: actions/checkout@v7
+      with:
+        repository: CommonplaceRobotics/SW_SBOM_Enrichment
+        path: sbom_tool
+
+    - name: Get the MinimalApp binaries
+      uses: actions/download-artifact@v8
+      with:
+        name: minimal_app_rpi
+        path: minimal_app/package
+        
+    - name: Get the MonitorApp binaries
+      uses: actions/download-artifact@v8
+      with:
+        name: monitor_app_rpi
+        path: monitor_app/package
+        
+    - name: Get the ControlApp binaries
+      uses: actions/download-artifact@v8
+      with:
+        name: control_app_rpi
+        path: control_app/package
 
     - name: Restore cached dependencies
       id: cache
@@ -479,6 +502,12 @@ jobs:
         # Metadaten aus Paket-Registry hinzufügen
         ENRICH: true
         UPLOAD: false
+
+    - name: Enrich SBOMs step 2
+      run: |
+        python3 sbom_tool/SbomEnrichment.py ".github/workflows/sbom_enrichment_db.json" "../sboms/sbom_minimal_app_cpp.cdx.json"
+        python3 sbom_tool/SbomEnrichment.py ".github/workflows/sbom_enrichment_db.json" "../sboms/sbom_monitor_app_cpp.cdx.json"
+        python3 sbom_tool/SbomEnrichment.py ".github/workflows/sbom_enrichment_db.json" "../sboms/sbom_control_app_cpp.cdx.json"
 
     - name: Export SBOMs
       uses: actions/upload-artifact@v7

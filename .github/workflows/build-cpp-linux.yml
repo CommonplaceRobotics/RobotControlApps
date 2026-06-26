@@ -505,6 +505,7 @@ jobs:
 
     - name: Enrich SBOMs step 2
       run: |
+        chmod 666 sboms/*
         python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py ".github/workflows/sbom_enrichment_db.json" "sboms/sbom_minimal_app_cpp.cdx.json"
         python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py ".github/workflows/sbom_enrichment_db.json" "sboms/sbom_monitor_app_cpp.cdx.json"
         python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py ".github/workflows/sbom_enrichment_db.json" "sboms/sbom_control_app_cpp.cdx.json"

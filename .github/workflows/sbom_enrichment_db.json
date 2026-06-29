@@ -2,15 +2,15 @@
     "components":
     [
         {
-            "bom-ref": "pkg:generic/minimal-app-c@",
+            "purl": "pkg:generic/minimal-app-c@",
             "filename": "minimal_cpp/package/minimalapp"
         },
 		{
-            "bom-ref": "pkg:generic/monitor-app-c@",
+            "purl": "pkg:generic/monitor-app-c@",
             "filename": "monitor_cpp/package/monitorapp"
         },
 		{
-            "bom-ref": "pkg:generic/control-app-c@",
+            "purl": "pkg:generic/control-app-c@",
             "filename": "control_cpp/package/controlapp"
         },
 		{
@@ -21,7 +21,7 @@
 		{
             "bom-ref": "pkg:conan/openssl@",
             "creator": "contact@openssl.foundation",
-			"filename": "libssl"
+			"filename": "ssl"
         },
 		{
             "bom-ref": "pkg:conan/c-ares@",
@@ -41,7 +41,7 @@
 		{
             "bom-ref": "pkg:conan/protobuf@",
             "creator": "https://protobuf.dev/",
-			"filename": "libprotobuf"
+			"filename": "protobuf"
         },
 		{
             "bom-ref": "pkg:conan/cmake@",
@@ -55,7 +55,7 @@
 		{
             "bom-ref": "pkg:conan/zlib@",
             "creator": "https://www.zlib.net/",
-			"filename": "zlib"
+			"filename": ["zlib", "z"]
         }
     ],
 	"remove-components":

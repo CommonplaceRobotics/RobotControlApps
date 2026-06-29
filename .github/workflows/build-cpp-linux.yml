@@ -506,9 +506,9 @@ jobs:
     - name: Final SBOM enrichment
       run: |
         sudo chmod 666 sboms/*
-        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_minimal_app_cpp.cdx.json -c minimal_cpp/out/build/Linux/armv8_32/Release
-        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_monitor_app_cpp.cdx.json -c monitor_cpp/out/build/Linux/armv8_32/Release
-        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_control_app_cpp.cdx.json -c control_cpp/out/build/Linux/armv8_32/Release
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_minimal_app_cpp.cdx.json -b minimal_cpp/out/build/Linux/armv8_32/Release
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_monitor_app_cpp.cdx.json -b monitor_cpp/out/build/Linux/armv8_32/Release
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_control_app_cpp.cdx.json -b control_cpp/out/build/Linux/armv8_32/Release
 
     - name: Export SBOMs
       uses: actions/upload-artifact@v7

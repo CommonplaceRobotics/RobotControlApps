@@ -60,7 +60,7 @@
     ],
 	"remove-components":
 	[
-		"bom-ref": "pkg:conan/cmake@",
-		"bom-ref": "pkg:conan/gtest@"
+		"pkg:conan/cmake@",
+		"pkg:conan/gtest@"
 	]
 }

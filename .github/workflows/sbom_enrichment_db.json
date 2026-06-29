@@ -15,27 +15,33 @@
         },
 		{
             "bom-ref": "pkg:conan/re2@",
-            "creator": "https://github.com/google/re2"
+            "creator": "https://github.com/google/re2",
+			"filename": "re2"
         },
 		{
             "bom-ref": "pkg:conan/openssl@",
-            "creator": "contact@openssl.foundation"
+            "creator": "contact@openssl.foundation",
+			"filename": "libssl"
         },
 		{
-            "bom-ref": "pkg:conan/re2@c-ares",
-            "creator": "https://c-ares.org/"
+            "bom-ref": "pkg:conan/c-ares@",
+            "creator": "https://c-ares.org/",
+			"filename": "cares"
         },
 		{
-            "bom-ref": "pkg:conan/re2@gtest",
-            "creator": "https://github.com/google/googletest"
+            "bom-ref": "pkg:conan/gtest@",
+            "creator": "https://github.com/google/googletest",
+			"filename": "gtest"
         },
 		{
             "bom-ref": "pkg:conan/abseil@",
-            "creator": "https://github.com/abseil/abseil-cpp"
+            "creator": "https://github.com/abseil/abseil-cpp",
+			"filename": "absl_base"
         },
 		{
             "bom-ref": "pkg:conan/protobuf@",
-            "creator": "https://protobuf.dev/"
+            "creator": "https://protobuf.dev/",
+			"filename": "libprotobuf"
         },
 		{
             "bom-ref": "pkg:conan/cmake@",
@@ -43,11 +49,18 @@
         },
 		{
             "bom-ref": "pkg:conan/grpc@",
-            "creator": "https://grpc.io/"
+            "creator": "https://grpc.io/",
+			"filename": "grpc++"
         },
 		{
             "bom-ref": "pkg:conan/zlib@",
-            "creator": "https://www.zlib.net/"
+            "creator": "https://www.zlib.net/",
+			"filename": "zlib"
         }
-    ]
+    ],
+	"remove-components":
+	[
+		"bom-ref": "pkg:conan/cmake@",
+		"bom-ref": "pkg:conan/gtest@"
+	]
 }

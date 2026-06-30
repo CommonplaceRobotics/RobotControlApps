@@ -505,7 +505,6 @@ jobs:
 
     - name: Final SBOM enrichment
       run: |
-        ls minimal_cpp/package/minimal_cpp
         sudo chmod 666 sboms/*
         python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_minimal_app_cpp.cdx.json -b minimal_cpp/out/build/Linux/armv8_32/Release
         python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_monitor_app_cpp.cdx.json -b monitor_cpp/out/build/Linux/armv8_32/Release

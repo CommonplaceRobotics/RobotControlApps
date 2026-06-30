@@ -10,7 +10,7 @@ name: Build and Test Apps for Linux
 
 on:
   push:
-    branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
+    branches: [ "master", "v1*", "v2*", "v3*" ]
   pull_request:
     branches: [ "master", "v1*", "v2*", "v3*" ]
 
@@ -551,8 +551,6 @@ jobs:
 
     - name: List component licenses for Control App
       run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_control_app_cpp.cdx.json
-
-    # TODO: Nicht CRA-konforme Felder füllen
 
     # Security Audit
     - name: Scan for vulnerabilities for MinimalApp

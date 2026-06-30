@@ -363,19 +363,19 @@ jobs:
       uses: actions/download-artifact@v8
       with:
         name: minimal_app_rpi
-        path: minimal_app/package
+        path: minimal_cpp/package
         
     - name: Get the MonitorApp binaries
       uses: actions/download-artifact@v8
       with:
         name: monitor_app_rpi
-        path: monitor_app/package
+        path: monitor_cpp/package
         
     - name: Get the ControlApp binaries
       uses: actions/download-artifact@v8
       with:
         name: control_app_rpi
-        path: control_app/package
+        path: control_cpp/package
 
     - name: Restore cached dependencies
       id: cache
@@ -505,6 +505,7 @@ jobs:
 
     - name: Final SBOM enrichment
       run: |
+        ls minimal_cpp/package
         sudo chmod 666 sboms/*
         python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_minimal_app_cpp.cdx.json -b minimal_cpp/out/build/Linux/armv8_32/Release
         python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_monitor_app_cpp.cdx.json -b monitor_cpp/out/build/Linux/armv8_32/Release

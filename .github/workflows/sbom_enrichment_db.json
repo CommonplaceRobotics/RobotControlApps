@@ -3,15 +3,15 @@
     [
         {
             "purl": "pkg:generic/minimal-app-c@",
-            "filename": "minimal_cpp/package/minimalapp"
+            "filename": "minimal_cpp/package/minimal_cpp/minimalapp"
         },
 		{
             "purl": "pkg:generic/monitor-app-c@",
-            "filename": "monitor_cpp/package/monitorapp"
+            "filename": "monitor_cpp/package/monitor_cpp/monitorapp"
         },
 		{
             "purl": "pkg:generic/control-app-c@",
-            "filename": "control_cpp/package/controlapp"
+            "filename": "control_cpp/package/control_cpp/controlapp"
         },
 		{
             "bom-ref": "pkg:conan/re2@",

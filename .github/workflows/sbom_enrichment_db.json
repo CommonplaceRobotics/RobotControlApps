@@ -3,59 +3,86 @@
     [
         {
             "purl": "pkg:generic/minimal-app-c@",
-            "filename": "minimal_cpp/package/minimal_cpp/minimalapp"
+            "filename": "minimal_cpp/package/minimal_cpp/minimalapp",
+            "original_licenses": ["MIT"],
+            "distribution_licenses": ["MIT"],
+			"effective_license": "MIT",
+            "executable": true,
+            "archive": false,
+            "structured": false
         },
 		{
             "purl": "pkg:generic/monitor-app-c@",
-            "filename": "monitor_cpp/package/monitor_cpp/monitorapp"
+            "filename": "monitor_cpp/package/monitor_cpp/monitorapp",
+            "original_licenses": ["MIT"],
+            "distribution_licenses": ["MIT"],
+			"effective_license": "MIT",
+            "executable": true,
+            "archive": false,
+            "structured": false
         },
 		{
             "purl": "pkg:generic/control-app-c@",
-            "filename": "control_cpp/package/control_cpp/controlapp"
+            "filename": "control_cpp/package/control_cpp/controlapp",
+            "original_licenses": ["MIT"],
+            "distribution_licenses": ["MIT"],
+			"effective_license": "MIT",
+            "executable": true,
+            "archive": false,
+            "structured": false
         },
 		{
             "bom-ref": "pkg:conan/re2@",
             "creator": "https://github.com/google/re2",
-			"filename": "re2"
+			"filename": "re2",
+            "executable": true
         },
 		{
             "bom-ref": "pkg:conan/openssl@",
             "creator": "contact@openssl.foundation",
-			"filename": "ssl"
+			"filename": "ssl",
+            "executable": true
         },
 		{
             "bom-ref": "pkg:conan/c-ares@",
             "creator": "https://c-ares.org/",
-			"filename": "cares"
+			"filename": "cares",
+            "executable": true
         },
 		{
             "bom-ref": "pkg:conan/gtest@",
             "creator": "https://github.com/google/googletest",
-			"filename": "gtest"
+			"filename": "gtest",
+            "executable": true
         },
 		{
             "bom-ref": "pkg:conan/abseil@",
             "creator": "https://github.com/abseil/abseil-cpp",
-			"filename": "absl_base"
+			"filename": "absl_base",
+            "executable": true
         },
 		{
             "bom-ref": "pkg:conan/protobuf@",
             "creator": "https://protobuf.dev/",
-			"filename": "protobuf"
+			"filename": "protobuf",
+            "executable": true
         },
 		{
             "bom-ref": "pkg:conan/cmake@",
-            "creator": "https://cmake.org/"
+            "creator": "https://cmake.org/",
+            "executable": true
         },
 		{
             "bom-ref": "pkg:conan/grpc@",
             "creator": "https://grpc.io/",
-			"filename": "grpc++"
+			"filename": "grpc++",
+            "executable": true
         },
 		{
             "bom-ref": "pkg:conan/zlib@",
             "creator": "https://www.zlib.net/",
-			"filename": ["zlib", "z"]
+			"filename": ["zlib", "z"],
+            "executable": true
         }
     ],
 	"remove-components":

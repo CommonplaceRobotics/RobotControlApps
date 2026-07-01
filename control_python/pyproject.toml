@@ -6,7 +6,7 @@ authors = [
     {name = "MAB",email = "support@commonplacerobotics.de"}
 ]
 readme = "README.md"
-requires-python = "==3.9.2"
+requires-python = ">=3.9.2,<3.10"
 license = "MIT"
 dependencies = [
 	"cython (>=0.29.8,<3.0.0rc1)",

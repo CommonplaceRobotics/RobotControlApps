@@ -38,6 +38,7 @@ We recommend installing Python via the [Python Install Manager](https://www.pyth
 For compatibility we recommend using Python version 3.9.2. If do not intend to run your app on the robot control you may use a different Python version and update grpc, in this case you will need to regenerate the grpc definitions using the following commands:
 ```bash
 cd src
+py -V:3.9.2 -m pip install grpcio-tools==1.64.1
 py -V:3.9.2 -m grpc_tools.protoc -I ./irc_app/rpc/ --python_out=. --pyi_out=. --grpc_python_out=. --proto_path=. ./irc_app/rpc/robotcontrolapp.proto
 ```
 

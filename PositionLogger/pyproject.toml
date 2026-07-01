@@ -9,9 +9,7 @@ readme = "README.md"
 requires-python = ">=3.9.2,<3.10"
 license = "MIT"
 dependencies = [
-	"cython (>=0.29.8,<3.0.0rc1)",
 	"grpcio (==1.64.1)",
-	"grpcio-tools (==1.64.1)",
 ]
 
 [dependency-groups]

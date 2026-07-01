@@ -150,6 +150,7 @@
 	"remove-components":
 	[
 		"pkg:conan/cmake@",
-		"pkg:conan/gtest@"
+		"pkg:conan/gtest@",
+		"pkg:pypi/pytest@"
 	]
 }

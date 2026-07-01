@@ -1,3 +1,0 @@
-grpcio==1.64.1
-grpcio-tools==1.64.1
-cython>=0.29.8,<3.0.0rc1

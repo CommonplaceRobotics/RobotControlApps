@@ -1,6 +1,6 @@
 import unittest
 
-from AppClient import AppClient
+from irc_app.AppClient import AppClient
 
 
 class AppClientTest(unittest.TestCase):

@@ -1,7 +1,7 @@
 import unittest
 
-from DataTypes.DirectoryContent import DirectoryContent, DirectoryContentFromGrcp
-import robotcontrolapp_pb2
+from irc_app.DataTypes.DirectoryContent import DirectoryContent, DirectoryContentFromGrcp
+from irc_app.rpc import robotcontrolapp_pb2
 
 
 class DirectoryContentTest(unittest.TestCase):

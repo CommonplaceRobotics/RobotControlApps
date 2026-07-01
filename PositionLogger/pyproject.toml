@@ -1,16 +1,30 @@
 [project]
-name = "MinimalApp Python"
-dynamic = ["version", "dependencies"]
-description = "Logs positions to a CSV file when triggered via the robot program"
-readme = "README.md"
-requires-python = ">=3.9.2"
+name = "position_logger"
+version = "14.6.7"
+description = "Position logger app for the igus Robot Control"
 authors = [
-    { name = "MAB", email = "support@cpr-robots.com" },
+    {name = "MAB",email = "support@commonplacerobotics.de"}
 ]
+readme = "README.md"
+requires-python = "==3.9.2"
 license = "MIT"
+dependencies = [
+	"cython (>=0.29.8,<3.0.0rc1)",
+	"grpcio (==1.64.1)",
+	"grpcio-tools (==1.64.1)",
+]
 
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+[dependency-groups]
+test = [
+    "pytest (>=8.0.0,<9.0.0)",
+]
+
+[tool.poetry]
+packages = [{include = "position_logger", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.isort]
 profile = "black"

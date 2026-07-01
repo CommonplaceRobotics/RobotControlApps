@@ -1,6 +1,6 @@
 <App name="PositionLogger" label="Position Logger" vendor="" version="1.0.0">
 	<!-- Define the executable(s) to call -->
-	<executable path="app.py"/>
+	<executable path="src/app.py"/>
 
 	<!-- Define the app functions that the robot program can call -->
 	<function name="clear" label="Clear log">

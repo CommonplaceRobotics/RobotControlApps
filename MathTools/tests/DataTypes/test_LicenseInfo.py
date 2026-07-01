@@ -1,7 +1,7 @@
 import unittest
 
-from DataTypes.LicenseInfo import LicenseInfo, LicenseDetails, LicenseInfoFromGrpc
-import robotcontrolapp_pb2
+from irc_app.DataTypes.LicenseInfo import LicenseInfo, LicenseDetails, LicenseInfoFromGrpc
+from irc_app.rpc import robotcontrolapp_pb2
 
 
 class LicenseInfoTest(unittest.TestCase):

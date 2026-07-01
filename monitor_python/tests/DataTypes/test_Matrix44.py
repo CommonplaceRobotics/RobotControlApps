@@ -1,7 +1,7 @@
 import unittest
 
-from DataTypes.Matrix44 import Matrix44, Matrix44FromGrpc
-import robotcontrolapp_pb2
+from irc_app.DataTypes.Matrix44 import Matrix44, Matrix44FromGrpc
+from irc_app.rpc import robotcontrolapp_pb2
 
 
 class Matrix44Test(unittest.TestCase):

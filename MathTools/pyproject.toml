@@ -1,16 +1,30 @@
 [project]
-name = "MinimalApp Python"
-dynamic = ["version", "dependencies"]
-description = "Extends the robot control programs by math related commands"
-readme = "README.md"
-requires-python = ">=3.9.2"
+name = "math_tools"
+version = "14.6.7"
+description = "Math extensions for the igus Robot Control"
 authors = [
-    { name = "MAB", email = "support@cpr-robots.com" },
+    {name = "MAB",email = "support@commonplacerobotics.de"}
 ]
+readme = "README.md"
+requires-python = "==3.9.2"
 license = "MIT"
+dependencies = [
+	"cython (>=0.29.8,<3.0.0rc1)",
+	"grpcio (==1.64.1)",
+	"grpcio-tools (==1.64.1)",
+]
 
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+[dependency-groups]
+test = [
+    "pytest (>=8.0.0,<9.0.0)",
+]
+
+[tool.poetry]
+packages = [{include = "math_tools_app", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.isort]
 profile = "black"

@@ -358,7 +358,10 @@ jobs:
       with:
         repository: CommonplaceRobotics/SW_SBOM_Enrichment
         path: ${{ github.workspace }}/sbom_tool
-
+        sparse-checkout: |
+          SbomEnrichment.py
+        sparse-checkout-cone-mode: false
+        
     - name: Get the MinimalApp binaries
       uses: actions/download-artifact@v8
       with:

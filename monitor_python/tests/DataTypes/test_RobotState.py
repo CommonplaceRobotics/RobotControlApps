@@ -1,8 +1,8 @@
 import unittest
 
-from DataTypes.Matrix44 import Matrix44
-from DataTypes.RobotState import JointFromGrpc, RobotState, Joint, RobotStateFromGrpc
-import robotcontrolapp_pb2
+from irc_app.DataTypes.Matrix44 import Matrix44
+from irc_app.DataTypes.RobotState import JointFromGrpc, RobotState, Joint, RobotStateFromGrpc
+from irc_app.rpc import robotcontrolapp_pb2
 
 
 class JointTest(unittest.TestCase):

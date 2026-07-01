@@ -32,6 +32,56 @@
             "structured": false
         },
 		{
+            "purl": "pkg:generic/minimal-app-python@",
+            "filename": "minimal_python/package/control_app_python.py",
+            "original_licenses": ["MIT"],
+            "distribution_licenses": ["MIT"],
+			"effective_license": "MIT",
+            "executable": true,
+            "archive": true,
+            "structured": true
+        },
+		{
+            "purl": "pkg:generic/monitor-app-python@",
+            "filename": "monitor_python/package/monitor_app_python.py",
+            "original_licenses": ["MIT"],
+            "distribution_licenses": ["MIT"],
+			"effective_license": "MIT",
+            "executable": true,
+            "archive": true,
+            "structured": true
+        },
+		{
+            "purl": "pkg:generic/control-app-python@",
+            "filename": "control_python/package/control_app_python.py",
+            "original_licenses": ["MIT"],
+            "distribution_licenses": ["MIT"],
+			"effective_license": "MIT",
+            "executable": true,
+            "archive": true,
+            "structured": true
+        },
+		{
+            "purl": "pkg:generic/position-logger-app@",
+            "filename": "PositionLogger/package/PositionLogger.zip",
+            "original_licenses": ["MIT"],
+            "distribution_licenses": ["MIT"],
+			"effective_license": "MIT",
+            "executable": true,
+            "archive": true,
+            "structured": true
+        },
+		{
+            "purl": "pkg:generic/math-tools-app@",
+            "filename": "MathTools/package/MathTools.zip",
+            "original_licenses": ["MIT"],
+            "distribution_licenses": ["MIT"],
+			"effective_license": "MIT",
+            "executable": true,
+            "archive": true,
+            "structured": true
+        },
+		{
             "bom-ref": "pkg:conan/re2@",
             "creator": "https://github.com/google/re2",
 			"filename": "re2",
@@ -83,7 +133,19 @@
             "creator": "https://www.zlib.net/",
 			"filename": ["zlib", "z"],
             "executable": true
-        }
+        },
+		{
+			"purl": "pkg:pypi/cython",
+			"creator": "https://cython.org/"
+		},
+		{
+			"purl": "pkg:pypi/grpcio@",
+			"creator": "https://grpc.io/"
+		},
+		{
+			"purl": "pkg:pypi/grpcio-tools@",
+			"creator": "https://grpc.io/"
+		}
     ],
 	"remove-components":
 	[

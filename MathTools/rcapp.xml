@@ -1,5 +1,5 @@
 <App name="MathTools" label="Math Tools" vendor="" version="1.0.1">
-	<executable path="app.py"/>
+	<executable path="src/app.py"/>
 
 	<function name="jointToCart" label="Convert Joint to Cart">
 		<parameter name="source_variable" type="string" ui-hint="text" label="Source position variable"/>

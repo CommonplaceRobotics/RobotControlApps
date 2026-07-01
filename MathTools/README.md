@@ -4,7 +4,7 @@ This app contains a collection of useful math, logic and kinematic operations. I
 
 Consider adding your own functions if you need any, it should be relatively simple, just follow the examples!
 
-# Features
+## Features
 Currently the following features are included:
 * Scalar math
   * Square root
@@ -24,8 +24,11 @@ Currently the following features are included:
   * Get hours since start of the app
   * Wait by duration from variable
 
-# Adding your own functions
+## Adding your own functions
 * Add the function and its parameters in rcapp.xml
 * Add the function definition in MathToolsApp.py
   * Add a method that does the logic
   * In _AppFunctionHandler() check if the function is called (by its ID), if so call your method
+  
+## Using and changing the app
+Read the [Setup guide](../minimal_python/README.md) on how to set up and install python apps.

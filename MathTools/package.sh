@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This script packages the app
 
 # Enter the name of the app here. Must not contain spaces.

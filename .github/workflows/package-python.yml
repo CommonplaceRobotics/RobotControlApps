@@ -3,9 +3,22 @@ name: Package Python Apps and create SBOM
 on:
   push:
     branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
+    paths:
+      - 'MathTools/**'
+      - 'PositionLogger/**'
+      - 'control_python/**'
+      - 'minimal_python/**'
+      - 'monitor_python/**'
   pull_request:
     branches: [ "master", "v1*", "v2*", "v3*" ]
-
+    paths:
+      - 'MathTools/**'
+      - 'PositionLogger/**'
+      - 'control_python/**'
+      - 'minimal_python/**'
+      - 'monitor_python/**'
+  
+      
 jobs:
   package_math_tools:
     runs-on: ubuntu-latest
@@ -202,7 +215,7 @@ jobs:
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: minimal_python
-        LOCK_FILE: requirements.txt
+        LOCK_FILE: poetry.lock
         OUTPUT_FILE: ../sboms/sbom_minimal_app_python.cdx.json
         COMPONENT_NAME: Minimal App Python
         COMPONENT_VERSION: ${{ env.MINIMAL_APP_VER }}
@@ -216,7 +229,7 @@ jobs:
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: monitor_python
-        LOCK_FILE: requirements.txt
+        LOCK_FILE: poetry.lock
         OUTPUT_FILE: ../sboms/sbom_monitor_app_python.cdx.json
         COMPONENT_NAME: Monitor App Python
         COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}
@@ -230,7 +243,7 @@ jobs:
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: control_python
-        LOCK_FILE: requirements.txt
+        LOCK_FILE: poetry.lock
         OUTPUT_FILE: ../sboms/sbom_control_app_python.cdx.json
         COMPONENT_NAME: Control App Python
         COMPONENT_VERSION: ${{ env.CONTROL_APP_VER }}
@@ -244,7 +257,7 @@ jobs:
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: MathTools
-        LOCK_FILE: requirements.txt
+        LOCK_FILE: poetry.lock
         OUTPUT_FILE: ../sboms/sbom_math_tools_app.cdx.json
         COMPONENT_NAME: Math Tools App
         COMPONENT_VERSION: ${{ env.MATH_TOOLS_APP_VER }}
@@ -258,7 +271,7 @@ jobs:
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: PositionLogger
-        LOCK_FILE: requirements.txt
+        LOCK_FILE: poetry.lock
         OUTPUT_FILE: ../sboms/sbom_position_logger_app.cdx.json
         COMPONENT_NAME: Position Logger App
         COMPONENT_VERSION: ${{ env.POSITION_LOGGER_APP_VER }}

@@ -41,7 +41,9 @@ jobs:
 
     - name: MathTools - Install dependencies
       working-directory: ./MathTools
-      run: poetry install
+      run: |
+        poetry lock
+        poetry install
 
     - name: MathTools - Run tests
       working-directory: ./MathTools

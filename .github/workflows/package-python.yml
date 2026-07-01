@@ -1,4 +1,4 @@
-name: SBOMs for Python Apps
+name: Package Python Apps and create SBOM
 
 on:
   push:
@@ -6,16 +6,153 @@ on:
   pull_request:
     branches: [ "master", "v1*", "v2*", "v3*" ]
 
-permissions:
-  contents: read
-
 jobs:
-  build:
-
+  package_math_tools:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v7
+  
+    - name: Package App
+      run: |
+        cd MathTools
+        ./package.sh
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: MathTools.zip
+        path: MathTools/MathTools.zip
+        archive: false
+
+    
+  package_position_logger:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+  
+    - name: Package App
+      run: |
+        cd PositionLogger
+        ./package.sh
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: PositionLogger.zip
+        path: PositionLogger/PositionLogger.zip
+        archive: false
+
+
+  package_control_app:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+  
+    - name: Package App
+      run: |
+        cd control_python
+        ./package.sh
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: control_app_python.zip
+        path: control_python/minimal_app_python.zip
+        archive: false
+  
+
+  package_minimal_app:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+  
+    - name: Package App
+      run: |
+        cd minimal_python
+        ./package.sh
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: minimal_app_python.zip
+        path: minimal_python/minimal_app_python.zip
+        archive: false
+
+
+  package_monitor_app:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+  
+    - name: Package App
+      run: |
+        cd monitor_python
+        ./package.sh
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: monitor_app_python.zip
+        path: monitor_python/monitor_app_python.zip
+        archive: false
+
+
+  # Builds the SBOMs
+  sbom:
+    runs-on: ubuntu-latest
+    needs: [package_math_tools, package_position_logger, package_control_app, package_minimal_app, package_monitor_app]
+
+    steps:
+    - uses: actions/checkout@v7
+    
+    - name: Get the SBOM enrichment tool
+      uses: actions/checkout@v7
+      with:
+        repository: CommonplaceRobotics/SW_SBOM_Enrichment
+        path: ${{ github.workspace }}/sbom_tool
+        sparse-checkout: |
+          SbomEnrichment.py
+        sparse-checkout-cone-mode: false
+
+    - name: Get the MinimalApp package
+      uses: actions/download-artifact@v8
+      with:
+        name: minimal_app_python.zip
+        path: minimal_python
+        skip-decompress: true
+        
+    - name: Get the MonitorApp package
+      uses: actions/download-artifact@v8
+      with:
+        name: monitor_app_python.zip
+        path: monitor_python
+        skip-decompress: true
+        
+    - name: Get the ControlApp package
+      uses: actions/download-artifact@v8
+      with:
+        name: control_app_python.zip
+        path: control_python
+        skip-decompress: true
+        
+    - name: Get the MathTools App package
+      uses: actions/download-artifact@v8
+      with:
+        name: MathTools.zip
+        path: MathTools
+        skip-decompress: true
+        
+    - name: Get the PositionLogger App package
+      uses: actions/download-artifact@v8
+      with:
+        name: PositionLogger.zip
+        path: PositionLogger
+        skip-decompress: true
 
     - name: Set up Python 3.x
       uses: actions/setup-python@v6
@@ -119,6 +256,15 @@ jobs:
         # Metadaten aus Paket-Registry hinzufügen
         ENRICH: true
         UPLOAD: false
+        
+    - name: Final SBOM enrichment
+      run: |
+        sudo chmod 666 sboms/*
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_minimal_app_python.cdx.json
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_monitor_app_python.cdx.json
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_control_app_python.cdx.json
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_math_tools_app.cdx.json
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_position_logger_app.cdx.json
 
     - name: Export SBOMs
       uses: actions/upload-artifact@v7
@@ -182,8 +328,6 @@ jobs:
     - name: List component licenses for PositionLogger
       run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_position_logger_app.cdx.json
 
-    # TODO: Nicht CRA-konforme Felder füllen
-
     # Security Audit
     - name: Scan for vulnerabilities for MinimalApp
       uses: anchore/scan-action@v7
@@ -209,3 +353,10 @@ jobs:
       uses: anchore/scan-action@v7
       with:
         sbom: sboms/sbom_position_logger_app.cdx.json
+
+
+
+
+# TODO:
+# - Lockfiles generieren (poetry oder uv)
+# - wheels bauen?

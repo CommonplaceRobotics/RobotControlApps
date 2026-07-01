@@ -2,7 +2,7 @@
 # This script packages the app
 
 # Enter the name of the app here. Must not contain spaces.
-APP_NAME="monitor_python"
+APP_NAME="monitor_app_python"
 TEMPDIR="package_tmp"
 CWD=`pwd`
 

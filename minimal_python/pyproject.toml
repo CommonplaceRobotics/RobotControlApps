@@ -19,6 +19,11 @@ test = [
     "pytest (>=8.0.0,<9.0.0)",
 ]
 
+[tool.pytest.ini_options]
+pythonpath = [
+  "src"
+]
+
 [tool.poetry]
 packages = [{include = "minimal_app", from = "src"}]
 

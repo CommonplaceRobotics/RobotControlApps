@@ -3,7 +3,7 @@ This is the minimal example and starting point for an igus Robot Control (iRC) a
 
 The features shown in this sample are available from iRC V14-001 but the API will be updated for the newest feature set. For other feature examples check the other apps in the parent directory.
 
-# Structure
+## Structure
 * [```rcapp.xml```](rcapp.xml) - App definition file. RobotControl uses it to integrate and start the app.
 * [```ui.xml```](ui.xml) - UI definition. This is optional if your app does not need user input.
 * ```src``` - App source code
@@ -20,17 +20,17 @@ For implementing your own app [```app.py```](src/app.py) and [```MinimalApp.py``
 For API reference check the comments in [```AppClient.py```](src/irc_app/AppClient.py)
 
 
-# Standalone apps
+## Standalone apps
 
 igus Robot Control apps can be used with both the embedded robot control and the simulation on PC. They can run either on the robot control / simulation system or on a separate system as a standalone application, communicating with the robot control. This may be useful if your app requires more system resources, e.g. for high performance image processing. For development you may want to run your app like a standalone application from your IDE.
 
 In all situations you must install the app package to the robot control. For standalone operation remove (or comment out) the ```<executable ... />``` line in ```rcapp.xml``` - the robot control will register the app and wait for an incoming connection. Don't forget to enter the robot control's IP (or ```localhost``` if connecting with a simulation on your PC) as the connection target in ```app.py```.
 
 
-# System Setup
+## System Setup
 To run Python and develop apps you must set up a Python environment.
 
-## PC / other systems
+### PC / other systems
 Follow these steps to run apps in simulation or in standalone mode on PC.
 
 We recommend installing Python via the [Python Install Manager](https://www.python.org/downloads/). This way you can easily install and use different Python versions. For dependency management we use [poetry](https://python-poetry.org/docs/).
@@ -67,14 +67,14 @@ py -V:3.9.2 src/app.py
 ```
 
 You can run the tests using the following command.
-```
+```bash
 poetry run pytest
 ```
 
 If you changed the dependencies you may need to update the ```poetry.lock``` file by calling ```poetry lock``` or simply deleting it. Then run ```poetry install``` again.
 
 
-## Embedded Robot Control
+### Embedded Robot Control
 
 All new robot controls come with Python 3.9.2 and the gRPC dependencies pre-installed. Unless you add other dependencies you should not need to do anything. If you got an older robot control that predates the introduction of the app interface you will need to install the dependencies manually.
 
@@ -90,7 +90,7 @@ python3 -m pip install grpcio==1.64.1
 python3 -m pip install grpcio-tools==1.64.1
 ```
 
-# Packaging the app
+## Packaging the app
 The app must be packaged before it can be installed to the robot control. To do this you can simply call the packaging script:
 
 ```bash
@@ -99,12 +99,12 @@ package.sh
 
 See [Packaging documentation](../documentation/Packaging.md) for the package structure.
 
-# App definition file
+## App definition file
 The app definition file ```rcapp.xml``` contains any information that the robot control needs to integrate and start the app.
 
 See [rcapp.xml documentation](../documentation/rcapp.xml.md).
 
-# UI definition file
+## UI definition file
 The optional UI definition file defines the app UI elements for integration into the PC software.
 
 See [ui.xml documentation](../documentation/ui.xml.md).

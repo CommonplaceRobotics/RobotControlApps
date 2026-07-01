@@ -1,128 +1,15 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: Test and Package Python Apps
+name: Test Python Apps
 
 on:
   push:
-    branches: [ "master", "v1*", "v2*", "v3*" ]
+    branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
   pull_request:
     branches: [ "master", "v1*", "v2*", "v3*" ]
 
-permissions:
-  contents: read
-
 jobs:
-  package_math_tools:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v7
-  
-    - name: Package App
-      run: |
-        cd MathTools
-        mkdir -p package/MathTools
-        cp rcapp.xml ui.xml Licenses*.pdf *.py *.pyi *.toml requirements.txt package/MathTools
-        cp -r DataTypes protos package/MathTools
-        cd package
-
-    - name: Export Package
-      uses: actions/upload-artifact@v7
-      with:
-        name: MathTools
-        path: MathTools/package
-        archive: true
-
-    
-  package_position_logger:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v7
-  
-    - name: Package App
-      run: |
-        cd PositionLogger
-        mkdir -p package/PositionLogger
-        cp rcapp.xml ui.xml Licenses*.pdf *.py *.pyi *.toml requirements.txt package/PositionLogger
-        cp -r DataTypes protos package/PositionLogger
-        cd package
-
-    - name: Export Package
-      uses: actions/upload-artifact@v7
-      with:
-        name: PositionLogger
-        path: PositionLogger/package
-        archive: true
-
-
-  package_control_app:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v7
-  
-    - name: Package App
-      run: |
-        cd control_python
-        mkdir -p package/control_python
-        cp rcapp.xml ui.xml Licenses*.pdf *.py *.pyi *.toml requirements.txt SampleProgram.xml package/control_python
-        cp -r DataTypes protos package/control_python
-        cd package
-
-    - name: Export Package
-      uses: actions/upload-artifact@v7
-      with:
-        name: control_app_python
-        path: control_python/package
-        archive: true
-  
-
-  package_minimal_app:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v7
-  
-    - name: Package App
-      run: |
-        cd minimal_python
-        mkdir -p package/minimal_python
-        cp rcapp.xml ui.xml Licenses*.pdf *.py *.pyi *.toml requirements.txt package/minimal_python
-        cp -r DataTypes protos package/minimal_python
-        cd package
-
-    - name: Export Package
-      uses: actions/upload-artifact@v7
-      with:
-        name: minimal_app_python
-        path: minimal_python/package
-        archive: true
-
-
-  package_monitor_app:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v7
-  
-    - name: Package App
-      run: |
-        cd monitor_python
-        mkdir -p package/monitor_python
-        cp rcapp.xml ui.xml Licenses*.pdf *.py *.pyi *.toml requirements.txt package/monitor_python
-        cp -r DataTypes protos package/monitor_python
-        cd package
-
-    - name: Export Package
-      uses: actions/upload-artifact@v7
-      with:
-        name: monitor_app_python
-        path: monitor_python/package
-        archive: true
-  
-
   test_math_tools:
     runs-on: ubuntu-latest
 
@@ -134,145 +21,93 @@ jobs:
       with:
         python-version: "3.9"
 
-    - name: MathTools - Install dependencies
-      working-directory: ./MathTools
+    - name: Install test dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: MathTools - Lint with flake8
+        pip install poetry pytest flake8
+
+
+    - name: MathTools - Install dependencies
       working-directory: ./MathTools
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: MathTools - Test with pytest
+      run: poetry install
+
+    - name: MathTools - Run tests
       working-directory: ./MathTools
-      run: |
-        export PYTHONPATH=$PYTHONPATH:.
-        pytest
+      run: poetry run pytest
 
-
-  test_position_logger:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v7
-    
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.9"
 
     - name: PositionLogger - Install dependencies
       working-directory: ./PositionLogger
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: PositionLogger - Lint with flake8
+      run: poetry install
+
+    - name: PositionLogger - Run tests
       working-directory: ./PositionLogger
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: PositionLogger - Test with pytest
-      working-directory: ./PositionLogger
-      run: |
-        export PYTHONPATH=$PYTHONPATH:.
-        pytest
+      run: poetry run pytest
 
 
-  test_control_app:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v7
-    
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.9"
-        
-    - name: ControlApp - Install dependencies
-      working-directory: ./control_python
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: ControlApp - Lint with flake8
-      working-directory: ./control_python
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: ControlApp - Test with pytest
-      working-directory: ./control_python
-      run: |
-        export PYTHONPATH=$PYTHONPATH:.
-        pytest
-
-
-  test_minimal_app:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v7
-    
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.9"
-        
     - name: MinimalApp - Install dependencies
       working-directory: ./minimal_python
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: MinimalApp - Lint with flake8
+      run: poetry install
+
+    - name: MinimalApp - Run tests
       working-directory: ./minimal_python
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: MinimalApp - Test with pytest
-      working-directory: ./minimal_python
-      run: |
-        export PYTHONPATH=$PYTHONPATH:.
-        pytest
+      run: poetry run pytest
 
 
-  test_monitor_app:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v7
-    
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.9"
-        
     - name: MonitorApp - Install dependencies
       working-directory: ./monitor_python
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: MonitorApp - Lint with flake8
+      run: poetry install
+
+    - name: MonitorApp - Run tests
       working-directory: ./monitor_python
+      run: poetry run pytest
+
+
+    - name: ControlApp - Install dependencies
+      working-directory: ./control_python
+      run: poetry install
+
+    - name: ControlApp - Run tests
+      working-directory: ./control_python
+      run: poetry run pytest
+
+
+    - name: MathTools - Lint
+      working-directory: ./MathTools
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: MonitorApp - Test with pytest
-      working-directory: ./monitor_python
+
+    - name: PositionLogger - Lint
+      working-directory: ./MathTools
       run: |
-        export PYTHONPATH=$PYTHONPATH:.
-        pytest
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: MinimalApp - Lint
+      working-directory: ./MathTools
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: MonitorApp - Lint
+      working-directory: ./MathTools
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: ControlApp - Lint
+      working-directory: ./MathTools
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics

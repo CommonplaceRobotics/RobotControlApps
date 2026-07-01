@@ -2,7 +2,7 @@
 # This script packages the app
 
 # Enter the name of the app here. Must not contain spaces.
-APP_NAME="control_python"
+APP_NAME="control_app_python"
 TEMPDIR="package_tmp"
 CWD=`pwd`
 

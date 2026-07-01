@@ -33,7 +33,7 @@
         },
 		{
             "purl": "pkg:generic/minimal-app-python@",
-            "filename": "minimal_python/package/control_app_python.py",
+            "filename": "minimal_python/control_app_python.py",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
@@ -43,7 +43,7 @@
         },
 		{
             "purl": "pkg:generic/monitor-app-python@",
-            "filename": "monitor_python/package/monitor_app_python.py",
+            "filename": "monitor_python/monitor_app_python.py",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
@@ -53,7 +53,7 @@
         },
 		{
             "purl": "pkg:generic/control-app-python@",
-            "filename": "control_python/package/control_app_python.py",
+            "filename": "control_python/control_app_python.py",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
@@ -63,7 +63,7 @@
         },
 		{
             "purl": "pkg:generic/position-logger-app@",
-            "filename": "PositionLogger/package/PositionLogger.zip",
+            "filename": "PositionLogger/PositionLogger.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
@@ -73,7 +73,7 @@
         },
 		{
             "purl": "pkg:generic/math-tools-app@",
-            "filename": "MathTools/package/MathTools.zip",
+            "filename": "MathTools/MathTools.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",

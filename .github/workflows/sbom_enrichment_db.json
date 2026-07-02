@@ -33,7 +33,7 @@
         },
 		{
             "purl": "pkg:pypi/minimal-app@",
-            "filename": "minimal_python/control_app_python.zip",
+            "filename": "minimal_python/minimal_app_python.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",

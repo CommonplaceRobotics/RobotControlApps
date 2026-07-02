@@ -306,55 +306,21 @@ jobs:
     - name: Install SBOM QA tool
       run: go install github.com/interlynk-io/sbomqs@latest
 
-    - name: SBOM quality score for MinimalApp
-      run: sbomqs score sboms/sbom_minimal_app_python.cdx.json
-
-    - name: SBOM quality score for MonitorApp
-      run: sbomqs score sboms/sbom_monitor_app_python.cdx.json
-
-    - name: SBOM quality score for ControlApp
-      run: sbomqs score sboms/sbom_control_app_python.cdx.json
-
-    - name: SBOM quality score for MathTools
-      run: sbomqs score sboms/sbom_math_tools_app.cdx.json
-
-    - name: SBOM quality score for PositionLogger
-      run: sbomqs score sboms/sbom_position_logger_app.cdx.json
-
     # Checks compliance with the latest version of BSI TR-03183-2
     - name: Check CRA compliance for MinimalApp
       run: sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_python.cdx.json
 
-    # Checks compliance with the latest version of BSI TR-03183-2
     - name: Check CRA compliance for MonitorApp
       run: sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_python.cdx.json
 
-    # Checks compliance with the latest version of BSI TR-03183-2
     - name: Check CRA compliance for ControlApp
       run: sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json
 
-    # Checks compliance with the latest version of BSI TR-03183-2
     - name: Check CRA compliance for MathTools
       run: sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json
 
-    # Checks compliance with the latest version of BSI TR-03183-2
     - name: Check CRA compliance for PositionLogger
       run: sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json
-
-    - name: List component licenses for MinimalApp
-      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_minimal_app_python.cdx.json
-
-    - name: List component licenses for MonitorApp
-      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_monitor_app_python.cdx.json
-
-    - name: List component licenses for Control App
-      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_control_app_python.cdx.json
-
-    - name: List component licenses for MathTools
-      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_math_tools_app.cdx.json
-
-    - name: List component licenses for PositionLogger
-      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_position_logger_app.cdx.json
 
     # Security Audit
     - name: Scan for vulnerabilities for MinimalApp
@@ -381,3 +347,19 @@ jobs:
       uses: anchore/scan-action@v7
       with:
         sbom: sboms/sbom_position_logger_app.cdx.json
+
+    # Check SBOM policies
+    - name: Check SBOM policies for MinimalApp
+      run: sbomqs policy -f .github/workflows/sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json
+
+    - name: Check SBOM policies for MonitorApp
+      run: sbomqs policy -f .github/workflows/sbom_policies.yml sboms/sbom_monitor_app_python.cdx.json
+
+    - name: Check SBOM policies for ControlApp
+      run: sbomqs policy -f .github/workflows/sbom_policies.yml sboms/sbom_control_app_python.cdx.json
+
+    - name: Check SBOM policies for MathTools
+      run: sbomqs policy -f .github/workflows/sbom_policies.yml sboms/sbom_math_tools_app.cdx.json
+
+    - name: Check SBOM policies for PositionLogger
+      run: sbomqs policy -f .github/workflows/sbom_policies.yml sboms/sbom_position_logger_app.cdx.json

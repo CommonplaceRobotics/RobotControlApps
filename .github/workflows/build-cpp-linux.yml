@@ -11,8 +11,18 @@ name: Build and Test Apps for Linux
 on:
   push:
     branches: [ "master", "v1*", "v2*", "v3*" ]
+    paths:
+      - ".github/**"
+      - 'control_cpp/**'
+      - 'minimal_cpp/**'
+      - 'monitor_cpp/**'
   pull_request:
     branches: [ "master", "v1*", "v2*", "v3*" ]
+    paths:
+      - ".github/**"
+      - 'control_cpp/**'
+      - 'minimal_cpp/**'
+      - 'monitor_cpp/**'
 
 jobs:
   # Bereitet die Abhängigkeiten für Linux x86_64 vor.
@@ -361,19 +371,19 @@ jobs:
         sparse-checkout: |
           SbomEnrichment.py
         sparse-checkout-cone-mode: false
-        
+
     - name: Get the MinimalApp binaries
       uses: actions/download-artifact@v8
       with:
         name: minimal_app_rpi
         path: minimal_cpp/package
-        
+
     - name: Get the MonitorApp binaries
       uses: actions/download-artifact@v8
       with:
         name: monitor_app_rpi
         path: monitor_cpp/package
-        
+
     - name: Get the ControlApp binaries
       uses: actions/download-artifact@v8
       with:
@@ -460,7 +470,7 @@ jobs:
         conan sbom:cyclonedx --format 1.4_json minimal_cpp | ~/cyclonedx-linux-x64 convert --input-format json --output-format json --output-version v1_6 > minimal_cpp/sbom.cdx.json
         conan sbom:cyclonedx --format 1.4_json monitor_cpp | ~/cyclonedx-linux-x64 convert --input-format json --output-format json --output-version v1_6 > monitor_cpp/sbom.cdx.json
         conan sbom:cyclonedx --format 1.4_json control_cpp | ~/cyclonedx-linux-x64 convert --input-format json --output-format json --output-version v1_6 > control_cpp/sbom.cdx.json
-        
+
     - name: Create SBOM for MinimalApp
       uses: sbomify/sbomify-action@master
       env:

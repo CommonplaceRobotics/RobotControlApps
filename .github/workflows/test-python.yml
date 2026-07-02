@@ -7,6 +7,7 @@ on:
   push:
     branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
     paths:
+      - ".github/**"
       - 'MathTools/**'
       - 'PositionLogger/**'
       - 'control_python/**'
@@ -15,6 +16,7 @@ on:
   pull_request:
     branches: [ "master", "v1*", "v2*", "v3*" ]
     paths:
+      - ".github/**"
       - 'MathTools/**'
       - 'PositionLogger/**'
       - 'control_python/**'
@@ -27,7 +29,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
-    
+
     - name: Set up Python 3.9
       uses: actions/setup-python@v3
       with:
@@ -44,6 +46,13 @@ jobs:
       run: |
         poetry lock
         poetry install
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: poetry.lock
+        path: MathTools/poetry.lock
+        archive: false
 
     - name: MathTools - Run tests
       working-directory: ./MathTools

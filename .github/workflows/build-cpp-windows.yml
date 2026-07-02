@@ -11,8 +11,18 @@ name: Build and Test Apps for Windows
 on:
   push:
     branches: [ "master", "v1*", "v2*", "v3*" ]
+    paths:
+      - ".github/**"
+      - 'control_cpp/**'
+      - 'minimal_cpp/**'
+      - 'monitor_cpp/**'
   pull_request:
     branches: [ "master", "v1*", "v2*", "v3*" ]
+    paths:
+      - ".github/**"
+      - 'control_cpp/**'
+      - 'minimal_cpp/**'
+      - 'monitor_cpp/**'
 
 jobs:
   # Bereitet die Abhängigkeiten für Windows vor.

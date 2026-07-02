@@ -14,7 +14,7 @@ The features shown in this sample are available from iRC V14-001 but the API wil
         * [```AppClient.py```](src/irc_app/AppClient.py) - App client base class. Derive this for your own application, see ```MinimalApp.py```
         * ```DataTypes``` - Data classes
         * ```rpc``` - gRPC definitions for the iRC App API
-    
+
 For implementing your own app [```app.py```](src/app.py) and [```MinimalApp.py```](src/minimal_app/MinimalApp.py) are the most relevant files, adapt and rename them as you need.
 
 For API reference check the comments in [```AppClient.py```](src/irc_app/AppClient.py)
@@ -35,6 +35,10 @@ Follow these steps to run apps in simulation or in standalone mode on PC.
 
 We recommend installing Python via the [Python Install Manager](https://www.python.org/downloads/). This way you can easily install and use different Python versions. For dependency management we use [poetry](https://python-poetry.org/docs/).
 
+```bash
+py -V:3.9.2 -m pip install poetry
+```
+
 For compatibility we recommend using Python version 3.9.2. If do not intend to run your app on the robot control you may use a different Python version and update grpc, in this case you will need to regenerate the grpc definitions using the following commands:
 ```bash
 cd src
@@ -49,27 +53,22 @@ py -V:3.9.2 --help
 
 Make sure your command line is in the project directory (where this README file is). Then enable the environment using the following command (replace the path with the open you copied).
 ```bash
-poetry env use C:\Users\YourUserName\AppData\Local\Python\pythoncore-3.9-64\python.exe
+py -V:3.9.2 -m poetry env use C:\Users\YourUserName\AppData\Local\Python\pythoncore-3.9-64\python.exe
 ```
 
 Install the app's dependencies.
 ```bash
-poetry install
+py -V:3.9.2 -m poetry install
 ```
 
 Now you can run the app locally:
 ```bash
-poetry run python ./src/app.py
-```
-
-Alternatively, if you do not use poetry, you can run the app like this:
-```bash
-py -V:3.9.2 src/app.py
+py -V:3.9.2 ./src/app.py
 ```
 
 You can run the tests using the following command.
 ```bash
-poetry run pytest
+py -V:3.9.2 -m pytest
 ```
 
 If you changed the dependencies you may need to update the ```poetry.lock``` file by calling ```poetry lock``` or simply deleting it. Then run ```poetry install``` again.

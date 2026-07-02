@@ -2,7 +2,7 @@ name: Package Python Apps and create SBOM
 
 on:
   push:
-    branches: [ "master", "v1*", "v2*", "v3*" ]
+    branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
     paths:
       - ".github/**"
       - 'MathTools/**'
@@ -20,6 +20,8 @@ on:
       - 'minimal_python/**'
       - 'monitor_python/**'
 
+permissions:
+  contents: read # access to check out code and install dependencies
 
 jobs:
   package_math_tools:

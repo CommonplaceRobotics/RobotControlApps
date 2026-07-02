@@ -5,7 +5,7 @@ name: Test Python Apps
 
 on:
   push:
-    branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
+    branches: [ "master", "v1*", "v2*", "v3*" ]
     paths:
       - ".github/**"
       - 'MathTools/**'
@@ -38,26 +38,18 @@ jobs:
       with:
         python-version: "3.9"
 
-    - name: Install test dependencies 1
+    # Note: The poetry version must match the version that created the lock files.
+    # The Python version used here limits the poetry version, so the
+    # Lockfiles should be created with Python 3.9
+    - name: Install test dependencies
       run: |
         python -m pip install --upgrade pip
+        python -m pip install poetry flake8
 
-    - name: Install test dependencies 2
-      run: |
-        python -m pip install poetry>=2.4.1 flake8
 
     - name: MathTools - Install dependencies
       working-directory: ./MathTools
-      run: |
-        poetry lock
-        poetry install
-
-    - name: Export Package
-      uses: actions/upload-artifact@v7
-      with:
-        name: poetry.lock
-        path: MathTools/poetry.lock
-        archive: false
+      run: poetry install
 
     - name: MathTools - Run tests
       working-directory: ./MathTools

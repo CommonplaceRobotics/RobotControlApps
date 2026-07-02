@@ -152,7 +152,8 @@
 		},
 		{
 			"purl": "pkg:pypi/colorama@",
-			"creator": "https://github.com/tartley/colorama"
+			"creator": "https://github.com/tartley/colorama",
+            "original_licenses": ["BSD-3-Clause"]
 		},
 		{
 			"purl": "pkg:pypi/pluggy@",

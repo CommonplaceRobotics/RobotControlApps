@@ -388,7 +388,7 @@ jobs:
       with:
         sbom: sboms/sbom_position_logger_app.cdx.json
 
-    # Check SBOM policies
+    # Validate SBOM policies
     - name: Check SBOM policies for MinimalApp
       run: sbomqs policy -f sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json
 

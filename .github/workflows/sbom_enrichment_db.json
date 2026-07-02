@@ -32,8 +32,8 @@
             "structured": false
         },
 		{
-            "purl": "pkg:generic/minimal-app-python@",
-            "filename": "minimal_python/control_app_python.py",
+            "purl": "pkg:pypi/minimal-app@",
+            "filename": "minimal_python/control_app_python.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
@@ -42,8 +42,8 @@
             "structured": true
         },
 		{
-            "purl": "pkg:generic/monitor-app-python@",
-            "filename": "monitor_python/monitor_app_python.py",
+            "purl": "pkg:pypi/monitor-app@",
+            "filename": "monitor_python/monitor_app_python.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
@@ -52,8 +52,8 @@
             "structured": true
         },
 		{
-            "purl": "pkg:generic/control-app-python@",
-            "filename": "control_python/control_app_python.py",
+            "purl": "pkg:pypi/control-app@",
+            "filename": "control_python/control_app_python.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
@@ -62,7 +62,7 @@
             "structured": true
         },
 		{
-            "purl": "pkg:generic/position-logger-app@",
+            "purl": "pkg:pypi/position-logger@",
             "filename": "PositionLogger/PositionLogger.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
@@ -72,7 +72,7 @@
             "structured": true
         },
 		{
-            "purl": "pkg:generic/math-tools-app@",
+            "purl": "pkg:pypi/math-tools@",
             "filename": "MathTools/MathTools.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
@@ -145,12 +145,51 @@
 		{
 			"purl": "pkg:pypi/grpcio-tools@",
 			"creator": "https://grpc.io/"
+		},
+		{
+			"purl": "pkg:pypi/setuptools@",
+			"creator": "https://github.com/pypa/setuptools"
+		},
+		{
+			"purl": "pkg:pypi/colorama@",
+			"creator": "https://github.com/tartley/colorama"
+		},
+		{
+			"purl": "pkg:pypi/pluggy@",
+			"creator": "holger@merlinux.eu"
+		},
+		{
+			"purl": "pkg:pypi/protobuf@",
+			"creator": "https://protobuf.dev/"
+		},
+		{
+			"purl": "pkg:pypi/typing-extensions@",
+			"creator": "https://github.com/python/typing_extensions"
+		},
+		{
+			"purl": "pkg:pypi/exceptiongroup@",
+			"creator": "https://github.com/agronholm/exceptiongroup"
+		},
+		{
+			"purl": "pkg:pypi/tomli@",
+			"creator": "https://github.com/hukkin/tomli"
+		},
+		{
+			"purl": "pkg:pypi/iniconfig@",
+			"creator": "https://github.com/pytest-dev/iniconfig"
+		},
+		{
+			"purl": "pkg:pypi/packaging@",
+			"creator": "https://github.com/pypa/packaging"
+		},
+		{
+			"purl": "pkg:pypi/pygments@",
+			"creator": "https://pygments.org/"
 		}
     ],
 	"remove-components":
 	[
 		"pkg:conan/cmake@",
-		"pkg:conan/gtest@",
-		"pkg:pypi/pytest@"
+		"pkg:conan/gtest@"
 	]
 }

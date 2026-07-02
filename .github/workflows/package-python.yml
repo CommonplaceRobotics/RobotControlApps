@@ -308,19 +308,59 @@ jobs:
 
     # Checks compliance with the latest version of BSI TR-03183-2
     - name: Check CRA compliance for MinimalApp
-      run: sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_python.cdx.json
+      run: |
+        sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_python.cdx.json
+        sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_python.cdx.json --json > compliance.json
+
+        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
+          echo "::error::SBOM is not BSI compliant"
+          jq '.recommendations[]' compliance.json
+          exit 1
+        fi
 
     - name: Check CRA compliance for MonitorApp
-      run: sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_python.cdx.json
+      run: |
+        sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_python.cdx.json
+        sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_python.cdx.json --json > compliance.json
+
+        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
+          echo "::error::SBOM is not BSI compliant"
+          jq '.recommendations[]' compliance.json
+          exit 1
+        fi
 
     - name: Check CRA compliance for ControlApp
-      run: sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json
+      run: |
+        sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json
+        sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json --json > compliance.json
+
+        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
+          echo "::error::SBOM is not BSI compliant"
+          jq '.recommendations[]' compliance.json
+          exit 1
+        fi
 
     - name: Check CRA compliance for MathTools
-      run: sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json
+      run: |
+        sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json
+        sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json --json > compliance.json
+
+        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
+          echo "::error::SBOM is not BSI compliant"
+          jq '.recommendations[]' compliance.json
+          exit 1
+        fi
 
     - name: Check CRA compliance for PositionLogger
-      run: sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json
+      run: |
+        sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json
+        sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json --json > compliance.json
+
+        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
+          echo "::error::SBOM is not BSI compliant"
+          jq '.recommendations[]' compliance.json
+          exit 1
+        fi
 
     # Security Audit
     - name: Scan for vulnerabilities for MinimalApp
@@ -350,16 +390,16 @@ jobs:
 
     # Check SBOM policies
     - name: Check SBOM policies for MinimalApp
-      run: sbomqs policy -f .github/workflows/sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json
+      run: sbomqs policy -f sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json
 
     - name: Check SBOM policies for MonitorApp
-      run: sbomqs policy -f .github/workflows/sbom_policies.yml sboms/sbom_monitor_app_python.cdx.json
+      run: sbomqs policy -f sbom_policies.yml sboms/sbom_monitor_app_python.cdx.json
 
     - name: Check SBOM policies for ControlApp
-      run: sbomqs policy -f .github/workflows/sbom_policies.yml sboms/sbom_control_app_python.cdx.json
+      run: sbomqs policy -f sbom_policies.yml sboms/sbom_control_app_python.cdx.json
 
     - name: Check SBOM policies for MathTools
-      run: sbomqs policy -f .github/workflows/sbom_policies.yml sboms/sbom_math_tools_app.cdx.json
+      run: sbomqs policy -f sbom_policies.yml sboms/sbom_math_tools_app.cdx.json
 
     - name: Check SBOM policies for PositionLogger
-      run: sbomqs policy -f .github/workflows/sbom_policies.yml sboms/sbom_position_logger_app.cdx.json
+      run: sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json

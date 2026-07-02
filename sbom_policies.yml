@@ -1,0 +1,39 @@
+policy:
+  - name: approved_licenses
+    type: whitelist
+    rules:
+      - field: license
+        values: [MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, PSF-2.0, non-standard]
+    action: fail
+
+  - name: dangerous_licenses
+    type: blacklist
+    rules:
+      - field: license
+        values: [non-standard]
+    action: warn
+
+  - name: required_metadata_sbom
+    type: required
+    rules:
+      - field: sbom_timestamp
+      - field: sbom_author
+      - field: sbom_supplier
+      - field: sbom_lifecycle
+      - field: sbom_pc
+
+  - name: required_metadata_components
+    type: required
+    rules:
+      - field: sbom_timestamp
+      - field: sbom_author
+      - field: sbom_supplier
+      - field: sbom_lifecycle
+      - field: sbom_pc
+      - field: name
+      - field: supplier
+      - field: version
+      - field: license
+      - field: checksum
+      - field: type
+    action: fail

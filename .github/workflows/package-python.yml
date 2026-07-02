@@ -2,7 +2,7 @@ name: Package Python Apps and create SBOM
 
 on:
   push:
-    branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
+    branches: [ "master", "v1*", "v2*", "v3*" ]
     paths:
       - ".github/**"
       - 'MathTools/**'
@@ -19,8 +19,8 @@ on:
       - 'control_python/**'
       - 'minimal_python/**'
       - 'monitor_python/**'
-  
-      
+
+
 jobs:
   package_math_tools:
     runs-on: ubuntu-latest
@@ -28,7 +28,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
-  
+
     - name: Package App
       run: |
         cd MathTools
@@ -42,14 +42,14 @@ jobs:
         path: MathTools/MathTools.zip
         archive: false
 
-    
+
   package_position_logger:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
     steps:
     - uses: actions/checkout@v7
-  
+
     - name: Package App
       run: |
         cd PositionLogger
@@ -70,7 +70,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
-  
+
     - name: Package App
       run: |
         cd control_python
@@ -83,7 +83,7 @@ jobs:
         name: control_app_python.zip
         path: control_python/control_app_python.zip
         archive: false
-  
+
 
   package_minimal_app:
     runs-on: ubuntu-latest
@@ -91,7 +91,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
-  
+
     - name: Package App
       run: |
         cd minimal_python
@@ -112,7 +112,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
-  
+
     - name: Package App
       run: |
         cd monitor_python
@@ -135,7 +135,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
-    
+
     - name: Get the SBOM enrichment tool
       uses: actions/checkout@v7
       with:
@@ -151,28 +151,28 @@ jobs:
         name: minimal_app_python.zip
         path: minimal_python
         skip-decompress: true
-        
+
     - name: Get the MonitorApp package
       uses: actions/download-artifact@v8
       with:
         name: monitor_app_python.zip
         path: monitor_python
         skip-decompress: true
-        
+
     - name: Get the ControlApp package
       uses: actions/download-artifact@v8
       with:
         name: control_app_python.zip
         path: control_python
         skip-decompress: true
-        
+
     - name: Get the MathTools App package
       uses: actions/download-artifact@v8
       with:
         name: MathTools.zip
         path: MathTools
         skip-decompress: true
-        
+
     - name: Get the PositionLogger App package
       uses: actions/download-artifact@v8
       with:
@@ -184,7 +184,7 @@ jobs:
       uses: actions/setup-python@v6
       with:
         python-version: "3.x"
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -208,7 +208,7 @@ jobs:
         echo "CONTROL_APP_VER=$CONTROL_APP_VER" >> $GITHUB_ENV
         echo "MATH_TOOLS_APP_VER=$MATH_TOOLS_APP_VER" >> $GITHUB_ENV
         echo "POSITION_LOGGER_APP_VER=$POSITION_LOGGER_APP_VER" >> $GITHUB_ENV
-        
+
     - name: Create output directory
       run: |
         mkdir ~/sboms
@@ -254,7 +254,7 @@ jobs:
         # Metadaten aus Paket-Registry hinzufügen
         ENRICH: true
         UPLOAD: false
-        
+
     - name: Create SBOM for MathTools
       uses: sbomify/sbomify-action@master
       env:
@@ -268,7 +268,7 @@ jobs:
         # Metadaten aus Paket-Registry hinzufügen
         ENRICH: true
         UPLOAD: false
-        
+
     - name: Create SBOM for PositionLogger
       uses: sbomify/sbomify-action@master
       env:
@@ -282,7 +282,7 @@ jobs:
         # Metadaten aus Paket-Registry hinzufügen
         ENRICH: true
         UPLOAD: false
-        
+
     - name: Final SBOM enrichment
       run: |
         sudo chmod 666 sboms/*
@@ -312,10 +312,10 @@ jobs:
 
     - name: SBOM quality score for ControlApp
       run: sbomqs score sboms/sbom_control_app_python.cdx.json
-      
+
     - name: SBOM quality score for MathTools
       run: sbomqs score sboms/sbom_math_tools_app.cdx.json
-      
+
     - name: SBOM quality score for PositionLogger
       run: sbomqs score sboms/sbom_position_logger_app.cdx.json
 
@@ -330,11 +330,11 @@ jobs:
     # Checks compliance with the latest version of BSI TR-03183-2
     - name: Check CRA compliance for ControlApp
       run: sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json
-      
+
     # Checks compliance with the latest version of BSI TR-03183-2
     - name: Check CRA compliance for MathTools
       run: sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json
-      
+
     # Checks compliance with the latest version of BSI TR-03183-2
     - name: Check CRA compliance for PositionLogger
       run: sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json
@@ -347,10 +347,10 @@ jobs:
 
     - name: List component licenses for Control App
       run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_control_app_python.cdx.json
-      
+
     - name: List component licenses for MathTools
       run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_math_tools_app.cdx.json
-      
+
     - name: List component licenses for PositionLogger
       run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_position_logger_app.cdx.json
 
@@ -369,12 +369,12 @@ jobs:
       uses: anchore/scan-action@v7
       with:
         sbom: sboms/sbom_control_app_python.cdx.json
-        
+
     - name: Scan for vulnerabilities for MathTools
       uses: anchore/scan-action@v7
       with:
         sbom: sboms/sbom_math_tools_app.cdx.json
-        
+
     - name: Scan for vulnerabilities for PositionLogger
       uses: anchore/scan-action@v7
       with:

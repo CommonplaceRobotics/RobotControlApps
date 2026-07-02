@@ -285,14 +285,14 @@ jobs:
         ENRICH: true
         UPLOAD: false
 
-#    - name: Final SBOM enrichment
-#      run: |
-#        sudo chmod 666 sboms/*
-#        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_minimal_app_python.cdx.json
-#        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_monitor_app_python.cdx.json
-#        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_control_app_python.cdx.json
-#        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_math_tools_app.cdx.json
-#        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_position_logger_app.cdx.json
+    - name: Final SBOM enrichment
+      run: |
+        sudo chmod 666 sboms/*
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_minimal_app_python.cdx.json
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_monitor_app_python.cdx.json
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_control_app_python.cdx.json
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_math_tools_app.cdx.json
+        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_position_logger_app.cdx.json
 
     - name: Export SBOMs
       uses: actions/upload-artifact@v7
@@ -381,10 +381,3 @@ jobs:
       uses: anchore/scan-action@v7
       with:
         sbom: sboms/sbom_position_logger_app.cdx.json
-
-
-
-
-# TODO:
-# - Lockfiles generieren (poetry oder uv)
-# - wheels bauen?

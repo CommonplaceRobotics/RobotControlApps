@@ -1,0 +1,14 @@
+policy:
+  - name: approved_licenses
+    type: whitelist
+    rules:
+      - field: license
+        values: [MIT, Apache-2.0, BST-2-Clause, BSD-3-Clause, PSF-2.0]
+    action: fail
+  - name: required_metadata
+    type: required
+    rules:
+      - field: supplier
+      - field: version
+      - field: license
+    action: fail

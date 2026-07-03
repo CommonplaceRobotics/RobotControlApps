@@ -45,24 +45,18 @@
             "purl": "pkg:pypi/control-app@",
             "filename": "control_python/control_app_python.zip",
             "original_licenses": ["MIT"],
-            "distribution_licenses": ["MIT"],
-			"effective_license": "MIT",
             "executable": true
         },
 		{
             "purl": "pkg:pypi/position-logger@",
             "filename": "PositionLogger/PositionLogger.zip",
             "original_licenses": ["MIT"],
-            "distribution_licenses": ["MIT"],
-			"effective_license": "MIT",
             "executable": true
         },
 		{
             "purl": "pkg:pypi/math-tools@",
             "filename": "MathTools/MathTools.zip",
             "original_licenses": ["MIT"],
-            "distribution_licenses": ["MIT"],
-			"effective_license": "MIT",
             "executable": true
         },
 		{

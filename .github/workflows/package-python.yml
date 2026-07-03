@@ -287,9 +287,11 @@ jobs:
         ENRICH: true
         UPLOAD: false
 
+        # TODO: Testkopie entfernen!
     - name: Final SBOM enrichment
       run: |
         sudo chmod 666 sboms/*
+        sudo cp sboms/sbom_math_tools_app.cdx.json sboms/sbom_math_tools_app_original.cdx.json
         python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_minimal_app_python.cdx.json
         python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_monitor_app_python.cdx.json
         python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_control_app_python.cdx.json
@@ -394,6 +396,7 @@ jobs:
     - name: Check SBOM policies for MinimalApp
       run: |
         sbomqs policy -f sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json
+        sbomqs policy -f sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json -o json > policy.json
 
         if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
           echo SBOM policy check failed
@@ -403,6 +406,7 @@ jobs:
     - name: Check SBOM policies for MonitorApp
       run: |
         sbomqs policy -f sbom_policies.yml sboms/sbom_monitor_app_python.cdx.json
+        sbomqs policy -f sbom_policies.yml sboms/sbom_monitor_app_python.cdx.json -o json > policy.json
 
         if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
           echo SBOM policy check failed
@@ -412,6 +416,7 @@ jobs:
     - name: Check SBOM policies for ControlApp
       run: |
         sbomqs policy -f sbom_policies.yml sboms/sbom_control_app_python.cdx.json
+        sbomqs policy -f sbom_policies.yml sboms/sbom_control_app_python.cdx.json -o json > policy.json
 
         if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
           echo SBOM policy check failed
@@ -421,6 +426,7 @@ jobs:
     - name: Check SBOM policies for MathTools
       run: |
         sbomqs policy -f sbom_policies.yml sboms/sbom_math_tools_app.cdx.json
+        sbomqs policy -f sbom_policies.yml sboms/sbom_math_tools_app.cdx.json -o json > policy.json
 
         if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
           echo SBOM policy check failed
@@ -430,6 +436,7 @@ jobs:
     - name: Check SBOM policies for PositionLogger
       run: |
         sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json
+        sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json -o json > policy.json
 
         if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
           echo SBOM policy check failed

@@ -423,7 +423,7 @@ jobs:
           echo SBOM policy check failed
           exit 1
 
-    - name: Check SBOM policies for PositionLogger
+    - name: Check SBOM policies for PositionLogger TODO
       run: |
         sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json
 

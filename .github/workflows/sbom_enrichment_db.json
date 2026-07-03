@@ -7,9 +7,7 @@
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true,
-            "archive": false,
-            "structured": false
+            "executable": true
         },
 		{
             "purl": "pkg:generic/monitor-app-c@",
@@ -17,9 +15,7 @@
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true,
-            "archive": false,
-            "structured": false
+            "executable": true
         },
 		{
             "purl": "pkg:generic/control-app-c@",
@@ -27,9 +23,7 @@
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true,
-            "archive": false,
-            "structured": false
+            "executable": true
         },
 		{
             "purl": "pkg:pypi/minimal-app@",
@@ -37,9 +31,7 @@
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true,
-            "archive": true,
-            "structured": true
+            "executable": true
         },
 		{
             "purl": "pkg:pypi/monitor-app@",
@@ -47,9 +39,7 @@
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true,
-            "archive": true,
-            "structured": true
+            "executable": true
         },
 		{
             "purl": "pkg:pypi/control-app@",
@@ -57,9 +47,7 @@
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true,
-            "archive": true,
-            "structured": true
+            "executable": true
         },
 		{
             "purl": "pkg:pypi/position-logger@",
@@ -67,9 +55,7 @@
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true,
-            "archive": true,
-            "structured": true
+            "executable": true
         },
 		{
             "purl": "pkg:pypi/math-tools@",
@@ -77,62 +63,51 @@
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true,
-            "archive": true,
-            "structured": true
+            "executable": true
         },
 		{
             "bom-ref": "pkg:conan/re2@",
             "creator": "https://github.com/google/re2",
-			"filename": "re2",
-            "executable": true
+			"filename": "re2"
         },
 		{
             "bom-ref": "pkg:conan/openssl@",
             "creator": "contact@openssl.foundation",
-			"filename": "ssl",
-            "executable": true
+			"filename": "ssl"
         },
 		{
             "bom-ref": "pkg:conan/c-ares@",
             "creator": "https://c-ares.org/",
-			"filename": "cares",
-            "executable": true
+			"filename": "cares"
         },
 		{
             "bom-ref": "pkg:conan/gtest@",
             "creator": "https://github.com/google/googletest",
-			"filename": "gtest",
-            "executable": true
+			"filename": "gtest"
         },
 		{
             "bom-ref": "pkg:conan/abseil@",
             "creator": "https://github.com/abseil/abseil-cpp",
-			"filename": "absl_base",
-            "executable": true
+			"filename": "absl_base"
         },
 		{
             "bom-ref": "pkg:conan/protobuf@",
             "creator": "https://protobuf.dev/",
-			"filename": "protobuf",
-            "executable": true
+			"filename": "protobuf"
         },
 		{
             "bom-ref": "pkg:conan/cmake@",
-            "creator": "https://cmake.org/",
-            "executable": true
+            "creator": "https://cmake.org/"
         },
 		{
             "bom-ref": "pkg:conan/grpc@",
             "creator": "https://grpc.io/",
-			"filename": "grpc++",
-            "executable": true
+			"filename": "grpc++"
         },
 		{
             "bom-ref": "pkg:conan/zlib@",
             "creator": "https://www.zlib.net/",
-			"filename": ["zlib", "z"],
-            "executable": true
+			"filename": ["zlib", "z"]
         },
 		{
 			"purl": "pkg:pypi/cython",

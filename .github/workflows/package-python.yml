@@ -366,6 +366,10 @@ jobs:
         sbomqs policy -f sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json
         sbomqs policy -f sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json -o json > policy.json
 
+        jq '.[].overall_result' policy.json
+
+        sbomqs policy -f sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json -o json | jq '.[].overall_result'
+
         if ! jq '.[].overall_result' policy.json | grep -i -v "pass"; then
           echo SBOM policy check failed
           exit 1

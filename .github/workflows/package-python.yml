@@ -314,55 +314,25 @@ jobs:
         sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_python.cdx.json
         sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_python.cdx.json --json > compliance.json
 
-#        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
-#          echo "::error::SBOM is not BSI compliant"
-#          jq '.recommendations[]' compliance.json
-#          exit 1
-#        fi
-
     - name: Check CRA compliance for MonitorApp
       run: |
         sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_python.cdx.json
         sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_python.cdx.json --json > compliance.json
-
-#        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
-#          echo "::error::SBOM is not BSI compliant"
-#          jq '.recommendations[]' compliance.json
-#          exit 1
-#        fi
 
     - name: Check CRA compliance for ControlApp
       run: |
         sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json
         sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json --json > compliance.json
 
-#        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
-#          echo "::error::SBOM is not BSI compliant"
-#          jq '.recommendations[]' compliance.json
-#          exit 1
-#        fi
-
     - name: Check CRA compliance for MathTools
       run: |
         sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json
         sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json --json > compliance.json
 
-#        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
-#          echo "::error::SBOM is not BSI compliant"
-#          jq '.recommendations[]' compliance.json
-#          exit 1
-#        fi
-
     - name: Check CRA compliance for PositionLogger
       run: |
         sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json
         sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json --json > compliance.json
-
-#        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
-#          echo "::error::SBOM is not BSI compliant"
-#          jq '.recommendations[]' compliance.json
-#          exit 1
-#        fi
 
     # Security Audit
     - name: Scan for vulnerabilities for MinimalApp
@@ -396,7 +366,7 @@ jobs:
         sbomqs policy -f sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json
         sbomqs policy -f sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json -o json > policy.json
 
-        if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
+        if ! jq '.[].overall_result' policy.json | grep -i -v "pass"; then
           echo SBOM policy check failed
           exit 1
         fi
@@ -406,7 +376,7 @@ jobs:
         sbomqs policy -f sbom_policies.yml sboms/sbom_monitor_app_python.cdx.json
         sbomqs policy -f sbom_policies.yml sboms/sbom_monitor_app_python.cdx.json -o json > policy.json
 
-        if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
+        if ! jq '.[].overall_result' policy.json | grep -i -v "pass"; then
           echo SBOM policy check failed
           exit 1
         fi
@@ -416,7 +386,7 @@ jobs:
         sbomqs policy -f sbom_policies.yml sboms/sbom_control_app_python.cdx.json
         sbomqs policy -f sbom_policies.yml sboms/sbom_control_app_python.cdx.json -o json > policy.json
 
-        if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
+        if ! jq '.[].overall_result' policy.json | grep -i -v "pass"; then
           echo SBOM policy check failed
           exit 1
         fi
@@ -426,7 +396,7 @@ jobs:
         sbomqs policy -f sbom_policies.yml sboms/sbom_math_tools_app.cdx.json
         sbomqs policy -f sbom_policies.yml sboms/sbom_math_tools_app.cdx.json -o json > policy.json
 
-        if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
+        if ! jq '.[].overall_result' policy.json | grep -i -v "pass"; then
           echo SBOM policy check failed
           exit 1
         fi
@@ -436,7 +406,7 @@ jobs:
         sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json
         sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json -o json > policy.json
 
-        if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
+        if ! jq '.[].overall_result' policy.json | grep -i -v "pass"; then
           echo SBOM policy check failed
           exit 1
         fi

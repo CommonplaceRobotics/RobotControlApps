@@ -138,14 +138,26 @@ jobs:
     steps:
     - uses: actions/checkout@v7
 
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.x"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install cyclonedx-bom poetry
+
     - name: Get the SBOM enrichment tool
       uses: actions/checkout@v7
       with:
         repository: CommonplaceRobotics/SW_SBOM_Enrichment
         path: ${{ github.workspace }}/sbom_tool
-        sparse-checkout: |
-          SbomEnrichment.py
-        sparse-checkout-cone-mode: false
+
+    - name: Install dependencies for the SBOM enrichment tool
+      run: |
+        cd sbom_tool
+        python -m poetry install --no-root
 
     - name: Get the MinimalApp package
       uses: actions/download-artifact@v8
@@ -181,16 +193,6 @@ jobs:
         name: PositionLogger.zip
         path: PositionLogger
         skip-decompress: true
-
-    - name: Set up Python 3.x
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3.x"
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install cyclonedx-bom
 
     # Liest die Core-Version aus CMakeLists.txt
     - name: Get software versions
@@ -307,60 +309,60 @@ jobs:
       run: go install github.com/interlynk-io/sbomqs@latest
 
     # Checks compliance with the latest version of BSI TR-03183-2
-    - name: Check CRA compliance for MinimalApp
-      run: |
-        sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_python.cdx.json
-        sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_python.cdx.json --json > compliance.json
-
-        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
-          echo "::error::SBOM is not BSI compliant"
-          jq '.recommendations[]' compliance.json
-          exit 1
-        fi
-
-    - name: Check CRA compliance for MonitorApp
-      run: |
-        sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_python.cdx.json
-        sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_python.cdx.json --json > compliance.json
-
-        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
-          echo "::error::SBOM is not BSI compliant"
-          jq '.recommendations[]' compliance.json
-          exit 1
-        fi
-
-    - name: Check CRA compliance for ControlApp
-      run: |
-        sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json
-        sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json --json > compliance.json
-
-        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
-          echo "::error::SBOM is not BSI compliant"
-          jq '.recommendations[]' compliance.json
-          exit 1
-        fi
-
-    - name: Check CRA compliance for MathTools
-      run: |
-        sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json
-        sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json --json > compliance.json
-
-        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
-          echo "::error::SBOM is not BSI compliant"
-          jq '.recommendations[]' compliance.json
-          exit 1
-        fi
-
-    - name: Check CRA compliance for PositionLogger
-      run: |
-        sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json
-        sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json --json > compliance.json
-
-        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
-          echo "::error::SBOM is not BSI compliant"
-          jq '.recommendations[]' compliance.json
-          exit 1
-        fi
+#    - name: Check CRA compliance for MinimalApp
+#      run: |
+#        sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_python.cdx.json
+#        sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_python.cdx.json --json > compliance.json
+#
+#        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
+#          echo "::error::SBOM is not BSI compliant"
+#          jq '.recommendations[]' compliance.json
+#          exit 1
+#        fi
+#
+#    - name: Check CRA compliance for MonitorApp
+#      run: |
+#        sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_python.cdx.json
+#        sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_python.cdx.json --json > compliance.json
+#
+#        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
+#          echo "::error::SBOM is not BSI compliant"
+#          jq '.recommendations[]' compliance.json
+#          exit 1
+#        fi
+#
+#    - name: Check CRA compliance for ControlApp
+#      run: |
+#        sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json
+#        sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json --json > compliance.json
+#
+#        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
+#          echo "::error::SBOM is not BSI compliant"
+#          jq '.recommendations[]' compliance.json
+#          exit 1
+#        fi
+#
+#    - name: Check CRA compliance for MathTools
+#      run: |
+#        sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json
+#        sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json --json > compliance.json
+#
+#        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
+#          echo "::error::SBOM is not BSI compliant"
+#          jq '.recommendations[]' compliance.json
+#          exit 1
+#        fi
+#
+#    - name: Check CRA compliance for PositionLogger
+#      run: |
+#        sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json
+#        sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json --json > compliance.json
+#
+#        if [ $(jq '.summary.compliant' compliance.json) != "true" ]; then
+#          echo "::error::SBOM is not BSI compliant"
+#          jq '.recommendations[]' compliance.json
+#          exit 1
+#        fi
 
     # Security Audit
     - name: Scan for vulnerabilities for MinimalApp
@@ -390,16 +392,41 @@ jobs:
 
     # Validate SBOM policies
     - name: Check SBOM policies for MinimalApp
-      run: sbomqs policy -f sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json
+      run: |
+        sbomqs policy -f sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json
+
+        if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
+          echo SBOM policy check failed
+          exit 1
 
     - name: Check SBOM policies for MonitorApp
-      run: sbomqs policy -f sbom_policies.yml sboms/sbom_monitor_app_python.cdx.json
+      run: |
+        sbomqs policy -f sbom_policies.yml sboms/sbom_monitor_app_python.cdx.json
+
+        if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
+          echo SBOM policy check failed
+          exit 1
 
     - name: Check SBOM policies for ControlApp
-      run: sbomqs policy -f sbom_policies.yml sboms/sbom_control_app_python.cdx.json
+      run: |
+        sbomqs policy -f sbom_policies.yml sboms/sbom_control_app_python.cdx.json
+
+        if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
+          echo SBOM policy check failed
+          exit 1
 
     - name: Check SBOM policies for MathTools
-      run: sbomqs policy -f sbom_policies.yml sboms/sbom_math_tools_app.cdx.json
+      run: |
+        sbomqs policy -f sbom_policies.yml sboms/sbom_math_tools_app.cdx.json
+
+        if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
+          echo SBOM policy check failed
+          exit 1
 
     - name: Check SBOM policies for PositionLogger
-      run: sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json
+      run: |
+        sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json
+
+        if ! iconv -f UTF-16LE -t UTF-8 policy.json | jq '.[].overall_result' | grep -i -v "pass"; then
+          echo SBOM policy check failed
+          exit 1

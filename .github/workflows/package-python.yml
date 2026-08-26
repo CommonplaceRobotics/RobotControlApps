@@ -2,7 +2,7 @@ name: Package Python Apps and create SBOM
 
 on:
   push:
-    branches: [ "master", "v1*", "v2*", "v3*"]
+    branches: [ "master", "v1*", "v2*", "v3*" ]
     paths:
       - ".github/**"
       - 'MathTools/**'
@@ -214,15 +214,14 @@ jobs:
         echo "POSITION_LOGGER_APP_VER=$POSITION_LOGGER_APP_VER" >> $GITHUB_ENV
 
     - name: Create output directory
-      run: |
-        mkdir ~/sboms
+      run: mkdir sboms_temp sboms
 
     - name: Create SBOM for MinimalApp
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: minimal_python
         LOCK_FILE: poetry.lock
-        OUTPUT_FILE: ../sboms/sbom_minimal_app_python.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_minimal_app_python_temp.cdx.json
         COMPONENT_NAME: Minimal App Python
         COMPONENT_VERSION: ${{ env.MINIMAL_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
@@ -236,7 +235,7 @@ jobs:
       env:
         WORKING_DIR: monitor_python
         LOCK_FILE: poetry.lock
-        OUTPUT_FILE: ../sboms/sbom_monitor_app_python.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_monitor_app_python_temp.cdx.json
         COMPONENT_NAME: Monitor App Python
         COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
@@ -250,7 +249,7 @@ jobs:
       env:
         WORKING_DIR: control_python
         LOCK_FILE: poetry.lock
-        OUTPUT_FILE: ../sboms/sbom_control_app_python.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_control_app_python_temp.cdx.json
         COMPONENT_NAME: Control App Python
         COMPONENT_VERSION: ${{ env.CONTROL_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
@@ -264,7 +263,7 @@ jobs:
       env:
         WORKING_DIR: MathTools
         LOCK_FILE: poetry.lock
-        OUTPUT_FILE: ../sboms/sbom_math_tools_app.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_math_tools_app_temp.cdx.json
         COMPONENT_NAME: Math Tools App
         COMPONENT_VERSION: ${{ env.MATH_TOOLS_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
@@ -278,7 +277,7 @@ jobs:
       env:
         WORKING_DIR: PositionLogger
         LOCK_FILE: poetry.lock
-        OUTPUT_FILE: ../sboms/sbom_position_logger_app.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_position_logger_app_temp.cdx.json
         COMPONENT_NAME: Position Logger App
         COMPONENT_VERSION: ${{ env.POSITION_LOGGER_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
@@ -287,14 +286,40 @@ jobs:
         ENRICH: true
         UPLOAD: false
 
-    - name: Final SBOM enrichment
-      run: |
-        sudo chmod 666 sboms/*
-        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_minimal_app_python.cdx.json
-        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_monitor_app_python.cdx.json
-        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_control_app_python.cdx.json
-        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_math_tools_app.cdx.json
-        python3 ${{ github.workspace }}/sbom_tool/SbomEnrichment.py .github/workflows/sbom_enrichment_db.json sboms/sbom_position_logger_app.cdx.json
+    - name: Final SBOM enrichment for MinimalApp
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp/sbom_minimal_app_python_temp.cdx.json
+        sbom_out: sboms/sbom_minimal_app_python.cdx.json
+
+    - name: Final SBOM enrichment for MonitorApp
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp/sbom_monitor_app_python.cdx_temp.json
+        sbom_out: sboms/sbom_monitor_app_python.cdx.json
+
+    - name: Final SBOM enrichment for ControlApp
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp/sbom_control_app_python.cdx_temp.json
+        sbom_out: sboms/sbom_control_app_python.cdx.json
+
+    - name: Final SBOM enrichment for MathTools
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp/sbom_math_tools_app.cdx_temp.json
+        sbom_out: sboms/sbom_math_tools_app.cdx.json
+
+    - name: Final SBOM enrichment for PositionLogger
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp/sbom_position_logger_app_temp.cdx.json
+        sbom_out: sboms/sbom_position_logger_app.cdx.json
 
     - name: Export SBOMs
       uses: actions/upload-artifact@v7
@@ -303,105 +328,27 @@ jobs:
         path: sboms
         archive: true
 
-    - uses: actions/setup-go@v6
-
-    - name: Install SBOM QA tool
-      run: go install github.com/interlynk-io/sbomqs@latest
-
-    # Checks compliance with the latest version of BSI TR-03183-2
-    - name: Check CRA compliance for MinimalApp
-      run: |
-        sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_python.cdx.json
-        sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_python.cdx.json --json > compliance.json
-
-    - name: Check CRA compliance for MonitorApp
-      run: |
-        sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_python.cdx.json
-        sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_python.cdx.json --json > compliance.json
-
-    - name: Check CRA compliance for ControlApp
-      run: |
-        sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json
-        sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_python.cdx.json --json > compliance.json
-
-    - name: Check CRA compliance for MathTools
-      run: |
-        sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json
-        sbomqs compliance --bsi-v2 --color sboms/sbom_math_tools_app.cdx.json --json > compliance.json
-
-    - name: Check CRA compliance for PositionLogger
-      run: |
-        sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json
-        sbomqs compliance --bsi-v2 --color sboms/sbom_position_logger_app.cdx.json --json > compliance.json
-
-    # Security Audit
-    - name: Scan for vulnerabilities for MinimalApp
-      uses: anchore/scan-action@v7
+    - name: Validate SBOM with company policies for MinimalApp
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v3
       with:
-        sbom: sboms/sbom_minimal_app_python.cdx.json
+        sbom: sbom_minimal_app_python.cdx.json
 
-    - name: Scan for vulnerabilities for MonitorApp
-      uses: anchore/scan-action@v7
+    - name: Validate SBOM with company policies for MonitorApp
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v3
       with:
-        sbom: sboms/sbom_monitor_app_python.cdx.json
+        sbom: sbom_monitor_app_python.cdx.json
 
-    - name: Scan for vulnerabilities for ControlApp
-      uses: anchore/scan-action@v7
+    - name: Validate SBOM with company policies for ControlApp
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v3
       with:
-        sbom: sboms/sbom_control_app_python.cdx.json
+        sbom: sbom_control_app_python.cdx.json
 
-    - name: Scan for vulnerabilities for MathTools
-      uses: anchore/scan-action@v7
+    - name: Validate SBOM with company policies for MathTools
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v3
       with:
-        sbom: sboms/sbom_math_tools_app.cdx.json
+        sbom: sbom_math_tools_app.cdx.json
 
-    - name: Scan for vulnerabilities for PositionLogger
-      uses: anchore/scan-action@v7
+    - name: Validate SBOM with company policies for PositionLogger
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v3
       with:
-        sbom: sboms/sbom_position_logger_app.cdx.json
-
-    # Validate SBOM policies
-    - name: Check SBOM policies for MinimalApp
-      run: |
-        sbomqs policy -f sbom_policies.yml sboms/sbom_minimal_app_python.cdx.json
-
-        if sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json -o json | jq '.[].overall_result' | grep -i "fail"; then
-          echo SBOM policy check failed
-          exit 1
-        fi
-
-    - name: Check SBOM policies for MonitorApp
-      run: |
-        sbomqs policy -f sbom_policies.yml sboms/sbom_monitor_app_python.cdx.json
-
-        if sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json -o json | jq '.[].overall_result' | grep -i "fail"; then
-          echo SBOM policy check failed
-          exit 1
-        fi
-
-    - name: Check SBOM policies for ControlApp
-      run: |
-        sbomqs policy -f sbom_policies.yml sboms/sbom_control_app_python.cdx.json
-
-        if sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json -o json | jq '.[].overall_result' | grep -i "fail"; then
-          echo SBOM policy check failed
-          exit 1
-        fi
-
-    - name: Check SBOM policies for MathTools
-      run: |
-        sbomqs policy -f sbom_policies.yml sboms/sbom_math_tools_app.cdx.json
-
-        if sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json -o json | jq '.[].overall_result' | grep -i "fail"; then
-          echo SBOM policy check failed
-          exit 1
-        fi
-
-    - name: Check SBOM policies for PositionLogger
-      run: |
-        sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json
-
-        if sbomqs policy -f sbom_policies.yml sboms/sbom_position_logger_app.cdx.json -o json | jq '.[].overall_result' | grep -i "fail"; then
-          echo SBOM policy check failed
-          exit 1
-        fi
+        sbom: sbom_position_logger_app.cdx.json

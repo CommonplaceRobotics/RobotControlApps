@@ -1,8 +1,3 @@
-# Dieser Workflow
-# - Baut die Tests für x86_64 führt sie aus
-# - Erstellt SBOM wird und prüft sie auf Schwachstellen in den Abhängigkeiten
-# Dazu werden zunächst die Abhängigkeiten gebaut und gecached.
-#
 # Vorbedingung:
 # - Die Conan-Lockdatei (conan_linux.lock) muss existieren.
 
@@ -99,55 +94,18 @@ jobs:
   build_dependencies_rpi:
     runs-on: ubuntu-latest
     timeout-minutes: 130
-    # Damit die x86_64-Tools nicht doppelt gebaut werden müssen
-    #needs: build_dependencies_pc
 
     steps:
     - uses: actions/checkout@v7
       with:
         submodules: true
 
-    # Fail fast
-    - name: Check whether cache exists
-      id: cache_test
-      uses: actions/cache/restore@v5
+    - uses: CommonplaceRobotics/Action_Build_Conan_Dependencies/Linux_armv8_32@v1
       with:
-        path: |
-          ~/.conan2
-          minimal_cpp/out
-        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
-        lookup-only: true
+        lockfile: 'conan_linux.lock'
+        cache_key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
 
-    - name: Restore cached dependencies
-      if: steps.cache_test.outputs.cache-hit != 'true'
-      uses: actions/cache@v5
-      with:
-        path: |
-          ~/.conan2
-          minimal_cpp/out
-          monitor_cpp/out
-          control_cpp/out
-        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
-        restore-keys: |
-          conan-${{ runner.os }}-armv8_32-
-          conan-${{ runner.os }}-x86_64-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
-          conan-${{ runner.os }}-x86_64-
-
-    - name: Install RPi Cross-Compiler
-      if: steps.cache_test.outputs.cache-hit != 'true'
-      run: |
-        mkdir -p /opt/gcc
-        cd /opt/gcc
-        sudo wget --quiet https://downloads.cpr-robots.com/Software/CI/gcc_armv8-rpi4-linux-gnueabihf.tar.gz
-        sudo tar -xf gcc_armv8-rpi4-linux-gnueabihf.tar.gz
-
-    - name: Install Conan
-      if: steps.cache_test.outputs.cache-hit != 'true'
-      uses: conan-io/setup-conan@v1
-
-    - name: Install Conan profiles
-      if: steps.cache_test.outputs.cache-hit != 'true'
-      run: cp api_cpp/tools/conan/profiles/Linux/* ~/.conan2/profiles
+# TODO
 
     - name: Build Conan dependencies for MinimalApp (RPi)
       if: steps.cache_test.outputs.cache-hit != 'true'
@@ -166,10 +124,6 @@ jobs:
       run: |
         cd control_cpp
         conan install . --lockfile=./conan_linux.lock --lockfile-partial --build=missing --profile:host=cpr_linux_rpi4_gcc10_release --profile:build=cpr_linux_x86_64_release -c tools.cmake.cmake_layout:build_folder_vars="['settings.os', 'settings.arch']"
-
-    - name: Clear old dependencies
-      if: steps.cache_test.outputs.cache-hit != 'true'
-      run: conan remove --lru=8w "*"
 
 
   # Builds the Minimal App for RPi
@@ -368,9 +322,6 @@ jobs:
       with:
         repository: CommonplaceRobotics/SW_SBOM_Enrichment
         path: ${{ github.workspace }}/sbom_tool
-        sparse-checkout: |
-          SbomEnrichment.py
-        sparse-checkout-cone-mode: false
 
     - name: Get the MinimalApp binaries
       uses: actions/download-artifact@v8
@@ -464,7 +415,6 @@ jobs:
         echo "MONITOR_APP_VER=$MONITOR_APP_VER" >> $GITHUB_ENV
         echo "CONTROL_APP_VER=$CONTROL_APP_VER" >> $GITHUB_ENV
 
-    # Sbomify seems to identify lock files by name
     - name: Create SBOM files
       run: |
         conan sbom:cyclonedx --format 1.4_json minimal_cpp | ~/cyclonedx-linux-x64 convert --input-format json --output-format json --output-version v1_6 > minimal_cpp/sbom.cdx.json
@@ -530,53 +480,17 @@ jobs:
         path: sboms
         archive: true
 
-    - uses: actions/setup-go@v6
-
-    - name: Install SBOM QA tool
-      run: go install github.com/interlynk-io/sbomqs@latest
-
-    - name: SBOM quality score for MinimalApp
-      run: sbomqs score sboms/sbom_minimal_app_cpp.cdx.json
-
-    - name: SBOM quality score for MonitorApp
-      run: sbomqs score sboms/sbom_monitor_app_cpp.cdx.json
-
-    - name: SBOM quality score for ControlApp
-      run: sbomqs score sboms/sbom_control_app_cpp.cdx.json
-
-    # Checks compliance with the latest version of BSI TR-03183-2
-    - name: Check CRA compliance for MinimalApp
-      run: sbomqs compliance --bsi-v2 --color sboms/sbom_minimal_app_cpp.cdx.json
-
-    # Checks compliance with the latest version of BSI TR-03183-2
-    - name: Check CRA compliance for MonitorApp
-      run: sbomqs compliance --bsi-v2 --color sboms/sbom_monitor_app_cpp.cdx.json
-
-    # Checks compliance with the latest version of BSI TR-03183-2
-    - name: Check CRA compliance for ControlApp
-      run: sbomqs compliance --bsi-v2 --color sboms/sbom_control_app_cpp.cdx.json
-
-    - name: List component licenses for MinimalApp
-      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_minimal_app_cpp.cdx.json
-
-    - name: List component licenses for MonitorApp
-      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_monitor_app_cpp.cdx.json
-
-    - name: List component licenses for Control App
-      run: sbomqs list --feature comp_with_declared_license --show sboms/sbom_control_app_cpp.cdx.json
-
-    # Security Audit
-    - name: Scan for vulnerabilities for MinimalApp
-      uses: anchore/scan-action@v7
+    - name: Validate SBOM with company policies (Minimal App)
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v1
       with:
         sbom: sboms/sbom_minimal_app_cpp.cdx.json
 
-    - name: Scan for vulnerabilities for MonitorApp
-      uses: anchore/scan-action@v7
+    - name: Validate SBOM with company policies (Monitor App)
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v1
       with:
         sbom: sboms/sbom_monitor_app_cpp.cdx.json
 
-    - name: Scan for vulnerabilities for ControlApp
-      uses: anchore/scan-action@v7
+    - name: Validate SBOM with company policies (Control App)
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v1
       with:
         sbom: sboms/sbom_control_app_cpp.cdx.json

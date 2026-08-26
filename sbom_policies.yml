@@ -21,6 +21,7 @@ policy:
       - field: sbom_supplier
       - field: sbom_lifecycle
       - field: sbom_pc
+    action: fail
 
   - name: required_metadata_components
     type: required

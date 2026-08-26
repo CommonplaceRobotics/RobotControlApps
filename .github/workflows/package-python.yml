@@ -1,3 +1,5 @@
+# This workflow will package the apps, create SBOMs and check them compliance with company policies
+
 name: Package Python Apps and create SBOM
 
 on:

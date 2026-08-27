@@ -29,6 +29,10 @@ jobs:
     timeout-minutes: 130
 
     steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
+
     - uses: CommonplaceRobotics/Action_Build_Conan_Dependencies/Linux_armv8_32@v2
       with:
         lockfile: 'conan_linux.lock'

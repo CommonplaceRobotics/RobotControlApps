@@ -230,13 +230,13 @@ jobs:
       run: |
         npm install -g @cdxgen/cdxgen --ignore-scripts --min-release-age=2
 
-    - name: Create initial SBOM for MinimalApp
+    - name: Create initial SBOMs
       run: |
-         cdxgen -o sboms_temp/sbom_minimal_app_python_temp1.json minimal_python
-         cdxgen -o sboms_temp/sbom_monitor_app_python_temp1.json monitor_python
-         cdxgen -o sboms_temp/sbom_control_app_python_temp1.json control_python
-         cdxgen -o sboms_temp/sbom_math_tools_app_temp1.json MathTools
-         cdxgen -o sboms_temp/sbom_position_logger_app_temp1.json PositionLogger
+         cdxgen -o sboms_temp/sbom_minimal_app_python_temp1.cdx.json minimal_python
+         cdxgen -o sboms_temp/sbom_monitor_app_python_temp1.cdx.json monitor_python
+         cdxgen -o sboms_temp/sbom_control_app_python_temp1.cdx.json control_python
+         cdxgen -o sboms_temp/sbom_math_tools_app_temp1.cdx.json MathTools
+         cdxgen -o sboms_temp/sbom_position_logger_app_temp1.cdx.json PositionLogger
 
     - name: Create SBOM for MinimalApp
       uses: sbomify/sbomify-action@master

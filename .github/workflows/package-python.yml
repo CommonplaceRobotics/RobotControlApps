@@ -224,7 +224,7 @@ jobs:
         WORKING_DIR: minimal_python
         LOCK_FILE: poetry.lock
         OUTPUT_FILE: ../sboms_temp/sbom_minimal_app_python_temp.cdx.json
-        COMPONENT_NAME: Minimal App Python
+        COMPONENT_NAME: Minimal_App_Python
         COMPONENT_VERSION: ${{ env.MINIMAL_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
@@ -238,7 +238,7 @@ jobs:
         WORKING_DIR: monitor_python
         LOCK_FILE: poetry.lock
         OUTPUT_FILE: ../sboms_temp/sbom_monitor_app_python_temp.cdx.json
-        COMPONENT_NAME: Monitor App Python
+        COMPONENT_NAME: Monitor_App_Python
         COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
@@ -252,7 +252,7 @@ jobs:
         WORKING_DIR: control_python
         LOCK_FILE: poetry.lock
         OUTPUT_FILE: ../sboms_temp/sbom_control_app_python_temp.cdx.json
-        COMPONENT_NAME: Control App Python
+        COMPONENT_NAME: Control_App_Python
         COMPONENT_VERSION: ${{ env.CONTROL_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
@@ -266,7 +266,7 @@ jobs:
         WORKING_DIR: MathTools
         LOCK_FILE: poetry.lock
         OUTPUT_FILE: ../sboms_temp/sbom_math_tools_app_temp.cdx.json
-        COMPONENT_NAME: Math Tools App
+        COMPONENT_NAME: Math_Tools_App
         COMPONENT_VERSION: ${{ env.MATH_TOOLS_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
@@ -280,7 +280,7 @@ jobs:
         WORKING_DIR: PositionLogger
         LOCK_FILE: poetry.lock
         OUTPUT_FILE: ../sboms_temp/sbom_position_logger_app_temp.cdx.json
-        COMPONENT_NAME: Position Logger App
+        COMPONENT_NAME: Position_Logger_App
         COMPONENT_VERSION: ${{ env.POSITION_LOGGER_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true

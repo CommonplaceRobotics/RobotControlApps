@@ -27,6 +27,7 @@ pythonpath = [
 
 [tool.poetry]
 packages = [{include = "position_logger", from = "src"}]
+name = "position_logger"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

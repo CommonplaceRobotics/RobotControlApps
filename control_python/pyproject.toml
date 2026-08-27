@@ -27,6 +27,7 @@ pythonpath = [
 
 [tool.poetry]
 packages = [{include = "control_app", from = "src"}]
+name = "control_app"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

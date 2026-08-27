@@ -2,7 +2,7 @@
     "components":
     [
         {
-            "purl": "pkg:generic/minimal-app-c@",
+            "purl": "pkg:generic/minimal_app_cpp@",
             "filename": "minimal_cpp/package/minimal_cpp/minimalapp",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
@@ -10,7 +10,7 @@
             "executable": true
         },
 		{
-            "purl": "pkg:generic/monitor-app-c@",
+            "purl": "pkg:generic/monitor_app_cpp@",
             "filename": "monitor_cpp/package/monitor_cpp/monitorapp",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
@@ -18,7 +18,7 @@
             "executable": true
         },
 		{
-            "purl": "pkg:generic/control-app-c@",
+            "purl": "pkg:generic/control_app_cpp@",
             "filename": "control_cpp/package/control_cpp/controlapp",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],

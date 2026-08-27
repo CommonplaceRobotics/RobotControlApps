@@ -1,5 +1,5 @@
-# Vorbedingung:
-# - Die Conan-Lockdatei (conan_linux.lock) muss existieren.
+# Precondition:
+# - The Conan lock file (conan_linux.lock) must exist.
 
 name: Build and Test Apps for Linux
 
@@ -19,11 +19,8 @@ on:
       - 'minimal_cpp/**'
       - 'monitor_cpp/**'
 
-# TODO: separate Workflows je App, die dann Copy-Pasten
-
 jobs:
   # Bereitet die Abhängigkeiten für RPi vor.
-
   build_dependencies_rpi:
     runs-on: CPR_Ubuntu2404
     timeout-minutes: 130
@@ -47,43 +44,9 @@ jobs:
           minimal_cpp/out
           monitor_cpp/out
 
-  # build_dependencies_minimal_app_rpi:
-    # runs-on: CPR_Ubuntu2404
-    # timeout-minutes: 130
-
-    # steps:
-    # # TODO: Ein Verzeichnis angeben
-    # - uses: CommonplaceRobotics/Action_Build_Conan_Dependencies/Linux_armv8_32@v1
-      # with:
-        # lockfile: 'conan_linux.lock'
-        # cache_key: minimal_app_conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
-
-  # build_dependencies_monitor_app_rpi:
-    # runs-on: CPR_Ubuntu2404
-    # timeout-minutes: 130
-    # needs: build_dependencies_minimal_app_rpi
-
-    # steps:
-    # # TODO: Ein Verzeichnis angeben
-    # - uses: CommonplaceRobotics/Action_Build_Conan_Dependencies/Linux_armv8_32@v1
-      # with:
-        # lockfile: 'conan_linux.lock'
-        # cache_key: monitor_app_conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
-
-  # build_dependencies_control_app_rpi:
-    # runs-on: CPR_Ubuntu2404
-    # timeout-minutes: 130
-    # needs: build_dependencies_minimal_app_rpi
-
-    # # TODO: Ein Verzeichnis angeben
-    # - uses: CommonplaceRobotics/Action_Build_Conan_Dependencies/Linux_armv8_32@v1
-      # with:
-        # lockfile: 'conan_linux.lock'
-        # cache_key: control_app_conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
-
   # Builds the Minimal App for RPi
   build_minimal_app_rpi:
-    runs-on: ubuntu-latest
+    runs-on: CPR_Ubuntu2404
     timeout-minutes: 10
     needs: build_dependencies_rpi
 
@@ -139,7 +102,7 @@ jobs:
 
   # Builds the Monitor App for RPi
   build_monitor_app_rpi:
-    runs-on: ubuntu-latest
+    runs-on: CPR_Ubuntu2404
     timeout-minutes: 10
     needs: build_dependencies_rpi
 
@@ -154,9 +117,9 @@ jobs:
       with:
         path: |
           ~/.conan2
+          control_cpp/out
           minimal_cpp/out
           monitor_cpp/out
-          control_cpp/out
         key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
         fail-on-cache-miss: true
 
@@ -195,7 +158,7 @@ jobs:
 
   # Builds the Control App for RPi
   build_control_app_rpi:
-    runs-on: ubuntu-latest
+    runs-on: CPR_Ubuntu2404
     timeout-minutes: 10
     needs: build_dependencies_rpi
 
@@ -210,9 +173,9 @@ jobs:
       with:
         path: |
           ~/.conan2
+          control_cpp/out
           minimal_cpp/out
           monitor_cpp/out
-          control_cpp/out
         key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
         fail-on-cache-miss: true
 
@@ -290,10 +253,9 @@ jobs:
       with:
         path: |
           ~/.conan2
+          control_cpp/out
           minimal_cpp/out
           monitor_cpp/out
-          control_cpp/out
-        #key: conan-${{ runner.os }}-x86_64-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
         key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
         fail-on-cache-miss: true
 

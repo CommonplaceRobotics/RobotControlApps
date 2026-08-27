@@ -305,6 +305,9 @@ jobs:
         echo "MONITOR_APP_VER=$MONITOR_APP_VER" >> $GITHUB_ENV
         echo "CONTROL_APP_VER=$CONTROL_APP_VER" >> $GITHUB_ENV
 
+    - name: Create output directories
+      run: mkdir sboms sboms_temp
+
     - name: Create incomplete SBOM for Minimal App
       uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v3
       with:

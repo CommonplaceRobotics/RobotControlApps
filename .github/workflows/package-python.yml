@@ -299,21 +299,21 @@ jobs:
       uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
       with:
         database: .github/workflows/sbom_enrichment_db.json
-        sbom: sboms_temp/sbom_monitor_app_python.cdx_temp.json
+        sbom: sboms_temp/sbom_monitor_app_python_temp.cdx.json
         sbom_out: sboms/sbom_monitor_app_python.cdx.json
 
     - name: Final SBOM enrichment for ControlApp
       uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
       with:
         database: .github/workflows/sbom_enrichment_db.json
-        sbom: sboms_temp/sbom_control_app_python.cdx_temp.json
+        sbom: sboms_temp/sbom_control_app_python_temp.cdx.json
         sbom_out: sboms/sbom_control_app_python.cdx.json
 
     - name: Final SBOM enrichment for MathTools
       uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
       with:
         database: .github/workflows/sbom_enrichment_db.json
-        sbom: sboms_temp/sbom_math_tools_app.cdx_temp.json
+        sbom: sboms_temp/sbom_math_tools_app_temp.cdx.json
         sbom_out: sboms/sbom_math_tools_app.cdx.json
 
     - name: Final SBOM enrichment for PositionLogger

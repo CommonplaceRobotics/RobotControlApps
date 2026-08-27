@@ -333,24 +333,24 @@ jobs:
     - name: Validate SBOM with company policies for MinimalApp
       uses: CommonplaceRobotics/Action_Validate_SBOM@v3
       with:
-        sbom: sbom_minimal_app_python.cdx.json
+        sbom: sboms/sbom_minimal_app_python.cdx.json
 
     - name: Validate SBOM with company policies for MonitorApp
       uses: CommonplaceRobotics/Action_Validate_SBOM@v3
       with:
-        sbom: sbom_monitor_app_python.cdx.json
+        sbom: sboms/sbom_monitor_app_python.cdx.json
 
     - name: Validate SBOM with company policies for ControlApp
       uses: CommonplaceRobotics/Action_Validate_SBOM@v3
       with:
-        sbom: sbom_control_app_python.cdx.json
+        sbom: sboms/sbom_control_app_python.cdx.json
 
     - name: Validate SBOM with company policies for MathTools
       uses: CommonplaceRobotics/Action_Validate_SBOM@v3
       with:
-        sbom: sbom_math_tools_app.cdx.json
+        sbom: sboms/sbom_math_tools_app.cdx.json
 
     - name: Validate SBOM with company policies for PositionLogger
       uses: CommonplaceRobotics/Action_Validate_SBOM@v3
       with:
-        sbom: sbom_position_logger_app.cdx.json
+        sbom: sboms/sbom_position_logger_app.cdx.json

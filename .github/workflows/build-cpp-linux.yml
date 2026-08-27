@@ -1,5 +1,5 @@
 # Precondition:
-# - The Conan lock file (conan_linux.lock) must exist.
+# - The Conan lock file (conan_linux_rpi.lock) must exist.
 
 name: Build and Test Apps for Linux
 
@@ -32,8 +32,8 @@ jobs:
 
     - uses: CommonplaceRobotics/Action_Build_Conan_Dependencies/Linux_armv8_32@v2
       with:
-        lockfile: 'conan_linux.lock'
-        cache_key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+        lockfile: 'conan_linux_rpi.lock'
+        cache_key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux_rpi.lock', '**/conanfile.py') }}
         path: |
           control_cpp
           minimal_cpp
@@ -64,7 +64,7 @@ jobs:
           control_cpp/out
           minimal_cpp/out
           monitor_cpp/out
-        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux_rpi.lock', '**/conanfile.py') }}
         fail-on-cache-miss: true
 
     - name: Install RPi Cross-Compiler
@@ -120,7 +120,7 @@ jobs:
           control_cpp/out
           minimal_cpp/out
           monitor_cpp/out
-        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux_rpi.lock', '**/conanfile.py') }}
         fail-on-cache-miss: true
 
     - name: Install RPi Cross-Compiler
@@ -176,7 +176,7 @@ jobs:
           control_cpp/out
           minimal_cpp/out
           monitor_cpp/out
-        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux_rpi.lock', '**/conanfile.py') }}
         fail-on-cache-miss: true
 
     - name: Install RPi Cross-Compiler
@@ -256,7 +256,7 @@ jobs:
           control_cpp/out
           minimal_cpp/out
           monitor_cpp/out
-        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux.lock', '**/conanfile.py') }}
+        key: conan-${{ runner.os }}-armv8_32-${{ hashFiles('**/conan_linux_rpi.lock', '**/conanfile.py') }}
         fail-on-cache-miss: true
 
     - name: Install RPi Cross-Compiler

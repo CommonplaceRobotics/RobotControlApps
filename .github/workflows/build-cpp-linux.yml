@@ -306,28 +306,31 @@ jobs:
         echo "CONTROL_APP_VER=$CONTROL_APP_VER" >> $GITHUB_ENV
 
     - name: Create incomplete SBOM for Minimal App
-      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v2
+      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v3
       with:
-        lockfile: minimal_cpp/conan_linux_rpi.lock
-        sbom: minimal_cpp/sbom.cdx.json
+        workdir: minimal_cpp
+        lockfile: conan_linux_rpi.lock
+        sbom: sbom_temp1.cdx.json
 
     - name: Create incomplete SBOM for Monitor App
-      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v2
+      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v3
       with:
-        lockfile: monitor_cpp/conan_linux_rpi.lock
-        sbom: monitor_cpp/sbom.cdx.json
+        workdir: monitor_cpp
+        lockfile: conan_linux_rpi.lock
+        sbom: sbom_temp1.cdx.json
 
     - name: Create incomplete SBOM for Control App
-      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v2
+      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v3
       with:
-        lockfile: control_cpp/conan_linux_rpi.lock
-        sbom: control_cpp/sbom.cdx.json
+        workdir: control_cpp
+        lockfile: conan_linux_rpi.lock
+        sbom: sbom_temp1.cdx.json
 
     - name: Create SBOM for MinimalApp
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: minimal_cpp
-        SBOM_FILE: sbom.cdx.json
+        SBOM_FILE: sbom_temp1.cdx.json
         OUTPUT_FILE: ../sboms_temp/sbom_minimal_app_cpp.cdx.json
         COMPONENT_NAME: Minimal_App_Cpp
         COMPONENT_VERSION: ${{ env.MINIMAL_APP_VER }}
@@ -341,7 +344,7 @@ jobs:
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: monitor_cpp
-        SBOM_FILE: sbom.cdx.json
+        SBOM_FILE: sbom_temp1.cdx.json
         OUTPUT_FILE: ../sboms_temp/sbom_monitor_app_cpp.cdx.json
         COMPONENT_NAME: Monitor_App_Cpp
         COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}
@@ -355,7 +358,7 @@ jobs:
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: control_cpp
-        SBOM_FILE: sbom.cdx.json
+        SBOM_FILE: sbom_temp1.cdx.json
         OUTPUT_FILE: ../sboms_temp/sbom_control_app_cpp.cdx.json
         COMPONENT_NAME: Control_App_Cpp
         COMPONENT_VERSION: ${{ env.CONTROL_APP_VER }}

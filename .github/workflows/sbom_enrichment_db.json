@@ -26,7 +26,7 @@
             "executable": true
         },
 		{
-            "purl": "pkg:pypi/minimal-app@",
+            "purl": "pkg:generic/minimal_app_python@",
             "filename": "minimal_python/minimal_app_python.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
@@ -34,7 +34,7 @@
             "executable": true
         },
 		{
-            "purl": "pkg:pypi/monitor-app@",
+            "purl": "pkg:generic/monitor_app_python@",
             "filename": "monitor_python/monitor_app_python.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
@@ -42,19 +42,19 @@
             "executable": true
         },
 		{
-            "purl": "pkg:pypi/control-app@",
+            "purl": "pkg:generic/control_app_python@",
             "filename": "control_python/control_app_python.zip",
             "original_licenses": ["MIT"],
             "executable": true
         },
 		{
-            "purl": "pkg:pypi/position-logger@",
+            "purl": "pkg:generic/position_logger@",
             "filename": "PositionLogger/PositionLogger.zip",
             "original_licenses": ["MIT"],
             "executable": true
         },
 		{
-            "purl": "pkg:pypi/math-tools@",
+            "purl": "pkg:generic/math_tools@",
             "filename": "MathTools/MathTools.zip",
             "original_licenses": ["MIT"],
             "executable": true

@@ -218,12 +218,33 @@ jobs:
     - name: Create output directory
       run: mkdir sboms_temp sboms
 
+    # sbomify uses cyclonedx-py to generate Python SBOMs, which is not yet compatible to poetry v2
+    # Alternatively partial SBOMs can be generated as follows. They would need to be merged and
+    # dependencies linked to the main component.
+    # Metadata:
+    # cyclonedx-py poetry --no-dev .
+    # Dependencies:
+    # poetry export --without-hashes | cyclonedx-py requirements -
+
+    - name: Install cdxgen
+      run: |
+        npm install -g @cdxgen/cdxgen --ignore-scripts --min-release-age=2
+
+    - name: Create initial SBOM for MinimalApp
+      run: |
+         cdxgen -o sboms_temp/sbom_minimal_app_python_temp1.json minimal_python
+         cdxgen -o sboms_temp/sbom_monitor_app_python_temp1.json monitor_python
+         cdxgen -o sboms_temp/sbom_control_app_python_temp1.json control_python
+         cdxgen -o sboms_temp/sbom_math_tools_app_temp1.json MathTools
+         cdxgen -o sboms_temp/sbom_position_logger_app_temp1.json PositionLogger
+
     - name: Create SBOM for MinimalApp
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: minimal_python
-        LOCK_FILE: poetry.lock
-        OUTPUT_FILE: ../sboms_temp/sbom_minimal_app_python_temp.cdx.json
+        #LOCK_FILE: poetry.lock
+        SBOM_FILE: ../sboms_temp/sbom_minimal_app_python_temp1.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_minimal_app_python_temp2.cdx.json
         COMPONENT_NAME: Minimal_App_Python
         COMPONENT_VERSION: ${{ env.MINIMAL_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
@@ -236,8 +257,9 @@ jobs:
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: monitor_python
-        LOCK_FILE: poetry.lock
-        OUTPUT_FILE: ../sboms_temp/sbom_monitor_app_python_temp.cdx.json
+        #LOCK_FILE: poetry.lock
+        SBOM_FILE: ../sboms_temp/sbom_monitor_app_python_temp1.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_monitor_app_python_temp2.cdx.json
         COMPONENT_NAME: Monitor_App_Python
         COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
@@ -250,8 +272,9 @@ jobs:
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: control_python
-        LOCK_FILE: poetry.lock
-        OUTPUT_FILE: ../sboms_temp/sbom_control_app_python_temp.cdx.json
+        #LOCK_FILE: poetry.lock
+        SBOM_FILE: ../sboms_temp/sbom_control_app_python_temp1.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_control_app_python_temp2.cdx.json
         COMPONENT_NAME: Control_App_Python
         COMPONENT_VERSION: ${{ env.CONTROL_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
@@ -264,8 +287,9 @@ jobs:
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: MathTools
-        LOCK_FILE: poetry.lock
-        OUTPUT_FILE: ../sboms_temp/sbom_math_tools_app_temp.cdx.json
+        #LOCK_FILE: poetry.lock
+        SBOM_FILE: ../sboms_temp/sbom_math_tools_app_temp1.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_math_tools_app_temp2.cdx.json
         COMPONENT_NAME: Math_Tools_App
         COMPONENT_VERSION: ${{ env.MATH_TOOLS_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
@@ -278,8 +302,9 @@ jobs:
       uses: sbomify/sbomify-action@master
       env:
         WORKING_DIR: PositionLogger
-        LOCK_FILE: poetry.lock
-        OUTPUT_FILE: ../sboms_temp/sbom_position_logger_app_temp.cdx.json
+        #LOCK_FILE: poetry.lock
+        SBOM_FILE: ../sboms_temp/sbom_position_logger_app_temp1.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_position_logger_app_temp2.cdx.json
         COMPONENT_NAME: Position_Logger_App
         COMPONENT_VERSION: ${{ env.POSITION_LOGGER_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
@@ -292,35 +317,35 @@ jobs:
       uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
       with:
         database: .github/workflows/sbom_enrichment_db.json
-        sbom: sboms_temp/sbom_minimal_app_python_temp.cdx.json
+        sbom: sboms_temp/sbom_minimal_app_python_temp2.cdx.json
         sbom_out: sboms/sbom_minimal_app_python.cdx.json
 
     - name: Final SBOM enrichment for MonitorApp
       uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
       with:
         database: .github/workflows/sbom_enrichment_db.json
-        sbom: sboms_temp/sbom_monitor_app_python_temp.cdx.json
+        sbom: sboms_temp/sbom_monitor_app_python_temp2.cdx.json
         sbom_out: sboms/sbom_monitor_app_python.cdx.json
 
     - name: Final SBOM enrichment for ControlApp
       uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
       with:
         database: .github/workflows/sbom_enrichment_db.json
-        sbom: sboms_temp/sbom_control_app_python_temp.cdx.json
+        sbom: sboms_temp/sbom_control_app_python_temp2.cdx.json
         sbom_out: sboms/sbom_control_app_python.cdx.json
 
     - name: Final SBOM enrichment for MathTools
       uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
       with:
         database: .github/workflows/sbom_enrichment_db.json
-        sbom: sboms_temp/sbom_math_tools_app_temp.cdx.json
+        sbom: sboms_temp/sbom_math_tools_app_temp2.cdx.json
         sbom_out: sboms/sbom_math_tools_app.cdx.json
 
     - name: Final SBOM enrichment for PositionLogger
       uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
       with:
         database: .github/workflows/sbom_enrichment_db.json
-        sbom: sboms_temp/sbom_position_logger_app_temp.cdx.json
+        sbom: sboms_temp/sbom_position_logger_app_temp2.cdx.json
         sbom_out: sboms/sbom_position_logger_app.cdx.json
 
     - name: Export SBOMs

@@ -6,7 +6,7 @@ authors = [
     {name = "MAB", email = "support@commonplacerobotics.de"}
 ]
 readme = "README.md"
-requires-python = ">=3.9.2,<3.10"
+requires-python = ">=3.9.2"
 license = "MIT"
 dependencies = [
 	"grpcio (==1.64.1)"
@@ -28,6 +28,9 @@ pythonpath = [
 [tool.poetry]
 packages = [{include = "minimal_app", from = "src"}]
 name = "minimal_app"
+
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

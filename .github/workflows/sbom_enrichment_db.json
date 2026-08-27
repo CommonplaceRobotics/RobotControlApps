@@ -34,7 +34,7 @@
             "executable": true
         },
 		{
-            "purl": "pkg:generic/monitor-app@",
+            "purl": "pkg:pypi/monitor-app@",
             "filename": "monitor_python/monitor_app_python.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
@@ -42,7 +42,7 @@
             "executable": true
         },
 		{
-            "purl": "pkg:generic/control-app@",
+            "purl": "pkg:pypi/control-app@",
             "filename": "control_python/control_app_python.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
@@ -50,7 +50,7 @@
             "executable": true
         },
 		{
-            "purl": "pkg:generic/position-logger@",
+            "purl": "pkg:pypi/position-logger@",
             "filename": "PositionLogger/PositionLogger.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
@@ -58,7 +58,7 @@
             "executable": true
         },
 		{
-            "purl": "pkg:generic/math-tools@",
+            "purl": "pkg:pypi/math-tools@",
             "filename": "MathTools/MathTools.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],

@@ -373,7 +373,7 @@ jobs:
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_minimal_app_cpp.cdx.json
-        sbom_out: sbom_minimal_app_cpp.cdx.json
+        sbom_out: sboms/sbom_minimal_app_cpp.cdx.json
         cmake_build_dir: minimal_cpp/out/build/Linux/armv8_32/Release
 
     - name: Final SBOM enrichment for Monitor App
@@ -381,7 +381,7 @@ jobs:
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_monitor_app_cpp.cdx.json
-        sbom_out: sbom_monitor_app_cpp.cdx.json
+        sbom_out: sboms/sbom_monitor_app_cpp.cdx.json
         cmake_build_dir: monitor_cpp/out/build/Linux/armv8_32/Release
 
     - name: Final SBOM enrichment for Control App
@@ -389,7 +389,7 @@ jobs:
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_control_app_cpp.cdx.json
-        sbom_out: sbom_control_app_cpp.cdx.json
+        sbom_out: sboms/sbom_control_app_cpp.cdx.json
         cmake_build_dir: control_cpp/out/build/Linux/armv8_32/Release
 
     - name: Export SBOMs

@@ -403,16 +403,16 @@ jobs:
         archive: true
 
     - name: Validate SBOM with company policies (Minimal App)
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v3
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v4
       with:
         sbom: sboms/sbom_minimal_app_cpp.cdx.json
 
     - name: Validate SBOM with company policies (Monitor App)
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v3
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v4
       with:
         sbom: sboms/sbom_monitor_app_cpp.cdx.json
 
     - name: Validate SBOM with company policies (Control App)
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v3
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v4
       with:
         sbom: sboms/sbom_control_app_cpp.cdx.json

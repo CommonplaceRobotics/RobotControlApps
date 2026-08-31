@@ -24,7 +24,7 @@ jobs:
   # Dies ist ein separater Job, da dies sehr lange dauern (30-60 Min, falls alles gebaut werden muss) kann und das Ergebnis gecached werden soll, auch wenn das Bauen später fehlschlägt.
   build_dependencies:
     runs-on: CPR_Windows11
-    timeout-minutes: 250
+    timeout-minutes: 120
 
     steps:
     - uses: actions/checkout@v7
@@ -40,7 +40,6 @@ jobs:
           minimal_cpp
           monitor_cpp
         cache_paths: |
-          ~/.conan2
           control_cpp/out
           minimal_cpp/out
           monitor_cpp/out
@@ -57,20 +56,19 @@ jobs:
       with:
         submodules: true
 
+    - name: Get the MSVC environment
+      uses: ilammy/msvc-dev-cmd@v1
+
     - name: Restore cached dependencies
       id: cache
       uses: actions/cache/restore@v5
       with:
         path: |
-          ~/.conan2
           minimal_cpp/out
           monitor_cpp/out
           control_cpp/out
         key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
         fail-on-cache-miss: true
-
-    - name: Get the MSVC environment
-      uses: ilammy/msvc-dev-cmd@v1
 
     - name: Install Conan
       uses: conan-io/setup-conan@v1
@@ -125,7 +123,6 @@ jobs:
       uses: actions/cache/restore@v5
       with:
         path: |
-          ~/.conan2
           minimal_cpp/out
           monitor_cpp/out
           control_cpp/out
@@ -188,7 +185,6 @@ jobs:
       uses: actions/cache/restore@v5
       with:
         path: |
-          ~/.conan2
           minimal_cpp/out
           monitor_cpp/out
           control_cpp/out

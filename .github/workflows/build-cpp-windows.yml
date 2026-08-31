@@ -49,7 +49,7 @@ jobs:
   # Builds the Minimal App
   build_minimal_app:
     runs-on: CPR_Windows11
-    timeout-minutes: 10
+    timeout-minutes: 15
     needs: build_dependencies
 
     steps:
@@ -102,11 +102,17 @@ jobs:
         name: minimal_app_windows
         path: minimal_cpp/package
 
+    - name: Export CMake build directory for SBOM
+      uses: actions/upload-artifact@v7
+      with:
+        name: INTERNAL_CMake_build_dir_minimal
+        path: minimal_cpp/out/build
+
 
   # Builds the Monitor App
   build_monitor_app:
     runs-on: CPR_Windows11
-    timeout-minutes: 10
+    timeout-minutes: 15
     needs: build_dependencies
 
     steps:
@@ -159,11 +165,17 @@ jobs:
         name: monitor_app_windows
         path: monitor_cpp/package
 
+    - name: Export CMake build directory for SBOM
+      uses: actions/upload-artifact@v7
+      with:
+        name: INTERNAL_CMake_build_dir_monitor
+        path: monitor_cpp/out/build
+
 
   # Builds the Control App
   build_control_app:
     runs-on: CPR_Windows11
-    timeout-minutes: 10
+    timeout-minutes: 15
     needs: build_dependencies
 
     steps:
@@ -216,5 +228,11 @@ jobs:
       with:
         name: control_app_windows
         path: control_cpp/package
+
+    - name: Export CMake build directory for SBOM
+      uses: actions/upload-artifact@v7
+      with:
+        name: INTERNAL_CMake_build_dir_control
+        path: control_cpp/out/build
 
 # TODO: SBOM

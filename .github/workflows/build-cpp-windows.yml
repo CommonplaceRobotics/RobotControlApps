@@ -40,6 +40,7 @@ jobs:
           minimal_cpp
           monitor_cpp
         cache_paths: |
+          ~/.conan2
           control_cpp/out
           minimal_cpp/out
           monitor_cpp/out
@@ -64,10 +65,13 @@ jobs:
       uses: actions/cache/restore@v5
       with:
         path: |
+          ~/.conan2
           minimal_cpp/out
           monitor_cpp/out
           control_cpp/out
         key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
+        restore-keys: |
+          conan-${{ runner.os }}-
         fail-on-cache-miss: true
 
     - name: Install Conan
@@ -123,10 +127,13 @@ jobs:
       uses: actions/cache/restore@v5
       with:
         path: |
+          ~/.conan2
           minimal_cpp/out
           monitor_cpp/out
           control_cpp/out
         key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
+        restore-keys: |
+          conan-${{ runner.os }}-
         fail-on-cache-miss: true
 
     - name: Get the MSVC environment
@@ -185,10 +192,13 @@ jobs:
       uses: actions/cache/restore@v5
       with:
         path: |
+          ~/.conan2
           minimal_cpp/out
           monitor_cpp/out
           control_cpp/out
         key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
+        restore-keys: |
+          conan-${{ runner.os }}-
         fail-on-cache-miss: true
 
     - name: Get the MSVC environment

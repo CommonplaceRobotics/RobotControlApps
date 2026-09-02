@@ -3,6 +3,8 @@
     [
         {
             "purl": "pkg:generic/minimal_app_cpp@",
+			"type": "application",
+			"creator": "support@cpr-robots.com",
             "filename": "minimal_cpp/package/minimal_cpp/minimalapp",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
@@ -11,6 +13,8 @@
         },
 		{
             "purl": "pkg:generic/monitor_app_cpp@",
+			"type": "application",
+			"creator": "support@cpr-robots.com",
             "filename": "monitor_cpp/package/monitor_cpp/monitorapp",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
@@ -19,6 +23,8 @@
         },
 		{
             "purl": "pkg:generic/control_app_cpp@",
+			"type": "application",
+			"creator": "support@cpr-robots.com",
             "filename": "control_cpp/package/control_cpp/controlapp",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
@@ -27,43 +33,63 @@
         },
 		{
             "purl": "pkg:pypi/minimal-app@",
+			"type": "application",
+			"creator": "support@cpr-robots.com",
             "filename": "minimal_python/minimal_app_python.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true
+            "executable": true,
+			"archive": true,
+			"structured": true
         },
 		{
             "purl": "pkg:pypi/monitor-app@",
+			"type": "application",
+			"creator": "support@cpr-robots.com",
             "filename": "monitor_python/monitor_app_python.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true
+            "executable": true,
+			"archive": true,
+			"structured": true
         },
 		{
             "purl": "pkg:pypi/control-app@",
+			"type": "application",
+			"creator": "support@cpr-robots.com",
             "filename": "control_python/control_app_python.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true
+            "executable": true,
+			"archive": true,
+			"structured": true
         },
 		{
             "purl": "pkg:pypi/position-logger@",
+			"type": "application",
+			"creator": "support@cpr-robots.com",
             "filename": "PositionLogger/PositionLogger.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true
+            "executable": true,
+			"archive": true,
+			"structured": true
         },
 		{
             "purl": "pkg:pypi/math-tools@",
+			"type": "application",
+			"creator": "support@cpr-robots.com",
             "filename": "MathTools/MathTools.zip",
             "original_licenses": ["MIT"],
             "distribution_licenses": ["MIT"],
 			"effective_license": "MIT",
-            "executable": true
+            "executable": true,
+			"archive": true,
+			"structured": true
         },
 		{
             "bom-ref": "pkg:conan/re2@",

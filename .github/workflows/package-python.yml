@@ -314,35 +314,35 @@ jobs:
         UPLOAD: false
 
     - name: Final SBOM enrichment for MinimalApp
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_minimal_app_python_temp2.cdx.json
         sbom_out: sboms/sbom_minimal_app_python.cdx.json
 
     - name: Final SBOM enrichment for MonitorApp
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_monitor_app_python_temp2.cdx.json
         sbom_out: sboms/sbom_monitor_app_python.cdx.json
 
     - name: Final SBOM enrichment for ControlApp
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_control_app_python_temp2.cdx.json
         sbom_out: sboms/sbom_control_app_python.cdx.json
 
     - name: Final SBOM enrichment for MathTools
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_math_tools_app_temp2.cdx.json
         sbom_out: sboms/sbom_math_tools_app.cdx.json
 
     - name: Final SBOM enrichment for PositionLogger
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v5
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_position_logger_app_temp2.cdx.json
@@ -356,26 +356,26 @@ jobs:
         archive: true
 
     - name: Validate SBOM with company policies for MinimalApp
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v4
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
       with:
         sbom: sboms/sbom_minimal_app_python.cdx.json
 
     - name: Validate SBOM with company policies for MonitorApp
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v4
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
       with:
         sbom: sboms/sbom_monitor_app_python.cdx.json
 
     - name: Validate SBOM with company policies for ControlApp
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v4
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
       with:
         sbom: sboms/sbom_control_app_python.cdx.json
 
     - name: Validate SBOM with company policies for MathTools
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v4
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
       with:
         sbom: sboms/sbom_math_tools_app.cdx.json
 
     - name: Validate SBOM with company policies for PositionLogger
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v4
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
       with:
         sbom: sboms/sbom_position_logger_app.cdx.json

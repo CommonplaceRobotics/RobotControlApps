@@ -371,7 +371,7 @@ jobs:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp2/minimal_cpp.cdx.json
         sbom_out: sboms/sbom_minimal_app_windows.cdx.json
-        cmake_build_dir: out/build/Windows/Release
+        cmake_build_dir: minimal_cpp/out/build/Windows/Release
 
     - name: Final SBOM enrichment for Monitor App
       uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
@@ -379,7 +379,7 @@ jobs:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp2/monitor_cpp.cdx.json
         sbom_out: sboms/sbom_monitor_app_windows.cdx.json
-        cmake_build_dir: out/build/Windows/Release
+        cmake_build_dir: monitor_cpp/out/build/Windows/Release
 
     - name: Final SBOM enrichment for Control App
       uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
@@ -387,7 +387,7 @@ jobs:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp2/control_cpp.cdx.json
         sbom_out: sboms/sbom_control_app_windows.cdx.json
-        cmake_build_dir: out/build/Windows/Release
+        cmake_build_dir: control_cpp/out/build/Windows/Release
 
     - name: Export SBOMs
       uses: actions/upload-artifact@v7

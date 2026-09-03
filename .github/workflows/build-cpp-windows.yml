@@ -250,18 +250,15 @@ jobs:
         name: INTERNAL_CMake_build_dir_control
         path: control_cpp/out/build
 
-    - name: Move sbomify.json
-      run: |
-        mv minimal_cpp/out/build/Windows/Release/sbomify.json minimal_cpp
-        mv monitor_cpp/out/build/Windows/Release/sbomify.json monitor_cpp
-        mv control_cpp/out/build/Windows/Release/sbomify.json control_cpp
-
     # Liest die Core-Version aus CMakeLists.txt
     - name: Get software versions
       run: |
         APP_VER=`grep -E -o "VERSION[[:blank:]]+[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" CMakeLists.txt | sed "s/[^0-9.]*//g"`
         echo "App version '$APP_VER' detected"
         echo "APP_VER=$APP_VER" >> $GITHUB_ENV
+
+    - name: Move sbomify.json
+      run: mv minimal_cpp/out/build/Windows/Release/sbomify.json minimal_cpp
 
     - name: Enrich and Augment SBOM for Minimal App
       uses: sbomify/sbomify-action@master
@@ -278,6 +275,9 @@ jobs:
         ADDITIONAL_PACKAGES_FILE: additional_packages_rpi.txt
         UPLOAD: false
 
+    - name: Move sbomify.json
+      run: mv monitor_cpp/out/build/Windows/Release/sbomify.json monitor_cpp
+
     - name: Enrich and Augment SBOM Monitor App
       uses: sbomify/sbomify-action@master
       env:
@@ -292,6 +292,9 @@ jobs:
         # Metadaten aus additional_packages_rpi.txt hinzufügen
         ADDITIONAL_PACKAGES_FILE: additional_packages_rpi.txt
         UPLOAD: false
+
+    - name: Move sbomify.json
+      run: mv control_cpp/out/build/Windows/Release/sbomify.json control_cpp
 
     - name: Enrich and Augment SBOM Control App
       uses: sbomify/sbomify-action@master

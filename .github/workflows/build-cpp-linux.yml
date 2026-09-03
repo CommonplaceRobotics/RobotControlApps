@@ -5,7 +5,7 @@ name: Build and Test Apps for Linux
 
 on:
   push:
-    branches: [ "master", "v1*", "v2*", "v3*" ]
+    branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
     paths:
       - ".github/**"
       - 'control_cpp/**'
@@ -96,7 +96,7 @@ jobs:
     - name: Export binary
       uses: actions/upload-artifact@v7
       with:
-        name: minimal_app_rpi
+        name: minimal_app_rpi.zip
         path: minimal_cpp/package
 
 
@@ -152,7 +152,7 @@ jobs:
     - name: Export binary
       uses: actions/upload-artifact@v7
       with:
-        name: monitor_app_rpi
+        name: monitor_app_rpi.zip
         path: monitor_cpp/package
 
 
@@ -208,7 +208,7 @@ jobs:
     - name: Export binary
       uses: actions/upload-artifact@v7
       with:
-        name: control_app_rpi
+        name: control_app_rpi.zip
         path: control_cpp/package
 
 
@@ -232,20 +232,20 @@ jobs:
     - name: Get the MinimalApp binaries
       uses: actions/download-artifact@v8
       with:
-        name: minimal_app_rpi
-        path: minimal_cpp/package
+        name: minimal_app_rpi.zip
+        skip-decompress: true
 
     - name: Get the MonitorApp binaries
       uses: actions/download-artifact@v8
       with:
-        name: monitor_app_rpi
-        path: monitor_cpp/package
+        name: monitor_app_rpi.zip
+        skip-decompress: true
 
     - name: Get the ControlApp binaries
       uses: actions/download-artifact@v8
       with:
-        name: control_app_rpi
-        path: control_cpp/package
+        name: control_app_rpi.zip
+        skip-decompress: true
 
     - name: Restore cached dependencies
       id: cache

@@ -146,19 +146,19 @@ jobs:
     - name: Export Minimal App Package
       uses: actions/upload-artifact@v7
       with:
-        name: minimal_app_windows
+        name: minimal_app_windows.zip
         path: minimal_cpp/package
 
     - name: Export Monitor App Package
       uses: actions/upload-artifact@v7
       with:
-        name: monitor_app_windows
+        name: monitor_app_windows.zip
         path: monitor_cpp/package
 
     - name: Export Control App Package
       uses: actions/upload-artifact@v7
       with:
-        name: control_app_windows
+        name: control_app_windows.zip
         path: control_cpp/package
 
     - name: Export CMake build directory for Minimal App SBOM
@@ -208,6 +208,7 @@ jobs:
     - name: Export incomplete SBOMs
       uses: actions/upload-artifact@v7
       with:
+        name: sboms_temp1
         path: sboms_temp1
 
 
@@ -310,6 +311,7 @@ jobs:
     - name: Export incomplete SBOM
       uses: actions/upload-artifact@v7
       with:
+        name: sboms_temp2
         path: sboms_temp2
 
 

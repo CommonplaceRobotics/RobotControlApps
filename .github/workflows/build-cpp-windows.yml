@@ -102,12 +102,12 @@ jobs:
 
     - name: Build Monitor App
       run: |
-        cd minimal_cpp/out/build/Windows/Release
+        cd monitor_cpp/out/build/Windows/Release
         cmake --build . --target monitorapp.exe
 
     - name: Build Control App
       run: |
-        cd minimal_cpp/out/build/Windows/Release
+        cd control_cpp/out/build/Windows/Release
         cmake --build . --target controlapp.exe
 
     - name: Package Minimal App
@@ -200,7 +200,7 @@ jobs:
         sbom: sboms_temp1/control_cpp.cdx.json
         conan_params: '--profile=cpr_windows_x86_64_release'
 
-    - name: Export incomplete SBOM
+    - name: Export incomplete SBOMs
       uses: actions/upload-artifact@v7
       with:
         path: sboms_temp1

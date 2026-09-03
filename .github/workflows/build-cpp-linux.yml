@@ -5,7 +5,7 @@ name: Build and Test Apps for Linux
 
 on:
   push:
-    branches: [ "master", "v1*", "v2*", "v3*" ]
+    branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
     paths:
       - ".github/**"
       - 'control_cpp/**'
@@ -338,7 +338,7 @@ jobs:
         WORKING_DIR: minimal_cpp
         SBOM_FILE: sbom_temp1.cdx.json
         OUTPUT_FILE: ../sboms_temp/sbom_minimal_app_cpp.cdx.json
-        COMPONENT_NAME: Minimal_App_Cpp
+        COMPONENT_NAME: Minimal_App_CPP
         COMPONENT_VERSION: ${{ env.MINIMAL_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
@@ -352,7 +352,7 @@ jobs:
         WORKING_DIR: monitor_cpp
         SBOM_FILE: sbom_temp1.cdx.json
         OUTPUT_FILE: ../sboms_temp/sbom_monitor_app_cpp.cdx.json
-        COMPONENT_NAME: Monitor_App_Cpp
+        COMPONENT_NAME: Monitor_App_CPP
         COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
@@ -366,7 +366,7 @@ jobs:
         WORKING_DIR: control_cpp
         SBOM_FILE: sbom_temp1.cdx.json
         OUTPUT_FILE: ../sboms_temp/sbom_control_app_cpp.cdx.json
-        COMPONENT_NAME: Control_App_Cpp
+        COMPONENT_NAME: Control_App_CPP
         COMPONENT_VERSION: ${{ env.CONTROL_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
@@ -406,16 +406,16 @@ jobs:
         archive: true
 
     - name: Validate SBOM with company policies (Minimal App)
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v6
       with:
         sbom: sboms/sbom_minimal_app_cpp.cdx.json
 
     - name: Validate SBOM with company policies (Monitor App)
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v6
       with:
         sbom: sboms/sbom_monitor_app_cpp.cdx.json
 
     - name: Validate SBOM with company policies (Control App)
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v6
       with:
         sbom: sboms/sbom_control_app_cpp.cdx.json

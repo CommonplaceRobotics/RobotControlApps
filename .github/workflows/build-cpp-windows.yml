@@ -268,7 +268,7 @@ jobs:
       env:
         SBOM_FILE: sboms_temp1/minimal_cpp.cdx.json
         OUTPUT_FILE: sboms_temp2/minimal_cpp.cdx.json
-        COMPONENT_NAME: RobotControl_Core
+        COMPONENT_NAME: Minimal_App_CPP
         COMPONENT_VERSION: ${{ env.SW_VERSION }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
@@ -283,7 +283,7 @@ jobs:
       env:
         SBOM_FILE: sboms_temp1/monitor_cpp.cdx.json
         OUTPUT_FILE: sboms_temp2/monitor_cpp.cdx.json
-        COMPONENT_NAME: RobotControl_Core
+        COMPONENT_NAME: Monitor_App_CPP
         COMPONENT_VERSION: ${{ env.SW_VERSION }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
@@ -298,7 +298,7 @@ jobs:
       env:
         SBOM_FILE: sboms_temp1/control_cpp.cdx.json
         OUTPUT_FILE: sboms_temp2/control_cpp.cdx.json
-        COMPONENT_NAME: RobotControl_Core
+        COMPONENT_NAME: Control_App_CPP
         COMPONENT_VERSION: ${{ env.SW_VERSION }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
@@ -356,6 +356,24 @@ jobs:
         name: INTERNAL_CMake_build_dir_control
         path: control_cpp/out/build
 
+    - name: Get the MinimalApp binaries
+      uses: actions/download-artifact@v8
+      with:
+        name: minimal_app_windows.zip
+        skip-decompress: true
+
+    - name: Get the MonitorApp binaries
+      uses: actions/download-artifact@v8
+      with:
+        name: monitor_app_windows.zip
+        skip-decompress: true
+
+    - name: Get the ControlApp binaries
+      uses: actions/download-artifact@v8
+      with:
+        name: control_app_windows.zip
+        skip-decompress: true
+
     - run: mkdir sboms_temp2
     - run: mkdir sboms
 
@@ -408,7 +426,7 @@ jobs:
         name: sboms.zip
 
     - name: Validate SBOM with company policies for Minimal App
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v6
       with:
         sbom: sbom_minimal_app_windows.cdx.json
 
@@ -425,7 +443,7 @@ jobs:
         name: sboms.zip
 
     - name: Validate SBOM with company policies for Monitor App
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v6
       with:
         sbom: sbom_monitor_app_windows.cdx.json
 
@@ -442,6 +460,6 @@ jobs:
         name: sboms.zip
 
     - name: Validate SBOM with company policies for Control App
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v6
       with:
         sbom: sbom_contro_app_windows.cdx.json

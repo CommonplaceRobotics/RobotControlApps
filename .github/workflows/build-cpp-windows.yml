@@ -5,7 +5,7 @@ name: Build and Test Apps for Windows
 
 on:
   push:
-    branches: [ "master", "v1*", "v2*", "v3*" ]
+    branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
     paths:
       - ".github/**"
       - 'control_cpp/**'
@@ -356,7 +356,8 @@ jobs:
         name: INTERNAL_CMake_build_dir_control
         path: control_cpp/out/build
 
-    - run: mkdir sboms_temp2 sboms
+    - run: mkdir sboms_temp2
+    - run: mkdir sboms
 
     - name: Import incomplete SBOMs
       uses: actions/download-artifact@v8

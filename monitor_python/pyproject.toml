@@ -6,7 +6,7 @@ authors = [
     {name = "MAB",email = "support@commonplacerobotics.de"}
 ]
 readme = "README.md"
-requires-python = ">=3.9.2,<3.10"
+requires-python = ">=3.9.2"
 license = "MIT"
 dependencies = [
 	"grpcio (==1.64.1)",
@@ -27,6 +27,7 @@ pythonpath = [
 
 [tool.poetry]
 packages = [{include = "monitor_app", from = "src"}]
+package-mode=false
 name = "monitor_app"
 
 [tool.poetry.requires-plugins]

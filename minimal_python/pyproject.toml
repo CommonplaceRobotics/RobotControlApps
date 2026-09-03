@@ -27,6 +27,7 @@ pythonpath = [
 
 [tool.poetry]
 packages = [{include = "minimal_app", from = "src"}]
+package-mode=false
 name = "minimal_app"
 
 [tool.poetry.requires-plugins]

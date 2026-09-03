@@ -49,7 +49,7 @@ jobs:
 
     - name: MathTools - Install dependencies
       working-directory: ./MathTools
-      run: poetry install
+      run: poetry install --no-interaction --no-root
 
     - name: MathTools - Run tests
       working-directory: ./MathTools
@@ -58,7 +58,7 @@ jobs:
 
     - name: PositionLogger - Install dependencies
       working-directory: ./PositionLogger
-      run: poetry install
+      run: poetry install --no-interaction --no-root
 
     - name: PositionLogger - Run tests
       working-directory: ./PositionLogger
@@ -67,7 +67,7 @@ jobs:
 
     - name: MinimalApp - Install dependencies
       working-directory: ./minimal_python
-      run: poetry install
+      run: poetry install --no-interaction --no-root
 
     - name: MinimalApp - Run tests
       working-directory: ./minimal_python
@@ -76,7 +76,7 @@ jobs:
 
     - name: MonitorApp - Install dependencies
       working-directory: ./monitor_python
-      run: poetry install
+      run: poetry install --no-interaction --no-root
 
     - name: MonitorApp - Run tests
       working-directory: ./monitor_python
@@ -85,7 +85,7 @@ jobs:
 
     - name: ControlApp - Install dependencies
       working-directory: ./control_python
-      run: poetry install
+      run: poetry install --no-interaction --no-root
 
     - name: ControlApp - Run tests
       working-directory: ./control_python

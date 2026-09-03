@@ -33,14 +33,12 @@ jobs:
     steps:
     - uses: actions/checkout@v7
 
-    - name: Set up Python 3.9
+    - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
-        python-version: "3.9"
+        python-version: "3.10"
 
     # Note: The poetry version must match the version that created the lock files.
-    # The Python version used here limits the poetry version, so the
-    # Lockfiles should be created with Python 3.9
     - name: Install test dependencies
       run: |
         python -m pip install --upgrade pip

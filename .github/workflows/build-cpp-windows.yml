@@ -76,6 +76,8 @@ jobs:
 
     - name: Install Conan
       uses: conan-io/setup-conan@v1
+      with:
+        use-venv: true
 
     - name: Configure CMake for Minimal App
       run: |
@@ -182,22 +184,25 @@ jobs:
     - name: Create incomplete SBOM for Minimal App
       uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v4
       with:
-        lockfile: minimal_cpp/conan_windows.lock
-        sbom: sboms_temp1/minimal_cpp.cdx.json
+        workdir: minimal_cpp
+        lockfile: conan_windows.lock
+        sbom: ../sboms_temp1/minimal_cpp.cdx.json
         conan_params: '--profile=cpr_windows_x86_64_release'
 
     - name: Create incomplete SBOM for Monitor App
       uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v4
       with:
-        lockfile: monitor_cpp/conan_windows.lock
-        sbom: sboms_temp1/monitor_cpp.cdx.json
+        workdir: monitor_cpp
+        lockfile: conan_windows.lock
+        sbom: ../sboms_temp1/monitor_cpp.cdx.json
         conan_params: '--profile=cpr_windows_x86_64_release'
 
     - name: Create incomplete SBOM for Control App
       uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v4
       with:
-        lockfile: control_cpp/conan_windows.lock
-        sbom: sboms_temp1/control_cpp.cdx.json
+        workdir: control_cpp
+        lockfile: conan_windows.lock
+        sbom: ../sboms_temp1/control_cpp.cdx.json
         conan_params: '--profile=cpr_windows_x86_64_release'
 
     - name: Export incomplete SBOMs

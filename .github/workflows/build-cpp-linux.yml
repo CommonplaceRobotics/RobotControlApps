@@ -68,7 +68,7 @@ jobs:
         fail-on-cache-miss: true
 
     - name: Install RPi Cross-Compiler
-      uses: CommonplaceRobotics/Action_Build_Conan_Dependencies/Install_Toolchain_armv8_32@v1
+      uses: CommonplaceRobotics/Action_Build_Conan_Dependencies/Install_Toolchain_armv8_32@v2
 
     - name: Install Conan
       uses: conan-io/setup-conan@v1
@@ -124,7 +124,7 @@ jobs:
         fail-on-cache-miss: true
 
     - name: Install RPi Cross-Compiler
-      uses: CommonplaceRobotics/Action_Build_Conan_Dependencies/Install_Toolchain_armv8_32@v1
+      uses: CommonplaceRobotics/Action_Build_Conan_Dependencies/Install_Toolchain_armv8_32@v2
 
     - name: Install Conan
       uses: conan-io/setup-conan@v1
@@ -180,7 +180,7 @@ jobs:
         fail-on-cache-miss: true
 
     - name: Install RPi Cross-Compiler
-      uses: CommonplaceRobotics/Action_Build_Conan_Dependencies/Install_Toolchain_armv8_32@v1
+      uses: CommonplaceRobotics/Action_Build_Conan_Dependencies/Install_Toolchain_armv8_32@v2
 
     - name: Install Conan
       uses: conan-io/setup-conan@v1
@@ -309,25 +309,28 @@ jobs:
       run: mkdir sboms sboms_temp
 
     - name: Create incomplete SBOM for Minimal App
-      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v3
+      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v4
       with:
         workdir: minimal_cpp
         lockfile: conan_linux_rpi.lock
         sbom: sbom_temp1.cdx.json
+        conan_params: '--profile:host=cpr_linux_rpi4_gcc10_release --profile:build=cpr_linux_x86_64_release'
 
     - name: Create incomplete SBOM for Monitor App
-      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v3
+      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v4
       with:
         workdir: monitor_cpp
         lockfile: conan_linux_rpi.lock
         sbom: sbom_temp1.cdx.json
+        conan_params: '--profile:host=cpr_linux_rpi4_gcc10_release --profile:build=cpr_linux_x86_64_release'
 
     - name: Create incomplete SBOM for Control App
-      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v3
+      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v4
       with:
         workdir: control_cpp
         lockfile: conan_linux_rpi.lock
         sbom: sbom_temp1.cdx.json
+        conan_params: '--profile:host=cpr_linux_rpi4_gcc10_release --profile:build=cpr_linux_x86_64_release'
 
     - name: Create SBOM for MinimalApp
       uses: sbomify/sbomify-action@master
@@ -372,7 +375,7 @@ jobs:
         UPLOAD: false
 
     - name: Final SBOM enrichment for Minimal App
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v4
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_minimal_app_cpp.cdx.json
@@ -380,7 +383,7 @@ jobs:
         cmake_build_dir: minimal_cpp/out/build/Linux/armv8_32/Release
 
     - name: Final SBOM enrichment for Monitor App
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v4
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_monitor_app_cpp.cdx.json
@@ -388,7 +391,7 @@ jobs:
         cmake_build_dir: monitor_cpp/out/build/Linux/armv8_32/Release
 
     - name: Final SBOM enrichment for Control App
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v4
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_control_app_cpp.cdx.json
@@ -403,16 +406,16 @@ jobs:
         archive: true
 
     - name: Validate SBOM with company policies (Minimal App)
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v4
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
       with:
         sbom: sboms/sbom_minimal_app_cpp.cdx.json
 
     - name: Validate SBOM with company policies (Monitor App)
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v4
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
       with:
         sbom: sboms/sbom_monitor_app_cpp.cdx.json
 
     - name: Validate SBOM with company policies (Control App)
-      uses: CommonplaceRobotics/Action_Validate_SBOM@v4
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
       with:
         sbom: sboms/sbom_control_app_cpp.cdx.json

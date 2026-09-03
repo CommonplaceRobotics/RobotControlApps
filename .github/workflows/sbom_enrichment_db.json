@@ -193,6 +193,14 @@
 	[
 		"pkg:conan/cmake@",
 		"pkg:conan/gtest@",
+		"pkg:conan/libtool@",
+		"pkg:conan/pkgconf@",
+		"pkg:conan/autoconf@",
+		"pkg:conan/autoconf-archive@",
+		"pkg:conan/automake@",
+		"pkg:conan/strawberryperl@",
+		"pkg:conan/msys2@",
+		"pkg:conan/nasm@",
 		"pkg:pypi/pytest@"
 	]
 }

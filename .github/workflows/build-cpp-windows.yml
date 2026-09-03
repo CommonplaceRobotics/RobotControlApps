@@ -19,6 +19,11 @@ on:
       - 'minimal_cpp/**'
       - 'monitor_cpp/**'
 
+permissions:
+  contents: write
+  packages: write
+  deployments: write
+
 jobs:
   # Bereitet die Abhängigkeiten für Windows vor.
   # Dies ist ein separater Job, da dies sehr lange dauern (30-60 Min, falls alles gebaut werden muss) kann und das Ergebnis gecached werden soll, auch wenn das Bauen später fehlschlägt.

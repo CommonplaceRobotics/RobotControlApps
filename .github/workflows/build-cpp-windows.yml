@@ -241,4 +241,275 @@ jobs:
         name: INTERNAL_CMake_build_dir_control
         path: control_cpp/out/build
 
-# TODO: SBOM
+
+  # SBOM step 1: Create initial SBOM on Windows. This step could be merged with 'build', but splitting enables faster debugging re-runs.
+  sbom_pt1:
+    runs-on: CPR_Windows11
+    timeout-minutes: 15
+    needs: [build_minimal_app, build_monitor_app, build_control_app]
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: 'recursive'
+
+    - run: mkdir sboms_temp1
+
+    - name: Create incomplete SBOM for Minimal App
+      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v4
+      with:
+        lockfile: minimal_cpp/conan_windows.lock
+        sbom: sboms_temp/minimal_cpp.cdx.json
+        conan_params: '--profile=cpr_windows_x86_64_release'
+
+    - name: Create incomplete SBOM for Monitor App
+      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v4
+      with:
+        lockfile: monitor_cpp/conan_windows.lock
+        sbom: sboms_temp/monitor_cpp.cdx.json
+        conan_params: '--profile=cpr_windows_x86_64_release'
+
+    - name: Create incomplete SBOM for Control App
+      uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v4
+      with:
+        lockfile: control_cpp/conan_windows.lock
+        sbom: sboms_temp/control_cpp.cdx.json
+        conan_params: '--profile=cpr_windows_x86_64_release'
+
+    - name: Export incomplete SBOM
+      uses: actions/upload-artifact@v7
+      with:
+        path: sboms_temp1
+
+
+  # SBOM step 2: Augment and enrich SBOM on Linux, because sbomify does not run on Windows
+  sbom_pt2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: sbom_pt1
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: true
+
+    - run: mkdir sboms_temp1 sboms_temp2
+
+    - name: Import incomplete SBOMs
+      uses: actions/download-artifact@v8
+      with:
+        name: sboms_temp1
+        path: sboms_temp1
+
+    # We need the generated sbomify.json
+    - name: Import CMake build dir for Minimal App
+      uses: actions/download-artifact@v8
+      with:
+        name: INTERNAL_CMake_build_dir_minimal
+        path: minimal_cpp/out/build
+
+    - name: Import CMake build dir for Monitor App
+      uses: actions/download-artifact@v8
+      with:
+        name: INTERNAL_CMake_build_dir_monitor
+        path: monitor_cpp/out/build
+
+    - name: Import CMake build dir for Control App
+      uses: actions/download-artifact@v8
+      with:
+        name: INTERNAL_CMake_build_dir_control
+        path: control_cpp/out/build
+
+    - name: Move sbomify.json
+      run: |
+        mv minimal_cpp/out/build/Windows/Release/sbomify.json minimal_cpp
+        mv monitor_cpp/out/build/Windows/Release/sbomify.json monitor_cpp
+        mv control_cpp/out/build/Windows/Release/sbomify.json control_cpp
+
+    # Liest die Core-Version aus CMakeLists.txt
+    - name: Get software versions
+      run: |
+        APP_VER=`grep -E -o "VERSION[[:blank:]]+[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" CMakeLists.txt | sed "s/[^0-9.]*//g"`
+        echo "App version '$APP_VER' detected"
+        echo "APP_VER=$APP_VER" >> $GITHUB_ENV
+
+    - name: Enrich and Augment SBOM for Minimal App
+      uses: sbomify/sbomify-action@master
+      env:
+        SBOM_FILE: sboms_temp1/minimal_cpp.cdx.json
+        OUTPUT_FILE: sboms_temp2/minimal_cpp.cdx.json
+        COMPONENT_NAME: RobotControl_Core
+        COMPONENT_VERSION: ${{ env.SW_VERSION }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        # Metadaten aus additional_packages_rpi.txt hinzufügen
+        ADDITIONAL_PACKAGES_FILE: additional_packages_rpi.txt
+        UPLOAD: false
+
+    - name: Enrich and Augment SBOM Monitor App
+      uses: sbomify/sbomify-action@master
+      env:
+        SBOM_FILE: sboms_temp1/monitor_cpp.cdx.json
+        OUTPUT_FILE: sboms_temp2/monitor_cpp.cdx.json
+        COMPONENT_NAME: RobotControl_Core
+        COMPONENT_VERSION: ${{ env.SW_VERSION }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        # Metadaten aus additional_packages_rpi.txt hinzufügen
+        ADDITIONAL_PACKAGES_FILE: additional_packages_rpi.txt
+        UPLOAD: false
+
+    - name: Enrich and Augment SBOM Control App
+      uses: sbomify/sbomify-action@master
+      env:
+        SBOM_FILE: sboms_temp1/control_cpp.cdx.json
+        OUTPUT_FILE: sboms_temp2/control_cpp.cdx.json
+        COMPONENT_NAME: RobotControl_Core
+        COMPONENT_VERSION: ${{ env.SW_VERSION }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        # Metadaten aus additional_packages_rpi.txt hinzufügen
+        ADDITIONAL_PACKAGES_FILE: additional_packages_rpi.txt
+        UPLOAD: false
+
+    - name: Export incomplete SBOM
+      uses: actions/upload-artifact@v7
+      with:
+        path: sboms_temp2
+
+
+  # SBOM step 3: Complete the SBOM on Windows
+  sbom_pt3:
+    runs-on: CPR_Windows11
+    timeout-minutes: 15
+    needs: sbom_pt2
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Restore cached dependencies
+      id: cache
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ~/.conan2
+          control_cpp/out
+          minimal_cpp/out
+          monitor_cpp/out
+        key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
+        restore-keys: |
+          conan-${{ runner.os }}-
+        fail-on-cache-miss: true
+
+    - name: Import CMake build dir for Minimal App
+      uses: actions/download-artifact@v8
+      with:
+        name: INTERNAL_CMake_build_dir_minimal
+        path: minimal_cpp/out/build
+
+    - name: Import CMake build dir for Monitor App
+      uses: actions/download-artifact@v8
+      with:
+        name: INTERNAL_CMake_build_dir_monitor
+        path: monitor_cpp/out/build
+
+    - name: Import CMake build dir for Control App
+      uses: actions/download-artifact@v8
+      with:
+        name: INTERNAL_CMake_build_dir_control
+        path: control_cpp/out/build
+
+    - run: mkdir sboms_temp2 sboms
+
+    - name: Import incomplete SBOMs
+      uses: actions/download-artifact@v8
+      with:
+        name: sboms_temp2
+        path: sboms_temp2
+
+    - name: Final SBOM enrichment for Minimal App
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp2/minimal_cpp.cdx.json
+        sbom_out: sboms/sbom_minimal_app_windows.cdx.json
+        cmake_build_dir: out/build/Windows/Release
+
+    - name: Final SBOM enrichment for Monitor App
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp2/monitor_cpp.cdx.json
+        sbom_out: sboms/sbom_monitor_app_windows.cdx.json
+        cmake_build_dir: out/build/Windows/Release
+
+    - name: Final SBOM enrichment for Control App
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp2/control_cpp.cdx.json
+        sbom_out: sboms/sbom_control_app_windows.cdx.json
+        cmake_build_dir: out/build/Windows/Release
+
+    - name: Export SBOMs
+      uses: actions/upload-artifact@v7
+      with:
+        name: sboms.zip
+        path: sboms
+
+
+  sbom_validation_minimal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: sbom_pt3
+
+    steps:
+    - name: Import SBOMs
+      uses: actions/download-artifact@v8
+      with:
+        name: sboms.zip
+
+    - name: Validate SBOM with company policies for Minimal App
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
+      with:
+        sbom: sbom_minimal_app_windows.cdx.json
+
+
+  sbom_validation_monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: sbom_pt3
+
+    steps:
+    - name: Import SBOMs
+      uses: actions/download-artifact@v8
+      with:
+        name: sboms.zip
+
+    - name: Validate SBOM with company policies for Monitor App
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
+      with:
+        sbom: sbom_monitor_app_windows.cdx.json
+
+
+  sbom_validation_control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: sbom_pt3
+
+    steps:
+    - name: Import SBOMs
+      uses: actions/download-artifact@v8
+      with:
+        name: sboms.zip
+
+    - name: Validate SBOM with company policies for Control App
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v5
+      with:
+        sbom: sbom_contro_app_windows.cdx.json

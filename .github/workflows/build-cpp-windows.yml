@@ -47,7 +47,7 @@ jobs:
 
 
   # Builds the Minimal App
-  build_minimal_app:
+  build:
     runs-on: CPR_Windows11
     timeout-minutes: 15
     needs: build_dependencies
@@ -77,18 +77,40 @@ jobs:
     - name: Install Conan
       uses: conan-io/setup-conan@v1
 
-    - name: Configure CMake
+    - name: Configure CMake for Minimal App
       run: |
         cd minimal_cpp
         cp ..\.github\workflows\CMakePresets_Windows.json CMakePresets.json
         cmake --preset conan-windows-x86_64-release .
 
-    - name: Build App
+    - name: Configure CMake for Monitor App
+      run: |
+        cd monitor_cpp
+        cp ..\.github\workflows\CMakePresets_Windows.json CMakePresets.json
+        cmake --preset conan-windows-x86_64-release .
+
+    - name: Configure CMake for Control App
+      run: |
+        cd control_cpp
+        cp ..\.github\workflows\CMakePresets_Windows.json CMakePresets.json
+        cmake --preset conan-windows-x86_64-release .
+
+    - name: Build Minimal App
       run: |
         cd minimal_cpp/out/build/Windows/Release
         cmake --build . --target minimalapp.exe
 
-    - name: Package App
+    - name: Build Monitor App
+      run: |
+        cd minimal_cpp/out/build/Windows/Release
+        cmake --build . --target monitorapp.exe
+
+    - name: Build Control App
+      run: |
+        cd minimal_cpp/out/build/Windows/Release
+        cmake --build . --target controlapp.exe
+
+    - name: Package Minimal App
       run: |
         cd minimal_cpp
         mkdir -p package/minimal_cpp
@@ -98,62 +120,7 @@ jobs:
         cp out/build/Windows/Release/minimalapp.exe package/minimal_cpp/
         cd package
 
-    - name: Export Package
-      uses: actions/upload-artifact@v7
-      with:
-        name: minimal_app_windows
-        path: minimal_cpp/package
-
-    - name: Export CMake build directory for SBOM
-      uses: actions/upload-artifact@v7
-      with:
-        name: INTERNAL_CMake_build_dir_minimal
-        path: minimal_cpp/out/build
-
-
-  # Builds the Monitor App
-  build_monitor_app:
-    runs-on: CPR_Windows11
-    timeout-minutes: 15
-    needs: build_dependencies
-
-    steps:
-    - uses: actions/checkout@v7
-      with:
-        submodules: true
-
-    - name: Restore cached dependencies
-      id: cache
-      uses: actions/cache/restore@v5
-      with:
-        path: |
-          ~/.conan2
-          control_cpp/out
-          minimal_cpp/out
-          monitor_cpp/out
-        key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
-        restore-keys: |
-          conan-${{ runner.os }}-
-        fail-on-cache-miss: true
-
-    - name: Get the MSVC environment
-      uses: ilammy/msvc-dev-cmd@v1
-
-    - name: Install Conan
-      uses: conan-io/setup-conan@v1
-
-    - name: Configure CMake
-      run: |
-        cd monitor_cpp
-        cp ..\.github\workflows\CMakePresets_Windows.json CMakePresets.json
-        cmake --preset conan-windows-x86_64-release .
-
-    - name: Build App
-      run: |
-        cd monitor_cpp/out/build/Windows/Release
-        cmake --build . --target monitorapp
-
-    - name: Package App
+    - name: Package Monitor App
       run: |
         cd monitor_cpp
         mkdir -p package/monitor_cpp
@@ -163,62 +130,7 @@ jobs:
         cp out/build/Windows/Release/monitorapp.exe package/monitor_cpp/
         cd package
 
-    - name: Export Package
-      uses: actions/upload-artifact@v7
-      with:
-        name: monitor_app_windows
-        path: monitor_cpp/package
-
-    - name: Export CMake build directory for SBOM
-      uses: actions/upload-artifact@v7
-      with:
-        name: INTERNAL_CMake_build_dir_monitor
-        path: monitor_cpp/out/build
-
-
-  # Builds the Control App
-  build_control_app:
-    runs-on: CPR_Windows11
-    timeout-minutes: 15
-    needs: build_dependencies
-
-    steps:
-    - uses: actions/checkout@v7
-      with:
-        submodules: true
-
-    - name: Restore cached dependencies
-      id: cache
-      uses: actions/cache/restore@v5
-      with:
-        path: |
-          ~/.conan2
-          control_cpp/out
-          minimal_cpp/out
-          monitor_cpp/out
-        key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
-        restore-keys: |
-          conan-${{ runner.os }}-
-        fail-on-cache-miss: true
-
-    - name: Get the MSVC environment
-      uses: ilammy/msvc-dev-cmd@v1
-
-    - name: Install Conan
-      uses: conan-io/setup-conan@v1
-
-    - name: Configure CMake
-      run: |
-        cd control_cpp
-        cp ..\.github\workflows\CMakePresets_Windows.json CMakePresets.json
-        cmake --preset conan-windows-x86_64-release .
-
-    - name: Build App
-      run: |
-        cd control_cpp/out/build/Windows/Release
-        cmake --build . --target controlapp
-
-    - name: Package App
+    - name: Package Control App
       run: |
         cd control_cpp
         mkdir -p package/control_cpp
@@ -229,29 +141,41 @@ jobs:
         cp out/build/Windows/Release/controlapp.exe package/control_cpp/
         cd package
 
-    - name: Export Package
+    - name: Export Minimal App Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: minimal_app_windows
+        path: minimal_cpp/package
+
+    - name: Export Monitor App Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: monitor_app_windows
+        path: monitor_cpp/package
+
+    - name: Export Control App Package
       uses: actions/upload-artifact@v7
       with:
         name: control_app_windows
         path: control_cpp/package
 
-    - name: Export CMake build directory for SBOM
+    - name: Export CMake build directory for Minimal App SBOM
+      uses: actions/upload-artifact@v7
+      with:
+        name: INTERNAL_CMake_build_dir_minimal
+        path: minimal_cpp/out/build
+
+    - name: Export CMake build directory for Monitor App SBOM
+      uses: actions/upload-artifact@v7
+      with:
+        name: INTERNAL_CMake_build_dir_monitor
+        path: monitor_cpp/out/build
+
+    - name: Export CMake build directory for Control App SBOM
       uses: actions/upload-artifact@v7
       with:
         name: INTERNAL_CMake_build_dir_control
         path: control_cpp/out/build
-
-
-  # SBOM step 1: Create initial SBOM on Windows. This step could be merged with 'build', but splitting enables faster debugging re-runs.
-  sbom_pt1:
-    runs-on: CPR_Windows11
-    timeout-minutes: 15
-    needs: [build_minimal_app, build_monitor_app, build_control_app]
-
-    steps:
-    - uses: actions/checkout@v7
-      with:
-        submodules: 'recursive'
 
     - run: mkdir sboms_temp1
 
@@ -259,21 +183,21 @@ jobs:
       uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v4
       with:
         lockfile: minimal_cpp/conan_windows.lock
-        sbom: sboms_temp/minimal_cpp.cdx.json
+        sbom: sboms_temp1/minimal_cpp.cdx.json
         conan_params: '--profile=cpr_windows_x86_64_release'
 
     - name: Create incomplete SBOM for Monitor App
       uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v4
       with:
         lockfile: monitor_cpp/conan_windows.lock
-        sbom: sboms_temp/monitor_cpp.cdx.json
+        sbom: sboms_temp1/monitor_cpp.cdx.json
         conan_params: '--profile=cpr_windows_x86_64_release'
 
     - name: Create incomplete SBOM for Control App
       uses: CommonplaceRobotics/Action_Create_Conan_SBOM@v4
       with:
         lockfile: control_cpp/conan_windows.lock
-        sbom: sboms_temp/control_cpp.cdx.json
+        sbom: sboms_temp1/control_cpp.cdx.json
         conan_params: '--profile=cpr_windows_x86_64_release'
 
     - name: Export incomplete SBOM
@@ -282,11 +206,11 @@ jobs:
         path: sboms_temp1
 
 
-  # SBOM step 2: Augment and enrich SBOM on Linux, because sbomify does not run on Windows
-  sbom_pt2:
+  # SBOM step 1: Augment and enrich SBOM on Linux, because sbomify does not run on Windows
+  sbom_pt1:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: sbom_pt1
+    needs: build
 
     steps:
     - uses: actions/checkout@v7
@@ -384,11 +308,11 @@ jobs:
         path: sboms_temp2
 
 
-  # SBOM step 3: Complete the SBOM on Windows
-  sbom_pt3:
+  # SBOM step 2: Complete the SBOM on Windows
+  sbom_pt2:
     runs-on: CPR_Windows11
     timeout-minutes: 15
-    needs: sbom_pt2
+    needs: sbom_pt1
 
     steps:
     - uses: actions/checkout@v7
@@ -467,7 +391,7 @@ jobs:
   sbom_validation_minimal:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: sbom_pt3
+    needs: sbom_pt2
 
     steps:
     - name: Import SBOMs
@@ -484,7 +408,7 @@ jobs:
   sbom_validation_monitor:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: sbom_pt3
+    needs: sbom_pt2
 
     steps:
     - name: Import SBOMs
@@ -501,7 +425,7 @@ jobs:
   sbom_validation_control:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: sbom_pt3
+    needs: sbom_pt2
 
     steps:
     - name: Import SBOMs

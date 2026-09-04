@@ -472,4 +472,4 @@ jobs:
     - name: Validate SBOM with company policies for Control App
       uses: CommonplaceRobotics/Action_Validate_SBOM@v6
       with:
-        sbom: sbom_contro_app_windows.cdx.json
+        sbom: sbom_control_app_windows.cdx.json

@@ -258,7 +258,7 @@ jobs:
         echo "APP_VER=$APP_VER" >> $GITHUB_ENV
 
     - name: Move sbomify.json
-      run: mv minimal_cpp/out/build/Windows/Release/sbomify.json minimal_cpp
+      run: mv minimal_cpp/out/build/Windows/Release/sbomify.json .
 
     - name: Enrich and Augment SBOM for Minimal App
       uses: sbomify/sbomify-action@master
@@ -276,7 +276,7 @@ jobs:
         UPLOAD: false
 
     - name: Move sbomify.json
-      run: mv monitor_cpp/out/build/Windows/Release/sbomify.json monitor_cpp
+      run: mv monitor_cpp/out/build/Windows/Release/sbomify.json .
 
     - name: Enrich and Augment SBOM Monitor App
       uses: sbomify/sbomify-action@master
@@ -294,7 +294,7 @@ jobs:
         UPLOAD: false
 
     - name: Move sbomify.json
-      run: mv control_cpp/out/build/Windows/Release/sbomify.json control_cpp
+      run: mv control_cpp/out/build/Windows/Release/sbomify.json .
 
     - name: Enrich and Augment SBOM Control App
       uses: sbomify/sbomify-action@master

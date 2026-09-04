@@ -7,6 +7,7 @@ repos:
     args: ['--fix=lf']
     exclude: '.*\.bat$'
   - id: check-merge-conflict
+  - id: check-json
   - id: check-xml
   - id: check-yaml
   - id: trailing-whitespace

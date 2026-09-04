@@ -5,7 +5,7 @@ name: Build and Test Apps for Linux
 
 on:
   push:
-    branches: [ "master", "v1*", "v2*", "v3*" ]
+    branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
     paths:
       - ".github/**"
       - 'control_cpp/**'
@@ -375,7 +375,7 @@ jobs:
         UPLOAD: false
 
     - name: Final SBOM enrichment for Minimal App
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_minimal_app_cpp.cdx.json
@@ -383,7 +383,7 @@ jobs:
         cmake_build_dir: minimal_cpp/out/build/Linux/armv8_32/Release
 
     - name: Final SBOM enrichment for Monitor App
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_monitor_app_cpp.cdx.json
@@ -391,7 +391,7 @@ jobs:
         cmake_build_dir: monitor_cpp/out/build/Linux/armv8_32/Release
 
     - name: Final SBOM enrichment for Control App
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_control_app_cpp.cdx.json

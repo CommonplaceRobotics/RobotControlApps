@@ -4,7 +4,7 @@ name: Package Python Apps and create SBOM
 
 on:
   push:
-    branches: [ "master", "v1*", "v2*", "v3*" ]
+    branches: [ "master", "v1*", "v2*", "v3*", "ci" ]
     paths:
       - ".github/**"
       - 'MathTools/**'
@@ -314,35 +314,35 @@ jobs:
         UPLOAD: false
 
     - name: Final SBOM enrichment for MinimalApp
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_minimal_app_python_temp2.cdx.json
         sbom_out: sboms/sbom_minimal_app_python.cdx.json
 
     - name: Final SBOM enrichment for MonitorApp
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_monitor_app_python_temp2.cdx.json
         sbom_out: sboms/sbom_monitor_app_python.cdx.json
 
     - name: Final SBOM enrichment for ControlApp
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_control_app_python_temp2.cdx.json
         sbom_out: sboms/sbom_control_app_python.cdx.json
 
     - name: Final SBOM enrichment for MathTools
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_math_tools_app_temp2.cdx.json
         sbom_out: sboms/sbom_math_tools_app.cdx.json
 
     - name: Final SBOM enrichment for PositionLogger
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v7
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp/sbom_position_logger_app_temp2.cdx.json

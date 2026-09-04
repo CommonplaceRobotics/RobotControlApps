@@ -1,0 +1,381 @@
+# This workflow will package the apps, create SBOMs and check them compliance with company policies
+
+name: Package Python Apps and create SBOM
+
+on:
+  push:
+    branches: [ "master", "v1*", "v2*", "v3*" ]
+    paths:
+      - ".github/**"
+      - 'MathTools/**'
+      - 'PositionLogger/**'
+      - 'control_python/**'
+      - 'minimal_python/**'
+      - 'monitor_python/**'
+  pull_request:
+    branches: [ "master", "v1*", "v2*", "v3*" ]
+    paths:
+      - ".github/**"
+      - 'MathTools/**'
+      - 'PositionLogger/**'
+      - 'control_python/**'
+      - 'minimal_python/**'
+      - 'monitor_python/**'
+
+permissions:
+  contents: read # access to check out code and install dependencies
+
+jobs:
+  package_math_tools:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Package App
+      run: |
+        cd MathTools
+        chmod +x package.sh
+        ./package.sh
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: MathTools.zip
+        path: MathTools/MathTools.zip
+        archive: false
+
+
+  package_position_logger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Package App
+      run: |
+        cd PositionLogger
+        chmod +x package.sh
+        ./package.sh
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: PositionLogger.zip
+        path: PositionLogger/PositionLogger.zip
+        archive: false
+
+
+  package_control_app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Package App
+      run: |
+        cd control_python
+        chmod +x package.sh
+        ./package.sh
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: control_app_python.zip
+        path: control_python/control_app_python.zip
+        archive: false
+
+
+  package_minimal_app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Package App
+      run: |
+        cd minimal_python
+        chmod +x package.sh
+        ./package.sh
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: minimal_app_python.zip
+        path: minimal_python/minimal_app_python.zip
+        archive: false
+
+
+  package_monitor_app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Package App
+      run: |
+        cd monitor_python
+        chmod +x package.sh
+        ./package.sh
+
+    - name: Export Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: monitor_app_python.zip
+        path: monitor_python/monitor_app_python.zip
+        archive: false
+
+
+  # Builds the SBOMs
+  sbom:
+    runs-on: ubuntu-latest
+    needs: [package_math_tools, package_position_logger, package_control_app, package_minimal_app, package_monitor_app]
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.x"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install cyclonedx-bom poetry
+
+    - name: Get the SBOM enrichment tool
+      uses: actions/checkout@v7
+      with:
+        repository: CommonplaceRobotics/SW_SBOM_Enrichment
+        path: ${{ github.workspace }}/sbom_tool
+
+    - name: Install dependencies for the SBOM enrichment tool
+      run: |
+        cd sbom_tool
+        python -m poetry install --no-root
+
+    - name: Get the MinimalApp package
+      uses: actions/download-artifact@v8
+      with:
+        name: minimal_app_python.zip
+        path: minimal_python
+        skip-decompress: true
+
+    - name: Get the MonitorApp package
+      uses: actions/download-artifact@v8
+      with:
+        name: monitor_app_python.zip
+        path: monitor_python
+        skip-decompress: true
+
+    - name: Get the ControlApp package
+      uses: actions/download-artifact@v8
+      with:
+        name: control_app_python.zip
+        path: control_python
+        skip-decompress: true
+
+    - name: Get the MathTools App package
+      uses: actions/download-artifact@v8
+      with:
+        name: MathTools.zip
+        path: MathTools
+        skip-decompress: true
+
+    - name: Get the PositionLogger App package
+      uses: actions/download-artifact@v8
+      with:
+        name: PositionLogger.zip
+        path: PositionLogger
+        skip-decompress: true
+
+    # Liest die Core-Version aus CMakeLists.txt
+    - name: Get software versions
+      run: |
+        MINIMAL_APP_VER=`grep -E -o "version[[:blank:]]*=[[:blank:]]*\"[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" minimal_python/rcapp.xml | sed "s/[^0-9.]*//g"`
+        MONITOR_APP_VER=`grep -E -o "version[[:blank:]]*=[[:blank:]]*\"[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" monitor_python/rcapp.xml | sed "s/[^0-9.]*//g"`
+        CONTROL_APP_VER=`grep -E -o "version[[:blank:]]*=[[:blank:]]*\"[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" control_python/rcapp.xml | sed "s/[^0-9.]*//g"`
+        MATH_TOOLS_APP_VER=`grep -E -o "version[[:blank:]]*=[[:blank:]]*\"[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" MathTools/rcapp.xml | sed "s/[^0-9.]*//g"`
+        POSITION_LOGGER_APP_VER=`grep -E -o "version[[:blank:]]*=[[:blank:]]*\"[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" PositionLogger/rcapp.xml | sed "s/[^0-9.]*//g"`
+        echo "Minimal App version '$MINIMAL_APP_VER' detected"
+        echo "Monitor App version '$MONITOR_APP_VER' detected"
+        echo "Control App version '$CONTROL_APP_VER' detected"
+        echo "Math Tools App version '$MATH_TOOLS_APP_VER' detected"
+        echo "Position Logger App version '$POSITION_LOGGER_APP_VER' detected"
+        echo "MINIMAL_APP_VER=$MINIMAL_APP_VER" >> $GITHUB_ENV
+        echo "MONITOR_APP_VER=$MONITOR_APP_VER" >> $GITHUB_ENV
+        echo "CONTROL_APP_VER=$CONTROL_APP_VER" >> $GITHUB_ENV
+        echo "MATH_TOOLS_APP_VER=$MATH_TOOLS_APP_VER" >> $GITHUB_ENV
+        echo "POSITION_LOGGER_APP_VER=$POSITION_LOGGER_APP_VER" >> $GITHUB_ENV
+
+    - name: Create output directory
+      run: mkdir sboms_temp sboms
+
+    # sbomify uses cyclonedx-py to generate Python SBOMs, which is not yet compatible to poetry v2
+    # Alternatively partial SBOMs can be generated as follows. They would need to be merged and
+    # dependencies linked to the main component.
+    # Metadata:
+    # cyclonedx-py poetry --no-dev .
+    # Dependencies:
+    # poetry export --without-hashes | cyclonedx-py requirements -
+
+    - name: Install cdxgen
+      run: |
+        npm install -g @cdxgen/cdxgen --ignore-scripts --min-release-age=2
+
+    - name: Create initial SBOMs
+      run: |
+         cdxgen --spec-version 1.6 -o sboms_temp/sbom_minimal_app_python_temp1.cdx.json minimal_python
+         cdxgen --spec-version 1.6 -o sboms_temp/sbom_monitor_app_python_temp1.cdx.json monitor_python
+         cdxgen --spec-version 1.6 -o sboms_temp/sbom_control_app_python_temp1.cdx.json control_python
+         cdxgen --spec-version 1.6 -o sboms_temp/sbom_math_tools_app_temp1.cdx.json MathTools
+         cdxgen --spec-version 1.6 -o sboms_temp/sbom_position_logger_app_temp1.cdx.json PositionLogger
+
+    - name: Create SBOM for MinimalApp
+      uses: sbomify/sbomify-action@master
+      env:
+        WORKING_DIR: minimal_python
+        #LOCK_FILE: poetry.lock
+        SBOM_FILE: ../sboms_temp/sbom_minimal_app_python_temp1.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_minimal_app_python_temp2.cdx.json
+        COMPONENT_NAME: Minimal_App_Python
+        COMPONENT_VERSION: ${{ env.MINIMAL_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+
+    - name: Create SBOM for MonitorApp
+      uses: sbomify/sbomify-action@master
+      env:
+        WORKING_DIR: monitor_python
+        #LOCK_FILE: poetry.lock
+        SBOM_FILE: ../sboms_temp/sbom_monitor_app_python_temp1.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_monitor_app_python_temp2.cdx.json
+        COMPONENT_NAME: Monitor_App_Python
+        COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+
+    - name: Create SBOM for ControlApp
+      uses: sbomify/sbomify-action@master
+      env:
+        WORKING_DIR: control_python
+        #LOCK_FILE: poetry.lock
+        SBOM_FILE: ../sboms_temp/sbom_control_app_python_temp1.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_control_app_python_temp2.cdx.json
+        COMPONENT_NAME: Control_App_Python
+        COMPONENT_VERSION: ${{ env.CONTROL_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+
+    - name: Create SBOM for MathTools
+      uses: sbomify/sbomify-action@master
+      env:
+        WORKING_DIR: MathTools
+        #LOCK_FILE: poetry.lock
+        SBOM_FILE: ../sboms_temp/sbom_math_tools_app_temp1.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_math_tools_app_temp2.cdx.json
+        COMPONENT_NAME: Math_Tools_App
+        COMPONENT_VERSION: ${{ env.MATH_TOOLS_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+
+    - name: Create SBOM for PositionLogger
+      uses: sbomify/sbomify-action@master
+      env:
+        WORKING_DIR: PositionLogger
+        #LOCK_FILE: poetry.lock
+        SBOM_FILE: ../sboms_temp/sbom_position_logger_app_temp1.cdx.json
+        OUTPUT_FILE: ../sboms_temp/sbom_position_logger_app_temp2.cdx.json
+        COMPONENT_NAME: Position_Logger_App
+        COMPONENT_VERSION: ${{ env.POSITION_LOGGER_APP_VER }}
+        # Produkt- und Firmeninfo werden aus sbomify.json geladen
+        AUGMENT: true
+        # Metadaten aus Paket-Registry hinzufügen
+        ENRICH: true
+        UPLOAD: false
+
+    - name: Final SBOM enrichment for MinimalApp
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp/sbom_minimal_app_python_temp2.cdx.json
+        sbom_out: sboms/sbom_minimal_app_python.cdx.json
+
+    - name: Final SBOM enrichment for MonitorApp
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp/sbom_monitor_app_python_temp2.cdx.json
+        sbom_out: sboms/sbom_monitor_app_python.cdx.json
+
+    - name: Final SBOM enrichment for ControlApp
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp/sbom_control_app_python_temp2.cdx.json
+        sbom_out: sboms/sbom_control_app_python.cdx.json
+
+    - name: Final SBOM enrichment for MathTools
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp/sbom_math_tools_app_temp2.cdx.json
+        sbom_out: sboms/sbom_math_tools_app.cdx.json
+
+    - name: Final SBOM enrichment for PositionLogger
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
+      with:
+        database: .github/workflows/sbom_enrichment_db.json
+        sbom: sboms_temp/sbom_position_logger_app_temp2.cdx.json
+        sbom_out: sboms/sbom_position_logger_app.cdx.json
+
+    - name: Export SBOMs
+      uses: actions/upload-artifact@v7
+      with:
+        name: sboms
+        path: sboms
+        archive: true
+
+    - name: Validate SBOM with company policies for MinimalApp
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v6
+      with:
+        sbom: sboms/sbom_minimal_app_python.cdx.json
+
+    - name: Validate SBOM with company policies for MonitorApp
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v6
+      with:
+        sbom: sboms/sbom_monitor_app_python.cdx.json
+
+    - name: Validate SBOM with company policies for ControlApp
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v6
+      with:
+        sbom: sboms/sbom_control_app_python.cdx.json
+
+    - name: Validate SBOM with company policies for MathTools
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v6
+      with:
+        sbom: sboms/sbom_math_tools_app.cdx.json
+
+    - name: Validate SBOM with company policies for PositionLogger
+      uses: CommonplaceRobotics/Action_Validate_SBOM@v6
+      with:
+        sbom: sboms/sbom_position_logger_app.cdx.json

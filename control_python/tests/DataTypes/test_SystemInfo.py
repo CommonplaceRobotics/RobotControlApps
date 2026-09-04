@@ -1,8 +1,7 @@
 import unittest
-import unittest
 
-from DataTypes.SystemInfo import SystemInfo, SystemInfoFromGrpc
-import robotcontrolapp_pb2
+from irc_app.DataTypes.SystemInfo import SystemInfo, SystemInfoFromGrpc
+from irc_app.rpc import robotcontrolapp_pb2
 
 
 class SystemInfoTest(unittest.TestCase):

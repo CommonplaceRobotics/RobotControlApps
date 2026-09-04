@@ -1,7 +1,7 @@
 import unittest
 
-from DataTypes import Statistics
-import robotcontrolapp_pb2
+from irc_app.DataTypes import Statistics
+from irc_app.rpc import robotcontrolapp_pb2
 
 
 class StatisticsTest(unittest.TestCase):

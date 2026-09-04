@@ -1,6 +1,6 @@
 <App name="MinimalApp-Python" label="Python Minimal App Sample" vendor="" version="1.0.1">
 	<!-- Define the executable(s) to call -->
-	<executable path="app.py"/>
+	<executable path="src/app.py"/>
 
 	<!-- Define the app functions that the robot program can call -->
 	<!-- General example on how to define a function, this one does not do anything. -->

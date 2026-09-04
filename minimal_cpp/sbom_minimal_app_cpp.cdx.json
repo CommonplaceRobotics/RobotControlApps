@@ -1,0 +1,584 @@
+{
+  "components": [
+    {
+      "author": "Conan",
+      "bom-ref": "pkg:conan/cmake@4.3.2?rref=c740c22f711eb5ef0cec51c40b84657b",
+      "description": "CMake, the cross-platform, open-source build system.",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://conan.io/center/recipes/cmake"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/conan-io/conan-center-index"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/Kitware/CMake"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "name": "cmake",
+      "properties": [
+        {
+          "name": "bsi:component:archive",
+          "value": "no archive"
+        },
+        {
+          "name": "bsi:component:executable",
+          "value": "executable"
+        },
+        {
+          "name": "bsi:component:structured",
+          "value": "structured"
+        },
+        {
+          "name": "sbomify:enrichment:source",
+          "value": "conan.io"
+        }
+      ],
+      "purl": "pkg:conan/cmake@4.3.2?rref=c740c22f711eb5ef0cec51c40b84657b",
+      "supplier": {
+        "name": "Conan Center"
+      },
+      "type": "application",
+      "version": "4.3.2"
+    },
+    {
+      "author": "Conan",
+      "bom-ref": "pkg:conan/abseil@20260107.1?rref=883e95a7be2b767999f64669ac642e5d",
+      "description": "Abseil Common Libraries (C++) from Google",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://conan.io/center/recipes/abseil"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/conan-io/conan-center-index"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/abseil/abseil-cpp"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "abseil",
+      "properties": [
+        {
+          "name": "sbomify:enrichment:source",
+          "value": "conan.io"
+        }
+      ],
+      "purl": "pkg:conan/abseil@20260107.1?rref=883e95a7be2b767999f64669ac642e5d",
+      "supplier": {
+        "name": "Conan Center"
+      },
+      "type": "library",
+      "version": "20260107.1"
+    },
+    {
+      "author": "Conan",
+      "bom-ref": "pkg:conan/c-ares@1.34.6?rref=545240bb1c40e2cacd4362d6b8967650",
+      "description": "A C library for asynchronous DNS requests",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://conan.io/center/recipes/c-ares"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/conan-io/conan-center-index"
+        },
+        {
+          "type": "website",
+          "url": "https://c-ares.haxx.se/"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "name": "c-ares",
+      "properties": [
+        {
+          "name": "sbomify:enrichment:source",
+          "value": "conan.io"
+        }
+      ],
+      "purl": "pkg:conan/c-ares@1.34.6?rref=545240bb1c40e2cacd4362d6b8967650",
+      "supplier": {
+        "name": "Conan Center"
+      },
+      "type": "library",
+      "version": "1.34.6"
+    },
+    {
+      "author": "Conan",
+      "bom-ref": "pkg:conan/grpc@1.81.0?rref=b42f805297382dbb0baa7f755a6a0487",
+      "description": "Google's RPC (remote procedure call) library and framework.",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://conan.io/center/recipes/grpc"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/conan-io/conan-center-index"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/grpc/grpc"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "grpc",
+      "properties": [
+        {
+          "name": "sbomify:enrichment:source",
+          "value": "conan.io"
+        }
+      ],
+      "purl": "pkg:conan/grpc@1.81.0?rref=b42f805297382dbb0baa7f755a6a0487",
+      "supplier": {
+        "name": "Conan Center"
+      },
+      "type": "library",
+      "version": "1.81.0"
+    },
+    {
+      "author": "Conan",
+      "bom-ref": "pkg:conan/gtest@1.17.0?rref=5224b3b3ff3b4ce1133cbdd27d53ee7d",
+      "description": "Google's C++ test framework",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://conan.io/center/recipes/gtest"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/conan-io/conan-center-index"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/google/googletest"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "name": "gtest",
+      "properties": [
+        {
+          "name": "sbomify:enrichment:source",
+          "value": "conan.io"
+        }
+      ],
+      "purl": "pkg:conan/gtest@1.17.0?rref=5224b3b3ff3b4ce1133cbdd27d53ee7d",
+      "supplier": {
+        "name": "Conan Center"
+      },
+      "type": "library",
+      "version": "1.17.0"
+    },
+    {
+      "author": "Conan",
+      "bom-ref": "pkg:conan/openssl@3.6.2?rref=36f92686a9285adfe2ccd1c1dbf9ea35",
+      "description": "A toolkit for the Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://conan.io/center/recipes/openssl"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/conan-io/conan-center-index"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/openssl/openssl"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "name": "openssl",
+      "properties": [
+        {
+          "name": "sbomify:enrichment:source",
+          "value": "conan.io"
+        }
+      ],
+      "purl": "pkg:conan/openssl@3.6.2?rref=36f92686a9285adfe2ccd1c1dbf9ea35",
+      "supplier": {
+        "name": "Conan Center"
+      },
+      "type": "library",
+      "version": "3.6.2"
+    },
+    {
+      "author": "Conan",
+      "bom-ref": "pkg:conan/protobuf@6.33.5?rref=ff253ead763bd8d9904a52979cd21e81",
+      "description": "Protocol Buffers - Google's data interchange format",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://conan.io/center/recipes/protobuf"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/conan-io/conan-center-index"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/protocolbuffers/protobuf"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "name": "protobuf",
+      "properties": [
+        {
+          "name": "sbomify:enrichment:source",
+          "value": "conan.io"
+        }
+      ],
+      "purl": "pkg:conan/protobuf@6.33.5?rref=ff253ead763bd8d9904a52979cd21e81",
+      "supplier": {
+        "name": "Conan Center"
+      },
+      "type": "library",
+      "version": "6.33.5"
+    },
+    {
+      "author": "Conan",
+      "bom-ref": "pkg:conan/re2@20251105?rref=8579cfd0bda4daf0683f9e3898f964b4",
+      "description": "Fast, safe, thread-friendly regular expression library",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://conan.io/center/recipes/re2"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/conan-io/conan-center-index"
+        },
+        {
+          "type": "website",
+          "url": "https://github.com/google/re2"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "BSD-3-Clause"
+          }
+        }
+      ],
+      "name": "re2",
+      "properties": [
+        {
+          "name": "sbomify:enrichment:source",
+          "value": "conan.io"
+        }
+      ],
+      "purl": "pkg:conan/re2@20251105?rref=8579cfd0bda4daf0683f9e3898f964b4",
+      "supplier": {
+        "name": "Conan Center"
+      },
+      "type": "library",
+      "version": "20251105"
+    },
+    {
+      "author": "Conan",
+      "bom-ref": "pkg:conan/zlib@1.3.1?rref=cac0f6daea041b0ccf42934163defb20",
+      "description": "A Massively Spiffy Yet Delicately Unobtrusive Compression Library (Also Free, Not to Mention Unencumbered by Patents)",
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://conan.io/center/recipes/zlib"
+        },
+        {
+          "type": "vcs",
+          "url": "git+https://github.com/conan-io/conan-center-index"
+        },
+        {
+          "type": "website",
+          "url": "https://zlib.net"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "Zlib"
+          }
+        }
+      ],
+      "name": "zlib",
+      "properties": [
+        {
+          "name": "sbomify:enrichment:source",
+          "value": "conan.io"
+        }
+      ],
+      "purl": "pkg:conan/zlib@1.3.1?rref=cac0f6daea041b0ccf42934163defb20",
+      "supplier": {
+        "name": "Conan Center"
+      },
+      "type": "library",
+      "version": "1.3.1"
+    }
+  ],
+  "dependencies": [
+    {
+      "dependsOn": [
+        "pkg:conan/grpc@1.81.0?rref=b42f805297382dbb0baa7f755a6a0487",
+        "pkg:conan/gtest@1.17.0?rref=5224b3b3ff3b4ce1133cbdd27d53ee7d",
+        "pkg:conan/protobuf@6.33.5?rref=ff253ead763bd8d9904a52979cd21e81"
+      ],
+      "ref": "45d82063-6fdd-4966-a680-b25ec33d2a6f"
+    },
+    {
+      "dependsOn": [
+        "pkg:conan/cmake@4.3.2?rref=c740c22f711eb5ef0cec51c40b84657b"
+      ],
+      "ref": "pkg:conan/abseil@20260107.1?rref=883e95a7be2b767999f64669ac642e5d"
+    },
+    {
+      "ref": "pkg:conan/c-ares@1.34.6?rref=545240bb1c40e2cacd4362d6b8967650"
+    },
+    {
+      "ref": "pkg:conan/cmake@4.3.2?rref=c740c22f711eb5ef0cec51c40b84657b"
+    },
+    {
+      "dependsOn": [
+        "pkg:conan/abseil@20260107.1?rref=883e95a7be2b767999f64669ac642e5d",
+        "pkg:conan/c-ares@1.34.6?rref=545240bb1c40e2cacd4362d6b8967650",
+        "pkg:conan/cmake@4.3.2?rref=c740c22f711eb5ef0cec51c40b84657b",
+        "pkg:conan/openssl@3.6.2?rref=36f92686a9285adfe2ccd1c1dbf9ea35",
+        "pkg:conan/protobuf@6.33.5?rref=ff253ead763bd8d9904a52979cd21e81",
+        "pkg:conan/re2@20251105?rref=8579cfd0bda4daf0683f9e3898f964b4",
+        "pkg:conan/zlib@1.3.1?rref=cac0f6daea041b0ccf42934163defb20"
+      ],
+      "ref": "pkg:conan/grpc@1.81.0?rref=b42f805297382dbb0baa7f755a6a0487"
+    },
+    {
+      "dependsOn": [
+        "pkg:conan/cmake@4.3.2?rref=c740c22f711eb5ef0cec51c40b84657b"
+      ],
+      "ref": "pkg:conan/gtest@1.17.0?rref=5224b3b3ff3b4ce1133cbdd27d53ee7d"
+    },
+    {
+      "dependsOn": [
+        "pkg:conan/zlib@1.3.1?rref=cac0f6daea041b0ccf42934163defb20"
+      ],
+      "ref": "pkg:conan/openssl@3.6.2?rref=36f92686a9285adfe2ccd1c1dbf9ea35"
+    },
+    {
+      "dependsOn": [
+        "pkg:conan/abseil@20260107.1?rref=883e95a7be2b767999f64669ac642e5d",
+        "pkg:conan/cmake@4.3.2?rref=c740c22f711eb5ef0cec51c40b84657b",
+        "pkg:conan/zlib@1.3.1?rref=cac0f6daea041b0ccf42934163defb20"
+      ],
+      "ref": "pkg:conan/protobuf@6.33.5?rref=ff253ead763bd8d9904a52979cd21e81"
+    },
+    {
+      "dependsOn": [
+        "pkg:conan/abseil@20260107.1?rref=883e95a7be2b767999f64669ac642e5d",
+        "pkg:conan/cmake@4.3.2?rref=c740c22f711eb5ef0cec51c40b84657b"
+      ],
+      "ref": "pkg:conan/re2@20251105?rref=8579cfd0bda4daf0683f9e3898f964b4"
+    },
+    {
+      "ref": "pkg:conan/zlib@1.3.1?rref=cac0f6daea041b0ccf42934163defb20"
+    }
+  ],
+  "metadata": {
+    "authors": [
+      {
+        "email": "support@commonplacerobotics.de",
+        "name": "Commonplace Robotics GmbH"
+      }
+    ],
+    "component": {
+      "author": "Conan",
+      "bom-ref": "45d82063-6fdd-4966-a680-b25ec33d2a6f",
+      "externalReferences": [
+        {
+          "type": "security-contact",
+          "url": "mailto:support@commonplacerobotics.de"
+        },
+        {
+          "comment": "Branch/ref: ci",
+          "type": "vcs",
+          "url": "git+https://github.com/CommonplaceRobotics/RobotControlApps@eec77ecf629c8f6731e14ad31cb9090b1c68dc5e"
+        }
+      ],
+      "name": "Minimal App C++",
+      "purl": "pkg:generic/minimal-app-c@1.1.0",
+      "supplier": {
+        "name": "Commonplace Robotics GmbH",
+        "url": [
+          "https://commonplacerobotics.de"
+        ]
+      },
+      "type": "library",
+      "version": "1.1.0"
+    },
+    "licenses": [
+      {
+        "license": {
+          "name": "MIT"
+        }
+      }
+    ],
+    "lifecycles": [
+      {
+        "phase": "build"
+      }
+    ],
+    "properties": [
+      {
+        "name": "cdx:lifecycle:milestone:endOfLife",
+        "value": "2000-00-00"
+      },
+      {
+        "name": "cdx:lifecycle:milestone:endOfSupport",
+        "value": "2000-00-00"
+      },
+      {
+        "name": "cdx:lifecycle:milestone:generalAvailability",
+        "value": "2026-05-08"
+      }
+    ],
+    "supplier": {
+      "name": "Commonplace Robotics GmbH",
+      "url": [
+        "https://commonplacerobotics.de"
+      ]
+    },
+    "timestamp": "2026-06-24T13:11:01+00:00",
+    "tools": {
+      "components": [
+        {
+          "externalReferences": [
+            {
+              "type": "build-system",
+              "url": "https://github.com/CycloneDX/cyclonedx-python-lib/actions"
+            },
+            {
+              "type": "distribution",
+              "url": "https://pypi.org/project/cyclonedx-python-lib/"
+            },
+            {
+              "type": "documentation",
+              "url": "https://cyclonedx-python-library.readthedocs.io/"
+            },
+            {
+              "type": "issue-tracker",
+              "url": "https://github.com/CycloneDX/cyclonedx-python-lib/issues"
+            },
+            {
+              "type": "license",
+              "url": "https://github.com/CycloneDX/cyclonedx-python-lib/blob/main/LICENSE"
+            },
+            {
+              "type": "release-notes",
+              "url": "https://github.com/CycloneDX/cyclonedx-python-lib/blob/main/CHANGELOG.md"
+            },
+            {
+              "type": "vcs",
+              "url": "https://github.com/CycloneDX/cyclonedx-python-lib"
+            },
+            {
+              "type": "website",
+              "url": "https://github.com/CycloneDX/cyclonedx-python-lib/#readme"
+            }
+          ],
+          "group": "CycloneDX",
+          "name": "cyclonedx-python-lib",
+          "type": "application",
+          "version": "5.2.0"
+        },
+        {
+          "externalReferences": [
+            {
+              "type": "issue-tracker",
+              "url": "https://github.com/sbomify/sbomify-action/issues"
+            },
+            {
+              "type": "vcs",
+              "url": "https://github.com/sbomify/sbomify-action"
+            },
+            {
+              "type": "website",
+              "url": "https://sbomify.com"
+            }
+          ],
+          "group": "sbomify",
+          "name": "sbomify action",
+          "type": "application",
+          "version": "26.2.0+d291b13"
+        },
+        {
+          "externalReferences": [
+            {
+              "type": "website",
+              "url": "https://github.com/conan-io/conan-extensions"
+            }
+          ],
+          "name": "conan extension sbom:cyclonedx",
+          "type": "application"
+        }
+      ]
+    }
+  },
+  "serialNumber": "urn:uuid:dcc9a0bc-0633-4790-ad61-17f71a1af1c9",
+  "version": 1,
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "compositions": [
+    {
+      "aggregate": "incomplete",
+      "assemblies": [
+        "45d82063-6fdd-4966-a680-b25ec33d2a6f"
+      ]
+    }
+  ]
+}

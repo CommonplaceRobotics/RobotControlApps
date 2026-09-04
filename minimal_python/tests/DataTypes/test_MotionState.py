@@ -1,6 +1,6 @@
 import unittest
 
-from DataTypes.MotionState import (
+from irc_app.DataTypes.MotionState import (
     InterpolatorState,
     InterpolatorStateFromGrpc,
     MotionState,
@@ -8,7 +8,7 @@ from DataTypes.MotionState import (
     PositionInterfaceState,
     PositionInterfaceStateFromGrpc,
 )
-import robotcontrolapp_pb2
+from irc_app.rpc import robotcontrolapp_pb2
 
 
 class MotionStateTest(unittest.TestCase):

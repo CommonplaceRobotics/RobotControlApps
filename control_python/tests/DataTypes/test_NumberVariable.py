@@ -1,6 +1,6 @@
 import unittest
 
-from DataTypes.ProgramVariable import NumberVariable
+from irc_app.DataTypes.ProgramVariable import NumberVariable
 
 
 class NumberVariableTest(unittest.TestCase):

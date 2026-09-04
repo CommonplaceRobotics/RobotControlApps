@@ -1,7 +1,7 @@
 import unittest
 
-from DataTypes.Matrix44 import Matrix44
-from DataTypes.ProgramVariable import (
+from irc_app.DataTypes.Matrix44 import Matrix44
+from irc_app.DataTypes.ProgramVariable import (
     MakePositionVariableBoth,
     MakePositionVariableCartesian,
     MakePositionVariableJoint,

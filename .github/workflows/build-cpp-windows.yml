@@ -77,7 +77,7 @@ jobs:
     - name: Install Conan
       uses: conan-io/setup-conan@v1
       with:
-        use-venv: true
+        use_venv: true
 
     - name: Configure CMake for Minimal App
       run: |
@@ -252,10 +252,17 @@ jobs:
 
     # Liest die Core-Version aus CMakeLists.txt
     - name: Get software versions
+      shell: bash
       run: |
-        APP_VER=`grep -E -o "VERSION[[:blank:]]+[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" CMakeLists.txt | sed "s/[^0-9.]*//g"`
-        echo "App version '$APP_VER' detected"
-        echo "APP_VER=$APP_VER" >> $GITHUB_ENV
+        MINIMAL_APP_VER=`grep -E -o "VERSION[[:blank:]]+[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" minimal_cpp/CMakeLists.txt | sed "s/[^0-9.]*//g"`
+        MONITOR_APP_VER=`grep -E -o "VERSION[[:blank:]]+[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" monitor_cpp/CMakeLists.txt | sed "s/[^0-9.]*//g"`
+        CONTROL_APP_VER=`grep -E -o "VERSION[[:blank:]]+[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+" control_cpp/CMakeLists.txt | sed "s/[^0-9.]*//g"`
+        echo "Minimal App version '$MINIMAL_APP_VER' detected"
+        echo "Monitor App version '$MONITOR_APP_VER' detected"
+        echo "Control App version '$CONTROL_APP_VER' detected"
+        echo "MINIMAL_APP_VER=$MINIMAL_APP_VER" >> $GITHUB_ENV
+        echo "MONITOR_APP_VER=$MONITOR_APP_VER" >> $GITHUB_ENV
+        echo "CONTROL_APP_VER=$CONTROL_APP_VER" >> $GITHUB_ENV
 
     - name: Move sbomify.json
       run: mv minimal_cpp/out/build/Windows/Release/sbomify.json .
@@ -266,7 +273,7 @@ jobs:
         SBOM_FILE: sboms_temp1/minimal_cpp.cdx.json
         OUTPUT_FILE: sboms_temp2/minimal_cpp.cdx.json
         COMPONENT_NAME: Minimal_App_CPP
-        COMPONENT_VERSION: ${{ env.SW_VERSION }}
+        COMPONENT_VERSION: ${{ env.MINIMAL_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
         # Metadaten aus Paket-Registry hinzufügen
@@ -284,7 +291,7 @@ jobs:
         SBOM_FILE: sboms_temp1/monitor_cpp.cdx.json
         OUTPUT_FILE: sboms_temp2/monitor_cpp.cdx.json
         COMPONENT_NAME: Monitor_App_CPP
-        COMPONENT_VERSION: ${{ env.SW_VERSION }}
+        COMPONENT_VERSION: ${{ env.MONITOR_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
         # Metadaten aus Paket-Registry hinzufügen
@@ -302,7 +309,7 @@ jobs:
         SBOM_FILE: sboms_temp1/control_cpp.cdx.json
         OUTPUT_FILE: sboms_temp2/control_cpp.cdx.json
         COMPONENT_NAME: Control_App_CPP
-        COMPONENT_VERSION: ${{ env.SW_VERSION }}
+        COMPONENT_VERSION: ${{ env.CONTROL_APP_VER }}
         # Produkt- und Firmeninfo werden aus sbomify.json geladen
         AUGMENT: true
         # Metadaten aus Paket-Registry hinzufügen

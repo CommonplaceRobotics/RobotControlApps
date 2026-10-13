@@ -35,6 +35,8 @@ jobs:
       with:
         lockfile: 'conan_windows.lock'
         cache_key: conan-${{ runner.os }}-${{ hashFiles('**/conan_windows.lock', '**/conanfile.py') }}
+        conan_cache_user: ${{ secrets.ARTIFACTORY_USER }}
+        conan_cache_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
         path: |
           control_cpp
           minimal_cpp
@@ -394,7 +396,7 @@ jobs:
         path: sboms_temp2
 
     - name: Final SBOM enrichment for Minimal App
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v9
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp2/minimal_cpp.cdx.json
@@ -402,7 +404,7 @@ jobs:
         cmake_build_dir: minimal_cpp/out/build/Windows/Release
 
     - name: Final SBOM enrichment for Monitor App
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v9
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp2/monitor_cpp.cdx.json
@@ -410,7 +412,7 @@ jobs:
         cmake_build_dir: monitor_cpp/out/build/Windows/Release
 
     - name: Final SBOM enrichment for Control App
-      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v8
+      uses: CommonplaceRobotics/Action_SBOM_Enrichment@v9
       with:
         database: .github/workflows/sbom_enrichment_db.json
         sbom: sboms_temp2/control_cpp.cdx.json

@@ -11,6 +11,9 @@ import time
 from typing import List
 import grpc
 from google.protobuf.internal import containers as protobufContainers
+
+from src.irc_app.DataTypes.UserFrame import UserFrame, UserFrameFromGrpc
+from src.irc_app.RobotProgram.Command.Command import ICommand
 from .DataTypes.DirectoryContent import DirectoryContent, DirectoryContentFromGrcp
 from .DataTypes.Statistics import Statistics, StatisticsFromGrpc
 from .DataTypes.Matrix44 import Matrix44, Matrix44FromGrpc
@@ -27,7 +30,7 @@ from .DataTypes.LicenseInfo import LicenseInfo, LicenseInfoFromGrpc
 from .rpc import robotcontrolapp_pb2
 from .rpc.robotcontrolapp_pb2_grpc import RobotControlAppStub
 
-__version__ = "14.6.7"
+__version__ = "15.2.0"
 """The app API version is equal to the minimum supported Robot Control version"""
 
 
@@ -1381,6 +1384,7 @@ class AppClient:
         b: float,
         c: float,
         initialJoints: list[float],
+        referenceFrame: str,
     ) -> tuple[list[float], robotcontrolapp_pb2.KinematicState]:
         """
         Translates a cartesian position to joint positions
@@ -1393,6 +1397,7 @@ class AppClient:
             c: C orientation of the TCP in degrees
             initialJoints: 6 robot joints and 3 external joints. These are used to derive the initial joint configuration,
             e.g. whether the elbow points left or right. Set them to 0 if not relevant.
+            referenceFrame: referenceFrame reference frame to convert from. Set None or empty string for default value.
         Returns:
             tuple consisting of a list of joints (6 robot joints, 3 external joints) and the kinematic state. This is 0 if
             the conversion was successful or a different value on error.
@@ -1409,12 +1414,14 @@ class AppClient:
         request.orientation.x = a
         request.orientation.y = b
         request.orientation.z = c
+        if referenceFrame is str and len(referenceFrame) > 0:
+            request.reference_frame = referenceFrame
 
         response = self.__grpcStub.TranslateCartToJoint(request)
         return (response.joints, response.kinematicState)
 
     def TranslateJointToCartXYZ(
-        self, joints: list[float]
+        self, joints: list[float], referenceFrame: str
     ) -> tuple[
         float, float, float, float, float, float, robotcontrolapp_pb2.KinematicState
     ]:
@@ -1422,6 +1429,7 @@ class AppClient:
         Translates joint positions to a cartesian position
         Parameters:
             joints: joint positions to translate
+            referenceFrame: referenceFrame reference frame to convert to. Set None or empty string for default value.
         Returns:
             A tuple containing the following values in order:
             result X coordinate of the TCP in mm,
@@ -1432,18 +1440,19 @@ class AppClient:
             result C orientation of the TCP in degrees,
             the result state is written here. 0 on success, other value on error
         """
-        (mat, state) = self.TranslateJointToCart(joints)
+        (mat, state) = self.TranslateJointToCart(joints, referenceFrame)
         (a, b, c) = mat.GetOrientation()
         return (mat.GetX(), mat.GetY(), mat.GetZ(), a, b, c, state)
 
     def TranslateJointToCart(
-        self, joints: list[float]
+        self, joints: list[float], referenceFrame: str
     ) -> tuple[Matrix44, robotcontrolapp_pb2.KinematicState]:
         """
         Translates joint positions to a cartesian position. Note that out-of-range joint values may give you a
         successful result that may not be reachable or could cause collisions.
         Parameters:
             joints: joint positions to translate
+            referenceFrame: referenceFrame reference frame to convert to. Set None or empty string for default value.
         Returns:
             the matrix defining position and orientation of the TCP is written here,
             the result state is written here. 0 on success, other value on error
@@ -1455,6 +1464,8 @@ class AppClient:
         request = robotcontrolapp_pb2.JointToCartRequest()
         request.app_name = self.GetAppName()
         request.joints.extend(joints)
+        if referenceFrame is str and len(referenceFrame) > 0:
+            request.reference_frame = referenceFrame
 
         response = self.__grpcStub.TranslateJointToCart(request)
         return (Matrix44FromGrpc(response.position), response.kinematicState)
@@ -1671,6 +1682,55 @@ class AppClient:
         request.path = directory
         return DirectoryContentFromGrcp(self.__grpcStub.ListFiles(request))
 
+    # =========================================================================
+    # Program definition
+    # =========================================================================
+
+    def ClearMotionProgram(self):
+        """Unloads the motion program"""
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.AddCommandRequest()
+        request.app_name = self.GetAppName()
+        request.clear_program = True
+        result = self.__grpcStub.AddCommand(request)
+        return result.success
+
+    def AddMotionCommand(self, command: ICommand):
+        """Appends a command to the main motion program (in memory only, no files are changed)"""
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.AddCommandRequest()
+        request.app_name = self.GetAppName()
+        request.clear_program = False
+        request.commands.append(command.GetCmdParameters())
+        result = self.__grpcStub.AddCommand(request)
+        return result.success
+
+    def SetMotionProgram(self, commands: list):
+        """
+        Unloads the motion program and loads the given commands
+        Parameters:
+            commands: List of commands (objects of base type ICommand)
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.AddCommandRequest()
+        request.app_name = self.GetAppName()
+        request.clear_program = True
+        for c in commands:
+            request.commands.append(c.GetCmdParameters())
+
+        result = self.__grpcStub.AddCommand(request)
+        return result.success
+
+    # =========================================================================
+    # Statistics
+    # =========================================================================
+
     def GetStatistics(self, resetPartsCounters: bool) -> Statistics:
         """
         Gets the statistics data
@@ -1686,6 +1746,132 @@ class AppClient:
         request.app_name = self.GetAppName()
         request.reset_parts_counter = resetPartsCounters
         return StatisticsFromGrpc(self.__grpcStub.GetStatistics(request))
+
+    # =========================================================================
+    # Reference frames
+    # =========================================================================
+
+    def ListUserFrames(self) -> list:
+        """
+        Gets all user frames
+        Returns:
+            List of user frames (objects of type UserFrame)
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.ListUserFramesRequest()
+        request.app_name = self.GetAppName()
+        result = self.__grpcStub.ListUserFrames(request)
+
+        ret = list()
+        for f in result.frames:
+            ret.append(UserFrameFromGrpc(f))
+        return ret
+
+    def GetUserFrame(self, frameName: str) -> UserFrame:
+        """
+        Gets a user frame by name
+        Parameters:
+            frameName: user frame name
+        Returns:
+            Requested user frame or empty user frame object (empty name)
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.GetUserFrameRequest()
+        request.app_name = self.GetAppName()
+        request.name = frameName
+        result = self.__grpcStub.GetUserFrame(request)
+        if result.HasField("frame"):
+            return result.frame
+        else:
+            return UserFrame()
+
+    def SetUserFrame(self, frame: UserFrame) -> bool:
+        """
+        Adds or changes a user frame
+        Parameters:
+            frame: User frame to set
+        Returns:
+            True if the frame was successfully set
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.SetUserFrameRequest()
+        request.app_name = self.GetAppName()
+        request.frame.CopyFrom(frame.ToGrpc())
+        result = self.__grpcStub.SetUserFrame(request)
+        return result.success
+
+    def RemoveUserFrame(self, frameName: str) -> bool:
+        """
+        Removes a user frame
+        Parameters:
+            frameName: user frame name
+        Returns:
+            True if a frame was removed
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.RemoveUserFrameRequest()
+        request.app_name = self.GetAppName()
+        request.name = frameName
+        result = self.__grpcStub.RemoveUserFrame(request)
+        return result.success
+
+    # =========================================================================
+    # Robot tool / gripper
+    # =========================================================================
+
+    def GetTool(self) -> str:
+        """
+        Gets the tool configuration file name
+        Returns:
+            Active tool configuration file name or empty string if no tool is configured
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.SetToolRequest()
+        request.app_name = self.GetAppName()
+        result = self.__grpcStub.SetTool(request)
+        return result.active_tool
+
+    def SetTool(self, toolName: str) -> str:
+        """
+        Loads a tool configuration from file
+        Parametrs:
+            toolName: Tool configuration file name or empty string to remove the tool
+        Returns:
+            Active tool configuration file name or empty string if no tool is configured
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.SetToolRequest()
+        request.app_name = self.GetAppName()
+        request.tool = toolName
+        result = self.__grpcStub.SetTool(request)
+        return result.active_tool
+
+    def RemoveTool(self) -> str:
+        """
+        Removes the configured tool
+        Returns:
+            Active tool configuration file name or empty string if no tool is configured
+        """
+        if not self.IsConnected():
+            raise NotConnectedException()
+
+        request = robotcontrolapp_pb2.SetToolRequest()
+        request.app_name = self.GetAppName()
+        request.tool = ""
+        result = self.__grpcStub.SetTool(request)
+        return result.active_tool
 
     # =========================================================================
     # App UI

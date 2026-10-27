@@ -43,6 +43,9 @@ service RobotControlApp {
     // Sets the target velocity of external axes in velocity mode
     rpc SetTargetVelocity(TargetVelocityRequest) returns (TargetVelocityResponse);
 
+    // Adding commands to the main motion program
+    rpc AddCommand(AddCommandRequest) returns (AddCommandResponse);
+
     // Kinematics
     rpc TranslateJointToCart(JointToCartRequest) returns (JointToCartResponse);
     rpc TranslateCartToJoint(CartToJointRequest) returns (CartToJointResponse);
@@ -68,6 +71,15 @@ service RobotControlApp {
 
     // Statistics
     rpc GetStatistics(StatisticsRequest) returns (StatisticsResponse);
+
+    // Reference frames
+    rpc ListUserFrames(ListUserFramesRequest) returns (ListUserFramesResponse);
+    rpc GetUserFrame(GetUserFrameRequest) returns (GetUserFrameResponse);
+    rpc SetUserFrame(SetUserFrameRequest) returns (SetUserFrameResponse);
+    rpc RemoveUserFrame(RemoveUserFrameRequest) returns (RemoveUserFrameResponse);
+
+    // Configuration
+    rpc SetTool(SetToolRequest) returns (SetToolResponse);
 }
 
 message CapabilitiesRequest
@@ -327,6 +339,12 @@ message Joint {
     JointPosition position = 3;
     // Hardware error state
     HardwareState state = 5;
+    // Hardware state (manufacturer specific code)
+    uint64 state_code = 11;
+    // is the robot enabled and ready for motion?
+    bool is_enabled = 12;
+    // is the robot in an error state?
+    bool is_error = 13;
 
     ReferencingState referencing_state = 6;
 
@@ -359,8 +377,16 @@ message RobotState {
     repeated DOut DOuts = 6;
     repeated GSig GSigs = 7;
 
-    // hardware error state
+    // hardware state string
     string hardware_state_string = 11;
+    // Hardware state enum
+    HardwareState hardware_state = 21;
+    // Hardware state (manufacturer specific code)
+    uint64 hardware_state_code = 22;
+    // is the robot enabled and ready for motion?
+    bool is_enabled = 23;
+    // is the robot in an error state?
+    bool is_error = 24;
     // kinematic error state
     KinematicState kinematic_state = 12;
 
@@ -634,6 +660,9 @@ message IOStateResponse {}
 
     // Up to 6 robot and 3 external joints to convert
     repeated double joints = 2;
+
+    // Reference frame or base frame if not defined
+    optional string reference_frame = 3;
  }
 
  message CartToJointRequest {
@@ -646,6 +675,9 @@ message IOStateResponse {}
     Vector3 position = 3;
     // Requested TCP orientation
     Vector3 orientation = 4;
+
+    // Reference frame or base frame if not defined
+    optional string reference_frame = 5;
  }
 
  message JointToCartResponse {
@@ -981,4 +1013,238 @@ message StatisticsResponse {
     repeated uint32 robot_axis_direction_changes = 10;
     // Number of direction changes of the external axes
     repeated uint32 external_axis_direction_changes = 11;
+}
+
+/*******************************************************************************
+ * Robot Program Definition
+ ******************************************************************************/
+message CmdJointParameters
+{
+    // Set true for relative motion, false for absolute
+    bool is_relative = 1;
+    // Name of the position variable to move to, if undefined the target from the following parameters is used
+    optional string target_pos_variable = 2;
+    repeated float target_pos = 3;
+    float velocity_percent = 4;
+    float acceleration_percent = 5;
+    float smoothing_percent = 6;
+    string abort_condition = 7;
+}
+
+message CmdLinearParameters
+{
+    enum Type
+    {
+        Absolute = 0;
+        RelativeBase = 1;
+        RelativeTool = 2;
+    }
+    Type type = 1;
+    // Name of the position variable to move to, if undefined the target from the following parameters is used
+    optional string target_pos_variable = 2;
+    float target_x = 3;
+    float target_y = 4;
+    float target_z = 5;
+    float target_a = 6;
+    float target_b = 7;
+    float target_c = 8;
+    repeated float target_pos_ext_joints = 9;
+    // Target velocity in mm/s
+    float velocity_mms = 10;
+    float acceleration_percent = 11;
+    float smoothing_percent = 12;
+    string abort_condition = 13;
+    optional string reference_frame = 14;
+}
+
+message CmdJointToCartParameters
+{
+    optional string target_pos_variable = 1;
+    float target_x = 2;
+    float target_y = 3;
+    float target_z = 4;
+    float target_a = 5;
+    float target_b = 6;
+    float target_c = 7;
+    repeated float target_pos_ext_joints = 8;
+    float velocity_percent = 9;
+    float acceleration_percent = 10;
+    float smoothing_percent = 11;
+    string abort_condition = 12;
+    optional string reference_frame = 13;
+}
+
+message CmdSetDigitalOutParameters
+{
+    uint32 output_number = 1;
+    bool target_state = 2;
+}
+
+message CmdSetGlobalSignalParameters
+{
+    uint32 output_number = 1;
+    bool target_state = 2;
+}
+
+message CmdGripperParameters
+{
+    repeated float target_states = 1;
+}
+
+message CmdSubprogramParameters
+{
+    string program_name = 1;
+}
+
+message CmdWaitParameters
+{
+    oneof cond {
+        // duration in ms
+        float duration = 1;
+        string condition = 2;
+    }
+}
+
+message CmdProgramControlParameters
+{
+    enum Type
+    {
+        Pause = 0;
+        Stop = 1;
+    }
+    Type type = 1;
+}
+
+message CmdSetVelocityParameters
+{
+    float velocity_e1 = 1;
+    float velocity_e2 = 2;
+    float velocity_e3 = 3;
+}
+
+message CmdCopyUserFrameParameters
+{
+    // Name of the user frame to copy from
+    string from_frame = 1;
+    // Name of the user frame to copy to
+    string to_frame = 2;
+}
+
+message AddCommandRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    message CmdParameters
+    {
+        oneof Param
+        {
+            CmdJointParameters joint = 1;
+            CmdLinearParameters linear = 2;
+            CmdJointToCartParameters joint_to_cart = 3;
+            CmdSetDigitalOutParameters set_digital_out = 4;
+            CmdSetGlobalSignalParameters set_global_signal = 5;
+            CmdGripperParameters gripper = 6;
+            CmdSubprogramParameters subprogram = 7;
+            CmdWaitParameters wait = 8;
+            CmdProgramControlParameters program_control = 9;
+            CmdSetVelocityParameters set_velocity = 10;
+            CmdCopyUserFrameParameters copy_user_frame = 11;
+        }
+    }
+    // List of commands to add
+    repeated CmdParameters commands = 2;
+    // Set true to clear the program before adding new commands
+    bool clear_program = 3;
+}
+
+message AddCommandResponse
+{
+    bool success = 1;
+    // Error message, if success is false
+    string message = 2;
+}
+
+/*******************************************************************************
+ * Reference frames
+ ******************************************************************************/
+
+message UserFrame
+{
+    Vector3 point_a = 1;
+    Vector3 point_b = 2;
+    Vector3 point_c = 3;
+    string name = 4;
+}
+
+message ListUserFramesRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+}
+
+message ListUserFramesResponse
+{
+    repeated UserFrame frames = 1;
+}
+
+message GetUserFrameRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // User frame name
+    string name = 2;
+}
+
+message GetUserFrameResponse
+{
+    optional UserFrame frame = 1;
+}
+
+message SetUserFrameRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    UserFrame frame = 2;
+}
+
+message SetUserFrameResponse
+{
+    // Is true if the frame was succesfully set
+    bool success = 1;
+}
+
+message RemoveUserFrameRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    string name = 2;
+}
+
+message RemoveUserFrameResponse
+{
+    // Is true if a frame was removed, false if not found or not removable
+    bool success = 1;
+}
+
+/*******************************************************************************
+ * Configuration
+ ******************************************************************************/
+
+message SetToolRequest
+{
+    // Name of the app. Must be equal to the name defined in rcapp.xml
+    string app_name = 1;
+
+    // Tool configuration to change to. If empty the tool is removed. If undefined the tool is not changed (to get the current tool's name)
+    optional string tool = 2;
+}
+
+message SetToolResponse
+{
+    // Active tool configuration or empty string if no tool is selected
+    string active_tool = 1;
 }

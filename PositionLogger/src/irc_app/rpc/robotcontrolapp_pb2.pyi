@@ -320,7 +320,7 @@ class GSig(_message.Message):
     def __init__(self, id: _Optional[int] = ..., state: _Optional[_Union[DIOState, str]] = ..., target_state: _Optional[_Union[DIOState, str]] = ...) -> None: ...
 
 class Joint(_message.Message):
-    __slots__ = ("id", "name", "position", "state", "referencing_state", "temperature_board", "temperature_motor", "current", "target_velocity")
+    __slots__ = ("id", "name", "position", "state", "state_code", "is_enabled", "is_error", "referencing_state", "temperature_board", "temperature_motor", "current", "target_velocity")
     class JointPosition(_message.Message):
         __slots__ = ("position", "target_position")
         POSITION_FIELD_NUMBER: _ClassVar[int]
@@ -332,6 +332,9 @@ class Joint(_message.Message):
     NAME_FIELD_NUMBER: _ClassVar[int]
     POSITION_FIELD_NUMBER: _ClassVar[int]
     STATE_FIELD_NUMBER: _ClassVar[int]
+    STATE_CODE_FIELD_NUMBER: _ClassVar[int]
+    IS_ENABLED_FIELD_NUMBER: _ClassVar[int]
+    IS_ERROR_FIELD_NUMBER: _ClassVar[int]
     REFERENCING_STATE_FIELD_NUMBER: _ClassVar[int]
     TEMPERATURE_BOARD_FIELD_NUMBER: _ClassVar[int]
     TEMPERATURE_MOTOR_FIELD_NUMBER: _ClassVar[int]
@@ -341,12 +344,15 @@ class Joint(_message.Message):
     name: str
     position: Joint.JointPosition
     state: HardwareState
+    state_code: int
+    is_enabled: bool
+    is_error: bool
     referencing_state: ReferencingState
     temperature_board: float
     temperature_motor: float
     current: float
     target_velocity: float
-    def __init__(self, id: _Optional[int] = ..., name: _Optional[str] = ..., position: _Optional[_Union[Joint.JointPosition, _Mapping]] = ..., state: _Optional[_Union[HardwareState, str]] = ..., referencing_state: _Optional[_Union[ReferencingState, str]] = ..., temperature_board: _Optional[float] = ..., temperature_motor: _Optional[float] = ..., current: _Optional[float] = ..., target_velocity: _Optional[float] = ...) -> None: ...
+    def __init__(self, id: _Optional[int] = ..., name: _Optional[str] = ..., position: _Optional[_Union[Joint.JointPosition, _Mapping]] = ..., state: _Optional[_Union[HardwareState, str]] = ..., state_code: _Optional[int] = ..., is_enabled: bool = ..., is_error: bool = ..., referencing_state: _Optional[_Union[ReferencingState, str]] = ..., temperature_board: _Optional[float] = ..., temperature_motor: _Optional[float] = ..., current: _Optional[float] = ..., target_velocity: _Optional[float] = ...) -> None: ...
 
 class PlatformPose(_message.Message):
     __slots__ = ("position", "heading")
@@ -357,7 +363,7 @@ class PlatformPose(_message.Message):
     def __init__(self, position: _Optional[_Union[Vector3, _Mapping]] = ..., heading: _Optional[float] = ...) -> None: ...
 
 class RobotState(_message.Message):
-    __slots__ = ("tcp", "platform_pose", "joints", "DIns", "DOuts", "GSigs", "hardware_state_string", "kinematic_state", "velocity_override", "cartesian_velocity", "temperature_cpu", "supply_voltage", "current_all", "referencing_state")
+    __slots__ = ("tcp", "platform_pose", "joints", "DIns", "DOuts", "GSigs", "hardware_state_string", "hardware_state", "hardware_state_code", "is_enabled", "is_error", "kinematic_state", "velocity_override", "cartesian_velocity", "temperature_cpu", "supply_voltage", "current_all", "referencing_state")
     TCP_FIELD_NUMBER: _ClassVar[int]
     PLATFORM_POSE_FIELD_NUMBER: _ClassVar[int]
     JOINTS_FIELD_NUMBER: _ClassVar[int]
@@ -365,6 +371,10 @@ class RobotState(_message.Message):
     DOUTS_FIELD_NUMBER: _ClassVar[int]
     GSIGS_FIELD_NUMBER: _ClassVar[int]
     HARDWARE_STATE_STRING_FIELD_NUMBER: _ClassVar[int]
+    HARDWARE_STATE_FIELD_NUMBER: _ClassVar[int]
+    HARDWARE_STATE_CODE_FIELD_NUMBER: _ClassVar[int]
+    IS_ENABLED_FIELD_NUMBER: _ClassVar[int]
+    IS_ERROR_FIELD_NUMBER: _ClassVar[int]
     KINEMATIC_STATE_FIELD_NUMBER: _ClassVar[int]
     VELOCITY_OVERRIDE_FIELD_NUMBER: _ClassVar[int]
     CARTESIAN_VELOCITY_FIELD_NUMBER: _ClassVar[int]
@@ -379,6 +389,10 @@ class RobotState(_message.Message):
     DOuts: _containers.RepeatedCompositeFieldContainer[DOut]
     GSigs: _containers.RepeatedCompositeFieldContainer[GSig]
     hardware_state_string: str
+    hardware_state: HardwareState
+    hardware_state_code: int
+    is_enabled: bool
+    is_error: bool
     kinematic_state: KinematicState
     velocity_override: float
     cartesian_velocity: float
@@ -386,7 +400,7 @@ class RobotState(_message.Message):
     supply_voltage: float
     current_all: float
     referencing_state: ReferencingState
-    def __init__(self, tcp: _Optional[_Union[Matrix44, _Mapping]] = ..., platform_pose: _Optional[_Union[PlatformPose, _Mapping]] = ..., joints: _Optional[_Iterable[_Union[Joint, _Mapping]]] = ..., DIns: _Optional[_Iterable[_Union[DIn, _Mapping]]] = ..., DOuts: _Optional[_Iterable[_Union[DOut, _Mapping]]] = ..., GSigs: _Optional[_Iterable[_Union[GSig, _Mapping]]] = ..., hardware_state_string: _Optional[str] = ..., kinematic_state: _Optional[_Union[KinematicState, str]] = ..., velocity_override: _Optional[float] = ..., cartesian_velocity: _Optional[float] = ..., temperature_cpu: _Optional[float] = ..., supply_voltage: _Optional[float] = ..., current_all: _Optional[float] = ..., referencing_state: _Optional[_Union[ReferencingState, str]] = ...) -> None: ...
+    def __init__(self, tcp: _Optional[_Union[Matrix44, _Mapping]] = ..., platform_pose: _Optional[_Union[PlatformPose, _Mapping]] = ..., joints: _Optional[_Iterable[_Union[Joint, _Mapping]]] = ..., DIns: _Optional[_Iterable[_Union[DIn, _Mapping]]] = ..., DOuts: _Optional[_Iterable[_Union[DOut, _Mapping]]] = ..., GSigs: _Optional[_Iterable[_Union[GSig, _Mapping]]] = ..., hardware_state_string: _Optional[str] = ..., hardware_state: _Optional[_Union[HardwareState, str]] = ..., hardware_state_code: _Optional[int] = ..., is_enabled: bool = ..., is_error: bool = ..., kinematic_state: _Optional[_Union[KinematicState, str]] = ..., velocity_override: _Optional[float] = ..., cartesian_velocity: _Optional[float] = ..., temperature_cpu: _Optional[float] = ..., supply_voltage: _Optional[float] = ..., current_all: _Optional[float] = ..., referencing_state: _Optional[_Union[ReferencingState, str]] = ...) -> None: ...
 
 class MotionState(_message.Message):
     __slots__ = ("current_source", "motion_ipo", "logic_ipo", "move_to_ipo", "position_interface", "request_successful")
@@ -623,24 +637,28 @@ class IOStateResponse(_message.Message):
     def __init__(self) -> None: ...
 
 class JointToCartRequest(_message.Message):
-    __slots__ = ("app_name", "joints")
+    __slots__ = ("app_name", "joints", "reference_frame")
     APP_NAME_FIELD_NUMBER: _ClassVar[int]
     JOINTS_FIELD_NUMBER: _ClassVar[int]
+    REFERENCE_FRAME_FIELD_NUMBER: _ClassVar[int]
     app_name: str
     joints: _containers.RepeatedScalarFieldContainer[float]
-    def __init__(self, app_name: _Optional[str] = ..., joints: _Optional[_Iterable[float]] = ...) -> None: ...
+    reference_frame: str
+    def __init__(self, app_name: _Optional[str] = ..., joints: _Optional[_Iterable[float]] = ..., reference_frame: _Optional[str] = ...) -> None: ...
 
 class CartToJointRequest(_message.Message):
-    __slots__ = ("app_name", "joints", "position", "orientation")
+    __slots__ = ("app_name", "joints", "position", "orientation", "reference_frame")
     APP_NAME_FIELD_NUMBER: _ClassVar[int]
     JOINTS_FIELD_NUMBER: _ClassVar[int]
     POSITION_FIELD_NUMBER: _ClassVar[int]
     ORIENTATION_FIELD_NUMBER: _ClassVar[int]
+    REFERENCE_FRAME_FIELD_NUMBER: _ClassVar[int]
     app_name: str
     joints: _containers.RepeatedScalarFieldContainer[float]
     position: Vector3
     orientation: Vector3
-    def __init__(self, app_name: _Optional[str] = ..., joints: _Optional[_Iterable[float]] = ..., position: _Optional[_Union[Vector3, _Mapping]] = ..., orientation: _Optional[_Union[Vector3, _Mapping]] = ...) -> None: ...
+    reference_frame: str
+    def __init__(self, app_name: _Optional[str] = ..., joints: _Optional[_Iterable[float]] = ..., position: _Optional[_Union[Vector3, _Mapping]] = ..., orientation: _Optional[_Union[Vector3, _Mapping]] = ..., reference_frame: _Optional[str] = ...) -> None: ...
 
 class JointToCartResponse(_message.Message):
     __slots__ = ("kinematicState", "position")
@@ -996,3 +1014,280 @@ class StatisticsResponse(_message.Message):
     robot_axis_direction_changes: _containers.RepeatedScalarFieldContainer[int]
     external_axis_direction_changes: _containers.RepeatedScalarFieldContainer[int]
     def __init__(self, uptime_complete: _Optional[int] = ..., uptime_last: _Optional[int] = ..., uptime_enabled: _Optional[int] = ..., uptime_motion: _Optional[int] = ..., program_starts_total: _Optional[int] = ..., program_starts_last: _Optional[int] = ..., program_duration_last: _Optional[float] = ..., parts_good: _Optional[float] = ..., parts_bad: _Optional[float] = ..., robot_axis_direction_changes: _Optional[_Iterable[int]] = ..., external_axis_direction_changes: _Optional[_Iterable[int]] = ...) -> None: ...
+
+class CmdJointParameters(_message.Message):
+    __slots__ = ("is_relative", "target_pos_variable", "target_pos", "velocity_percent", "acceleration_percent", "smoothing_percent", "abort_condition")
+    IS_RELATIVE_FIELD_NUMBER: _ClassVar[int]
+    TARGET_POS_VARIABLE_FIELD_NUMBER: _ClassVar[int]
+    TARGET_POS_FIELD_NUMBER: _ClassVar[int]
+    VELOCITY_PERCENT_FIELD_NUMBER: _ClassVar[int]
+    ACCELERATION_PERCENT_FIELD_NUMBER: _ClassVar[int]
+    SMOOTHING_PERCENT_FIELD_NUMBER: _ClassVar[int]
+    ABORT_CONDITION_FIELD_NUMBER: _ClassVar[int]
+    is_relative: bool
+    target_pos_variable: str
+    target_pos: _containers.RepeatedScalarFieldContainer[float]
+    velocity_percent: float
+    acceleration_percent: float
+    smoothing_percent: float
+    abort_condition: str
+    def __init__(self, is_relative: bool = ..., target_pos_variable: _Optional[str] = ..., target_pos: _Optional[_Iterable[float]] = ..., velocity_percent: _Optional[float] = ..., acceleration_percent: _Optional[float] = ..., smoothing_percent: _Optional[float] = ..., abort_condition: _Optional[str] = ...) -> None: ...
+
+class CmdLinearParameters(_message.Message):
+    __slots__ = ("type", "target_pos_variable", "target_x", "target_y", "target_z", "target_a", "target_b", "target_c", "target_pos_ext_joints", "velocity_mms", "acceleration_percent", "smoothing_percent", "abort_condition", "reference_frame")
+    class Type(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+        __slots__ = ()
+        Absolute: _ClassVar[CmdLinearParameters.Type]
+        RelativeBase: _ClassVar[CmdLinearParameters.Type]
+        RelativeTool: _ClassVar[CmdLinearParameters.Type]
+    Absolute: CmdLinearParameters.Type
+    RelativeBase: CmdLinearParameters.Type
+    RelativeTool: CmdLinearParameters.Type
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    TARGET_POS_VARIABLE_FIELD_NUMBER: _ClassVar[int]
+    TARGET_X_FIELD_NUMBER: _ClassVar[int]
+    TARGET_Y_FIELD_NUMBER: _ClassVar[int]
+    TARGET_Z_FIELD_NUMBER: _ClassVar[int]
+    TARGET_A_FIELD_NUMBER: _ClassVar[int]
+    TARGET_B_FIELD_NUMBER: _ClassVar[int]
+    TARGET_C_FIELD_NUMBER: _ClassVar[int]
+    TARGET_POS_EXT_JOINTS_FIELD_NUMBER: _ClassVar[int]
+    VELOCITY_MMS_FIELD_NUMBER: _ClassVar[int]
+    ACCELERATION_PERCENT_FIELD_NUMBER: _ClassVar[int]
+    SMOOTHING_PERCENT_FIELD_NUMBER: _ClassVar[int]
+    ABORT_CONDITION_FIELD_NUMBER: _ClassVar[int]
+    REFERENCE_FRAME_FIELD_NUMBER: _ClassVar[int]
+    type: CmdLinearParameters.Type
+    target_pos_variable: str
+    target_x: float
+    target_y: float
+    target_z: float
+    target_a: float
+    target_b: float
+    target_c: float
+    target_pos_ext_joints: _containers.RepeatedScalarFieldContainer[float]
+    velocity_mms: float
+    acceleration_percent: float
+    smoothing_percent: float
+    abort_condition: str
+    reference_frame: str
+    def __init__(self, type: _Optional[_Union[CmdLinearParameters.Type, str]] = ..., target_pos_variable: _Optional[str] = ..., target_x: _Optional[float] = ..., target_y: _Optional[float] = ..., target_z: _Optional[float] = ..., target_a: _Optional[float] = ..., target_b: _Optional[float] = ..., target_c: _Optional[float] = ..., target_pos_ext_joints: _Optional[_Iterable[float]] = ..., velocity_mms: _Optional[float] = ..., acceleration_percent: _Optional[float] = ..., smoothing_percent: _Optional[float] = ..., abort_condition: _Optional[str] = ..., reference_frame: _Optional[str] = ...) -> None: ...
+
+class CmdJointToCartParameters(_message.Message):
+    __slots__ = ("target_pos_variable", "target_x", "target_y", "target_z", "target_a", "target_b", "target_c", "target_pos_ext_joints", "velocity_percent", "acceleration_percent", "smoothing_percent", "abort_condition", "reference_frame")
+    TARGET_POS_VARIABLE_FIELD_NUMBER: _ClassVar[int]
+    TARGET_X_FIELD_NUMBER: _ClassVar[int]
+    TARGET_Y_FIELD_NUMBER: _ClassVar[int]
+    TARGET_Z_FIELD_NUMBER: _ClassVar[int]
+    TARGET_A_FIELD_NUMBER: _ClassVar[int]
+    TARGET_B_FIELD_NUMBER: _ClassVar[int]
+    TARGET_C_FIELD_NUMBER: _ClassVar[int]
+    TARGET_POS_EXT_JOINTS_FIELD_NUMBER: _ClassVar[int]
+    VELOCITY_PERCENT_FIELD_NUMBER: _ClassVar[int]
+    ACCELERATION_PERCENT_FIELD_NUMBER: _ClassVar[int]
+    SMOOTHING_PERCENT_FIELD_NUMBER: _ClassVar[int]
+    ABORT_CONDITION_FIELD_NUMBER: _ClassVar[int]
+    REFERENCE_FRAME_FIELD_NUMBER: _ClassVar[int]
+    target_pos_variable: str
+    target_x: float
+    target_y: float
+    target_z: float
+    target_a: float
+    target_b: float
+    target_c: float
+    target_pos_ext_joints: _containers.RepeatedScalarFieldContainer[float]
+    velocity_percent: float
+    acceleration_percent: float
+    smoothing_percent: float
+    abort_condition: str
+    reference_frame: str
+    def __init__(self, target_pos_variable: _Optional[str] = ..., target_x: _Optional[float] = ..., target_y: _Optional[float] = ..., target_z: _Optional[float] = ..., target_a: _Optional[float] = ..., target_b: _Optional[float] = ..., target_c: _Optional[float] = ..., target_pos_ext_joints: _Optional[_Iterable[float]] = ..., velocity_percent: _Optional[float] = ..., acceleration_percent: _Optional[float] = ..., smoothing_percent: _Optional[float] = ..., abort_condition: _Optional[str] = ..., reference_frame: _Optional[str] = ...) -> None: ...
+
+class CmdSetDigitalOutParameters(_message.Message):
+    __slots__ = ("output_number", "target_state")
+    OUTPUT_NUMBER_FIELD_NUMBER: _ClassVar[int]
+    TARGET_STATE_FIELD_NUMBER: _ClassVar[int]
+    output_number: int
+    target_state: bool
+    def __init__(self, output_number: _Optional[int] = ..., target_state: bool = ...) -> None: ...
+
+class CmdSetGlobalSignalParameters(_message.Message):
+    __slots__ = ("output_number", "target_state")
+    OUTPUT_NUMBER_FIELD_NUMBER: _ClassVar[int]
+    TARGET_STATE_FIELD_NUMBER: _ClassVar[int]
+    output_number: int
+    target_state: bool
+    def __init__(self, output_number: _Optional[int] = ..., target_state: bool = ...) -> None: ...
+
+class CmdGripperParameters(_message.Message):
+    __slots__ = ("target_states",)
+    TARGET_STATES_FIELD_NUMBER: _ClassVar[int]
+    target_states: _containers.RepeatedScalarFieldContainer[float]
+    def __init__(self, target_states: _Optional[_Iterable[float]] = ...) -> None: ...
+
+class CmdSubprogramParameters(_message.Message):
+    __slots__ = ("program_name",)
+    PROGRAM_NAME_FIELD_NUMBER: _ClassVar[int]
+    program_name: str
+    def __init__(self, program_name: _Optional[str] = ...) -> None: ...
+
+class CmdWaitParameters(_message.Message):
+    __slots__ = ("duration", "condition")
+    DURATION_FIELD_NUMBER: _ClassVar[int]
+    CONDITION_FIELD_NUMBER: _ClassVar[int]
+    duration: float
+    condition: str
+    def __init__(self, duration: _Optional[float] = ..., condition: _Optional[str] = ...) -> None: ...
+
+class CmdProgramControlParameters(_message.Message):
+    __slots__ = ("type",)
+    class Type(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+        __slots__ = ()
+        Pause: _ClassVar[CmdProgramControlParameters.Type]
+        Stop: _ClassVar[CmdProgramControlParameters.Type]
+    Pause: CmdProgramControlParameters.Type
+    Stop: CmdProgramControlParameters.Type
+    TYPE_FIELD_NUMBER: _ClassVar[int]
+    type: CmdProgramControlParameters.Type
+    def __init__(self, type: _Optional[_Union[CmdProgramControlParameters.Type, str]] = ...) -> None: ...
+
+class CmdSetVelocityParameters(_message.Message):
+    __slots__ = ("velocity_e1", "velocity_e2", "velocity_e3")
+    VELOCITY_E1_FIELD_NUMBER: _ClassVar[int]
+    VELOCITY_E2_FIELD_NUMBER: _ClassVar[int]
+    VELOCITY_E3_FIELD_NUMBER: _ClassVar[int]
+    velocity_e1: float
+    velocity_e2: float
+    velocity_e3: float
+    def __init__(self, velocity_e1: _Optional[float] = ..., velocity_e2: _Optional[float] = ..., velocity_e3: _Optional[float] = ...) -> None: ...
+
+class CmdCopyUserFrameParameters(_message.Message):
+    __slots__ = ("from_frame", "to_frame")
+    FROM_FRAME_FIELD_NUMBER: _ClassVar[int]
+    TO_FRAME_FIELD_NUMBER: _ClassVar[int]
+    from_frame: str
+    to_frame: str
+    def __init__(self, from_frame: _Optional[str] = ..., to_frame: _Optional[str] = ...) -> None: ...
+
+class AddCommandRequest(_message.Message):
+    __slots__ = ("app_name", "commands", "clear_program")
+    class CmdParameters(_message.Message):
+        __slots__ = ("joint", "linear", "joint_to_cart", "set_digital_out", "set_global_signal", "gripper", "subprogram", "wait", "program_control", "set_velocity", "copy_user_frame")
+        JOINT_FIELD_NUMBER: _ClassVar[int]
+        LINEAR_FIELD_NUMBER: _ClassVar[int]
+        JOINT_TO_CART_FIELD_NUMBER: _ClassVar[int]
+        SET_DIGITAL_OUT_FIELD_NUMBER: _ClassVar[int]
+        SET_GLOBAL_SIGNAL_FIELD_NUMBER: _ClassVar[int]
+        GRIPPER_FIELD_NUMBER: _ClassVar[int]
+        SUBPROGRAM_FIELD_NUMBER: _ClassVar[int]
+        WAIT_FIELD_NUMBER: _ClassVar[int]
+        PROGRAM_CONTROL_FIELD_NUMBER: _ClassVar[int]
+        SET_VELOCITY_FIELD_NUMBER: _ClassVar[int]
+        COPY_USER_FRAME_FIELD_NUMBER: _ClassVar[int]
+        joint: CmdJointParameters
+        linear: CmdLinearParameters
+        joint_to_cart: CmdJointToCartParameters
+        set_digital_out: CmdSetDigitalOutParameters
+        set_global_signal: CmdSetGlobalSignalParameters
+        gripper: CmdGripperParameters
+        subprogram: CmdSubprogramParameters
+        wait: CmdWaitParameters
+        program_control: CmdProgramControlParameters
+        set_velocity: CmdSetVelocityParameters
+        copy_user_frame: CmdCopyUserFrameParameters
+        def __init__(self, joint: _Optional[_Union[CmdJointParameters, _Mapping]] = ..., linear: _Optional[_Union[CmdLinearParameters, _Mapping]] = ..., joint_to_cart: _Optional[_Union[CmdJointToCartParameters, _Mapping]] = ..., set_digital_out: _Optional[_Union[CmdSetDigitalOutParameters, _Mapping]] = ..., set_global_signal: _Optional[_Union[CmdSetGlobalSignalParameters, _Mapping]] = ..., gripper: _Optional[_Union[CmdGripperParameters, _Mapping]] = ..., subprogram: _Optional[_Union[CmdSubprogramParameters, _Mapping]] = ..., wait: _Optional[_Union[CmdWaitParameters, _Mapping]] = ..., program_control: _Optional[_Union[CmdProgramControlParameters, _Mapping]] = ..., set_velocity: _Optional[_Union[CmdSetVelocityParameters, _Mapping]] = ..., copy_user_frame: _Optional[_Union[CmdCopyUserFrameParameters, _Mapping]] = ...) -> None: ...
+    APP_NAME_FIELD_NUMBER: _ClassVar[int]
+    COMMANDS_FIELD_NUMBER: _ClassVar[int]
+    CLEAR_PROGRAM_FIELD_NUMBER: _ClassVar[int]
+    app_name: str
+    commands: _containers.RepeatedCompositeFieldContainer[AddCommandRequest.CmdParameters]
+    clear_program: bool
+    def __init__(self, app_name: _Optional[str] = ..., commands: _Optional[_Iterable[_Union[AddCommandRequest.CmdParameters, _Mapping]]] = ..., clear_program: bool = ...) -> None: ...
+
+class AddCommandResponse(_message.Message):
+    __slots__ = ("success", "message")
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    message: str
+    def __init__(self, success: bool = ..., message: _Optional[str] = ...) -> None: ...
+
+class UserFrame(_message.Message):
+    __slots__ = ("point_a", "point_b", "point_c", "name")
+    POINT_A_FIELD_NUMBER: _ClassVar[int]
+    POINT_B_FIELD_NUMBER: _ClassVar[int]
+    POINT_C_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    point_a: Vector3
+    point_b: Vector3
+    point_c: Vector3
+    name: str
+    def __init__(self, point_a: _Optional[_Union[Vector3, _Mapping]] = ..., point_b: _Optional[_Union[Vector3, _Mapping]] = ..., point_c: _Optional[_Union[Vector3, _Mapping]] = ..., name: _Optional[str] = ...) -> None: ...
+
+class ListUserFramesRequest(_message.Message):
+    __slots__ = ("app_name",)
+    APP_NAME_FIELD_NUMBER: _ClassVar[int]
+    app_name: str
+    def __init__(self, app_name: _Optional[str] = ...) -> None: ...
+
+class ListUserFramesResponse(_message.Message):
+    __slots__ = ("frames",)
+    FRAMES_FIELD_NUMBER: _ClassVar[int]
+    frames: _containers.RepeatedCompositeFieldContainer[UserFrame]
+    def __init__(self, frames: _Optional[_Iterable[_Union[UserFrame, _Mapping]]] = ...) -> None: ...
+
+class GetUserFrameRequest(_message.Message):
+    __slots__ = ("app_name", "name")
+    APP_NAME_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    app_name: str
+    name: str
+    def __init__(self, app_name: _Optional[str] = ..., name: _Optional[str] = ...) -> None: ...
+
+class GetUserFrameResponse(_message.Message):
+    __slots__ = ("frame",)
+    FRAME_FIELD_NUMBER: _ClassVar[int]
+    frame: UserFrame
+    def __init__(self, frame: _Optional[_Union[UserFrame, _Mapping]] = ...) -> None: ...
+
+class SetUserFrameRequest(_message.Message):
+    __slots__ = ("app_name", "frame")
+    APP_NAME_FIELD_NUMBER: _ClassVar[int]
+    FRAME_FIELD_NUMBER: _ClassVar[int]
+    app_name: str
+    frame: UserFrame
+    def __init__(self, app_name: _Optional[str] = ..., frame: _Optional[_Union[UserFrame, _Mapping]] = ...) -> None: ...
+
+class SetUserFrameResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
+class RemoveUserFrameRequest(_message.Message):
+    __slots__ = ("app_name", "name")
+    APP_NAME_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    app_name: str
+    name: str
+    def __init__(self, app_name: _Optional[str] = ..., name: _Optional[str] = ...) -> None: ...
+
+class RemoveUserFrameResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
+class SetToolRequest(_message.Message):
+    __slots__ = ("app_name", "tool")
+    APP_NAME_FIELD_NUMBER: _ClassVar[int]
+    TOOL_FIELD_NUMBER: _ClassVar[int]
+    app_name: str
+    tool: str
+    def __init__(self, app_name: _Optional[str] = ..., tool: _Optional[str] = ...) -> None: ...
+
+class SetToolResponse(_message.Message):
+    __slots__ = ("active_tool",)
+    ACTIVE_TOOL_FIELD_NUMBER: _ClassVar[int]
+    active_tool: str
+    def __init__(self, active_tool: _Optional[str] = ...) -> None: ...

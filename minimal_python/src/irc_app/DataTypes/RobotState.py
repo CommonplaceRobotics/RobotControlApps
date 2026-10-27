@@ -21,6 +21,12 @@ class Joint:
     """Target position in degrees, mm or user defined units"""
     hardwareState = robotcontrolapp_pb2.HardwareState.ERROR_MODULE_DEAD
     """Hardware state"""
+    hardwareStateCode: int = 0
+    """Manufacturer specific hardware state code"""
+    isEnabled: bool = False
+    """Is the motor enabled and ready to move?"""
+    isError: bool = False
+    """Is the joint in error state?"""
     referencingState = robotcontrolapp_pb2.ReferencingState.NOT_REFERENCED
     """Referencing state"""
 
@@ -46,6 +52,9 @@ def JointFromGrpc(grpc: robotcontrolapp_pb2.Joint) -> Joint:
     result.actualPosition = grpc.position.position
     result.targetPosition = grpc.position.target_position
     result.hardwareState = grpc.state
+    result.hardwareStateCode = grpc.state_code
+    result.isEnabled = grpc.is_enabled
+    result.isError = grpc.is_error
     result.referencingState = grpc.referencing_state
     result.temperatureBoard = grpc.temperature_board
     result.temperatureMotor = grpc.temperature_motor
@@ -92,6 +101,14 @@ class RobotState:
 
         self.hardwareState: str = ""
         """A string describing the combined state of all modules"""
+        self.hardwareStateEnum = robotcontrolapp_pb2.HardwareState.OKAY
+        """Hardware state enum value"""
+        self.hardwareStateCode: int = 0
+        """Manufacturer specific hardware state code"""
+        self.isEnabled: bool = False
+        """Are the motors enabled and ready to move?"""
+        self.isError: bool = False
+        """Is any module in error state?"""
         self.kinematicState = robotcontrolapp_pb2.KinematicState.KINEMATIC_NORMAL
         """Kinematic state / error"""
 
@@ -112,7 +129,7 @@ class RobotState:
 
     def IsEnabled(self) -> bool:
         """Checks whether all motors and IO modules are enabled. If false motion is not possible."""
-        return self.hardwareState == "NoError"
+        return self.isEnabled
 
 
 def RobotStateFromGrpc(grpc: robotcontrolapp_pb2.RobotState) -> RobotState:
@@ -150,6 +167,10 @@ def RobotStateFromGrpc(grpc: robotcontrolapp_pb2.RobotState) -> RobotState:
         result.globalSignals.append(False)
 
     result.hardwareState = grpc.hardware_state_string
+    result.hardwareStateEnum = grpc.hardware_state
+    result.hardwareStateCode = grpc.hardware_state_code
+    result.isEnabled = grpc.is_enabled
+    result.isError = grpc.is_error
     result.kinematicState = grpc.kinematic_state
     result.velocityOverride = grpc.velocity_override
     result.cartesianVelocity = grpc.cartesian_velocity

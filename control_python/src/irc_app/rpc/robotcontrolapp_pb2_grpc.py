@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from irc_app.rpc import robotcontrolapp_pb2 as irc__app_dot_rpc_dot_robotcontrolapp__pb2
+from irc_app.rpc import robotcontrolapp_pb2 as robotcontrolapp__pb2
 
 GRPC_GENERATED_VERSION = '1.64.1'
 GRPC_VERSION = grpc.__version__
@@ -20,7 +20,7 @@ except ImportError:
 if _version_not_supported:
     warnings.warn(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in irc_app/rpc/robotcontrolapp_pb2_grpc.py depends on'
+        + f' but the generated code in robotcontrolapp_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -44,143 +44,173 @@ class RobotControlAppStub(object):
         """
         self.SetCapabilities = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/SetCapabilities',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.CapabilitiesRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.CapabilitiesResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.CapabilitiesRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.CapabilitiesResponse.FromString,
                 _registered_method=True)
         self.RecieveActions = channel.stream_stream(
                 '/robotcontrolapp.RobotControlApp/RecieveActions',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.AppAction.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.Event.FromString,
+                request_serializer=robotcontrolapp__pb2.AppAction.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.Event.FromString,
                 _registered_method=True)
         self.GetTCP = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/GetTCP',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.GetTCPRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.Matrix44.FromString,
+                request_serializer=robotcontrolapp__pb2.GetTCPRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.Matrix44.FromString,
                 _registered_method=True)
         self.GetRobotStateStream = channel.unary_stream(
                 '/robotcontrolapp.RobotControlApp/GetRobotStateStream',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.RobotStateRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.RobotState.FromString,
+                request_serializer=robotcontrolapp__pb2.RobotStateRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.RobotState.FromString,
                 _registered_method=True)
         self.GetRobotState = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/GetRobotState',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.RobotStateRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.RobotState.FromString,
+                request_serializer=robotcontrolapp__pb2.RobotStateRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.RobotState.FromString,
                 _registered_method=True)
         self.GetProgramVariables = channel.unary_stream(
                 '/robotcontrolapp.RobotControlApp/GetProgramVariables',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ProgramVariablesRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ProgramVariable.FromString,
+                request_serializer=robotcontrolapp__pb2.ProgramVariablesRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.ProgramVariable.FromString,
                 _registered_method=True)
         self.SetProgramVariables = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/SetProgramVariables',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.SetProgramVariablesRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.SetProgramVariablesResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.SetProgramVariablesRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.SetProgramVariablesResponse.FromString,
                 _registered_method=True)
         self.EnableMotors = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/EnableMotors',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.EnableMotorsRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.EnableMotorsResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.EnableMotorsRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.EnableMotorsResponse.FromString,
                 _registered_method=True)
         self.ResetErrors = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/ResetErrors',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ResetErrorsRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ResetErrorsResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.ResetErrorsRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.ResetErrorsResponse.FromString,
                 _registered_method=True)
         self.ReferenceJoints = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/ReferenceJoints',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ReferenceJointsRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ReferenceJointsResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.ReferenceJointsRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.ReferenceJointsResponse.FromString,
                 _registered_method=True)
         self.GetMotionState = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/GetMotionState',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.GetMotionStateRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.FromString,
+                request_serializer=robotcontrolapp__pb2.GetMotionStateRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.MotionState.FromString,
                 _registered_method=True)
         self.SetMotionInterpolator = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/SetMotionInterpolator',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionInterpolatorRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.FromString,
+                request_serializer=robotcontrolapp__pb2.MotionInterpolatorRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.MotionState.FromString,
                 _registered_method=True)
         self.SetLogicInterpolator = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/SetLogicInterpolator',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.LogicInterpolatorRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.FromString,
+                request_serializer=robotcontrolapp__pb2.LogicInterpolatorRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.MotionState.FromString,
                 _registered_method=True)
         self.SetPositionInterface = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/SetPositionInterface',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.PositionInterfaceRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.FromString,
+                request_serializer=robotcontrolapp__pb2.PositionInterfaceRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.MotionState.FromString,
                 _registered_method=True)
         self.MoveTo = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/MoveTo',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MoveToRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.FromString,
+                request_serializer=robotcontrolapp__pb2.MoveToRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.MotionState.FromString,
                 _registered_method=True)
         self.SetTargetVelocity = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/SetTargetVelocity',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.TargetVelocityRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.TargetVelocityResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.TargetVelocityRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.TargetVelocityResponse.FromString,
+                _registered_method=True)
+        self.AddCommand = channel.unary_unary(
+                '/robotcontrolapp.RobotControlApp/AddCommand',
+                request_serializer=robotcontrolapp__pb2.AddCommandRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.AddCommandResponse.FromString,
                 _registered_method=True)
         self.TranslateJointToCart = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/TranslateJointToCart',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.JointToCartRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.JointToCartResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.JointToCartRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.JointToCartResponse.FromString,
                 _registered_method=True)
         self.TranslateCartToJoint = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/TranslateCartToJoint',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.CartToJointRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.CartToJointResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.CartToJointRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.CartToJointResponse.FromString,
                 _registered_method=True)
         self.SetIOState = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/SetIOState',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.IOStateRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.IOStateResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.IOStateRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.IOStateResponse.FromString,
                 _registered_method=True)
         self.UploadFile = channel.stream_unary(
                 '/robotcontrolapp.RobotControlApp/UploadFile',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.UploadFileRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.UploadFileResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.UploadFileRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.UploadFileResponse.FromString,
                 _registered_method=True)
         self.DownloadFile = channel.unary_stream(
                 '/robotcontrolapp.RobotControlApp/DownloadFile',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.DownloadFileRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.DownloadFileResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.DownloadFileRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.DownloadFileResponse.FromString,
                 _registered_method=True)
         self.ListFiles = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/ListFiles',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ListFilesRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ListFilesResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.ListFilesRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.ListFilesResponse.FromString,
                 _registered_method=True)
         self.RemoveFiles = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/RemoveFiles',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.RemoveFilesRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.RemoveFilesResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.RemoveFilesRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.RemoveFilesResponse.FromString,
                 _registered_method=True)
         self.GetSystemInfo = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/GetSystemInfo',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.SystemInfoRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.SystemInfo.FromString,
+                request_serializer=robotcontrolapp__pb2.SystemInfoRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.SystemInfo.FromString,
                 _registered_method=True)
         self.GetLicensedFeatures = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/GetLicensedFeatures',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.LicenseInfoRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.LicenseInfoResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.LicenseInfoRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.LicenseInfoResponse.FromString,
                 _registered_method=True)
         self.SetVelocityOverride = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/SetVelocityOverride',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.SetVelocityOverrideRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.SetVelocityOverrideResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.SetVelocityOverrideRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.SetVelocityOverrideResponse.FromString,
                 _registered_method=True)
         self.ShowDialog = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/ShowDialog',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ShowDialogRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ShowDialogResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.ShowDialogRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.ShowDialogResponse.FromString,
                 _registered_method=True)
         self.GetStatistics = channel.unary_unary(
                 '/robotcontrolapp.RobotControlApp/GetStatistics',
-                request_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.StatisticsRequest.SerializeToString,
-                response_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.StatisticsResponse.FromString,
+                request_serializer=robotcontrolapp__pb2.StatisticsRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.StatisticsResponse.FromString,
+                _registered_method=True)
+        self.ListUserFrames = channel.unary_unary(
+                '/robotcontrolapp.RobotControlApp/ListUserFrames',
+                request_serializer=robotcontrolapp__pb2.ListUserFramesRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.ListUserFramesResponse.FromString,
+                _registered_method=True)
+        self.GetUserFrame = channel.unary_unary(
+                '/robotcontrolapp.RobotControlApp/GetUserFrame',
+                request_serializer=robotcontrolapp__pb2.GetUserFrameRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.GetUserFrameResponse.FromString,
+                _registered_method=True)
+        self.SetUserFrame = channel.unary_unary(
+                '/robotcontrolapp.RobotControlApp/SetUserFrame',
+                request_serializer=robotcontrolapp__pb2.SetUserFrameRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.SetUserFrameResponse.FromString,
+                _registered_method=True)
+        self.RemoveUserFrame = channel.unary_unary(
+                '/robotcontrolapp.RobotControlApp/RemoveUserFrame',
+                request_serializer=robotcontrolapp__pb2.RemoveUserFrameRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.RemoveUserFrameResponse.FromString,
+                _registered_method=True)
+        self.SetTool = channel.unary_unary(
+                '/robotcontrolapp.RobotControlApp/SetTool',
+                request_serializer=robotcontrolapp__pb2.SetToolRequest.SerializeToString,
+                response_deserializer=robotcontrolapp__pb2.SetToolResponse.FromString,
                 _registered_method=True)
 
 
@@ -301,6 +331,13 @@ class RobotControlAppServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def AddCommand(self, request, context):
+        """Adding commands to the main motion program
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def TranslateJointToCart(self, request, context):
         """Kinematics
         """
@@ -380,148 +417,210 @@ class RobotControlAppServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ListUserFrames(self, request, context):
+        """Reference frames
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetUserFrame(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetUserFrame(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RemoveUserFrame(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetTool(self, request, context):
+        """Configuration
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_RobotControlAppServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SetCapabilities': grpc.unary_unary_rpc_method_handler(
                     servicer.SetCapabilities,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.CapabilitiesRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.CapabilitiesResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.CapabilitiesRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.CapabilitiesResponse.SerializeToString,
             ),
             'RecieveActions': grpc.stream_stream_rpc_method_handler(
                     servicer.RecieveActions,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.AppAction.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.Event.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.AppAction.FromString,
+                    response_serializer=robotcontrolapp__pb2.Event.SerializeToString,
             ),
             'GetTCP': grpc.unary_unary_rpc_method_handler(
                     servicer.GetTCP,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.GetTCPRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.Matrix44.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.GetTCPRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.Matrix44.SerializeToString,
             ),
             'GetRobotStateStream': grpc.unary_stream_rpc_method_handler(
                     servicer.GetRobotStateStream,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.RobotStateRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.RobotState.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.RobotStateRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.RobotState.SerializeToString,
             ),
             'GetRobotState': grpc.unary_unary_rpc_method_handler(
                     servicer.GetRobotState,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.RobotStateRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.RobotState.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.RobotStateRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.RobotState.SerializeToString,
             ),
             'GetProgramVariables': grpc.unary_stream_rpc_method_handler(
                     servicer.GetProgramVariables,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ProgramVariablesRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ProgramVariable.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.ProgramVariablesRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.ProgramVariable.SerializeToString,
             ),
             'SetProgramVariables': grpc.unary_unary_rpc_method_handler(
                     servicer.SetProgramVariables,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.SetProgramVariablesRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.SetProgramVariablesResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.SetProgramVariablesRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.SetProgramVariablesResponse.SerializeToString,
             ),
             'EnableMotors': grpc.unary_unary_rpc_method_handler(
                     servicer.EnableMotors,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.EnableMotorsRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.EnableMotorsResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.EnableMotorsRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.EnableMotorsResponse.SerializeToString,
             ),
             'ResetErrors': grpc.unary_unary_rpc_method_handler(
                     servicer.ResetErrors,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ResetErrorsRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ResetErrorsResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.ResetErrorsRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.ResetErrorsResponse.SerializeToString,
             ),
             'ReferenceJoints': grpc.unary_unary_rpc_method_handler(
                     servicer.ReferenceJoints,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ReferenceJointsRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ReferenceJointsResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.ReferenceJointsRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.ReferenceJointsResponse.SerializeToString,
             ),
             'GetMotionState': grpc.unary_unary_rpc_method_handler(
                     servicer.GetMotionState,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.GetMotionStateRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.GetMotionStateRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.MotionState.SerializeToString,
             ),
             'SetMotionInterpolator': grpc.unary_unary_rpc_method_handler(
                     servicer.SetMotionInterpolator,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionInterpolatorRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.MotionInterpolatorRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.MotionState.SerializeToString,
             ),
             'SetLogicInterpolator': grpc.unary_unary_rpc_method_handler(
                     servicer.SetLogicInterpolator,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.LogicInterpolatorRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.LogicInterpolatorRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.MotionState.SerializeToString,
             ),
             'SetPositionInterface': grpc.unary_unary_rpc_method_handler(
                     servicer.SetPositionInterface,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.PositionInterfaceRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.PositionInterfaceRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.MotionState.SerializeToString,
             ),
             'MoveTo': grpc.unary_unary_rpc_method_handler(
                     servicer.MoveTo,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MoveToRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.MoveToRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.MotionState.SerializeToString,
             ),
             'SetTargetVelocity': grpc.unary_unary_rpc_method_handler(
                     servicer.SetTargetVelocity,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.TargetVelocityRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.TargetVelocityResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.TargetVelocityRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.TargetVelocityResponse.SerializeToString,
+            ),
+            'AddCommand': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddCommand,
+                    request_deserializer=robotcontrolapp__pb2.AddCommandRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.AddCommandResponse.SerializeToString,
             ),
             'TranslateJointToCart': grpc.unary_unary_rpc_method_handler(
                     servicer.TranslateJointToCart,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.JointToCartRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.JointToCartResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.JointToCartRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.JointToCartResponse.SerializeToString,
             ),
             'TranslateCartToJoint': grpc.unary_unary_rpc_method_handler(
                     servicer.TranslateCartToJoint,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.CartToJointRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.CartToJointResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.CartToJointRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.CartToJointResponse.SerializeToString,
             ),
             'SetIOState': grpc.unary_unary_rpc_method_handler(
                     servicer.SetIOState,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.IOStateRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.IOStateResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.IOStateRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.IOStateResponse.SerializeToString,
             ),
             'UploadFile': grpc.stream_unary_rpc_method_handler(
                     servicer.UploadFile,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.UploadFileRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.UploadFileResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.UploadFileRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.UploadFileResponse.SerializeToString,
             ),
             'DownloadFile': grpc.unary_stream_rpc_method_handler(
                     servicer.DownloadFile,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.DownloadFileRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.DownloadFileResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.DownloadFileRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.DownloadFileResponse.SerializeToString,
             ),
             'ListFiles': grpc.unary_unary_rpc_method_handler(
                     servicer.ListFiles,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ListFilesRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ListFilesResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.ListFilesRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.ListFilesResponse.SerializeToString,
             ),
             'RemoveFiles': grpc.unary_unary_rpc_method_handler(
                     servicer.RemoveFiles,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.RemoveFilesRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.RemoveFilesResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.RemoveFilesRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.RemoveFilesResponse.SerializeToString,
             ),
             'GetSystemInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.GetSystemInfo,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.SystemInfoRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.SystemInfo.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.SystemInfoRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.SystemInfo.SerializeToString,
             ),
             'GetLicensedFeatures': grpc.unary_unary_rpc_method_handler(
                     servicer.GetLicensedFeatures,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.LicenseInfoRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.LicenseInfoResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.LicenseInfoRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.LicenseInfoResponse.SerializeToString,
             ),
             'SetVelocityOverride': grpc.unary_unary_rpc_method_handler(
                     servicer.SetVelocityOverride,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.SetVelocityOverrideRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.SetVelocityOverrideResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.SetVelocityOverrideRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.SetVelocityOverrideResponse.SerializeToString,
             ),
             'ShowDialog': grpc.unary_unary_rpc_method_handler(
                     servicer.ShowDialog,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ShowDialogRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.ShowDialogResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.ShowDialogRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.ShowDialogResponse.SerializeToString,
             ),
             'GetStatistics': grpc.unary_unary_rpc_method_handler(
                     servicer.GetStatistics,
-                    request_deserializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.StatisticsRequest.FromString,
-                    response_serializer=irc__app_dot_rpc_dot_robotcontrolapp__pb2.StatisticsResponse.SerializeToString,
+                    request_deserializer=robotcontrolapp__pb2.StatisticsRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.StatisticsResponse.SerializeToString,
+            ),
+            'ListUserFrames': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListUserFrames,
+                    request_deserializer=robotcontrolapp__pb2.ListUserFramesRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.ListUserFramesResponse.SerializeToString,
+            ),
+            'GetUserFrame': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetUserFrame,
+                    request_deserializer=robotcontrolapp__pb2.GetUserFrameRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.GetUserFrameResponse.SerializeToString,
+            ),
+            'SetUserFrame': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetUserFrame,
+                    request_deserializer=robotcontrolapp__pb2.SetUserFrameRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.SetUserFrameResponse.SerializeToString,
+            ),
+            'RemoveUserFrame': grpc.unary_unary_rpc_method_handler(
+                    servicer.RemoveUserFrame,
+                    request_deserializer=robotcontrolapp__pb2.RemoveUserFrameRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.RemoveUserFrameResponse.SerializeToString,
+            ),
+            'SetTool': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetTool,
+                    request_deserializer=robotcontrolapp__pb2.SetToolRequest.FromString,
+                    response_serializer=robotcontrolapp__pb2.SetToolResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -552,8 +651,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/SetCapabilities',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.CapabilitiesRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.CapabilitiesResponse.FromString,
+            robotcontrolapp__pb2.CapabilitiesRequest.SerializeToString,
+            robotcontrolapp__pb2.CapabilitiesResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -579,8 +678,8 @@ class RobotControlApp(object):
             request_iterator,
             target,
             '/robotcontrolapp.RobotControlApp/RecieveActions',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.AppAction.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.Event.FromString,
+            robotcontrolapp__pb2.AppAction.SerializeToString,
+            robotcontrolapp__pb2.Event.FromString,
             options,
             channel_credentials,
             insecure,
@@ -606,8 +705,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/GetTCP',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.GetTCPRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.Matrix44.FromString,
+            robotcontrolapp__pb2.GetTCPRequest.SerializeToString,
+            robotcontrolapp__pb2.Matrix44.FromString,
             options,
             channel_credentials,
             insecure,
@@ -633,8 +732,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/GetRobotStateStream',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.RobotStateRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.RobotState.FromString,
+            robotcontrolapp__pb2.RobotStateRequest.SerializeToString,
+            robotcontrolapp__pb2.RobotState.FromString,
             options,
             channel_credentials,
             insecure,
@@ -660,8 +759,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/GetRobotState',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.RobotStateRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.RobotState.FromString,
+            robotcontrolapp__pb2.RobotStateRequest.SerializeToString,
+            robotcontrolapp__pb2.RobotState.FromString,
             options,
             channel_credentials,
             insecure,
@@ -687,8 +786,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/GetProgramVariables',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.ProgramVariablesRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.ProgramVariable.FromString,
+            robotcontrolapp__pb2.ProgramVariablesRequest.SerializeToString,
+            robotcontrolapp__pb2.ProgramVariable.FromString,
             options,
             channel_credentials,
             insecure,
@@ -714,8 +813,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/SetProgramVariables',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.SetProgramVariablesRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.SetProgramVariablesResponse.FromString,
+            robotcontrolapp__pb2.SetProgramVariablesRequest.SerializeToString,
+            robotcontrolapp__pb2.SetProgramVariablesResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -741,8 +840,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/EnableMotors',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.EnableMotorsRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.EnableMotorsResponse.FromString,
+            robotcontrolapp__pb2.EnableMotorsRequest.SerializeToString,
+            robotcontrolapp__pb2.EnableMotorsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -768,8 +867,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/ResetErrors',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.ResetErrorsRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.ResetErrorsResponse.FromString,
+            robotcontrolapp__pb2.ResetErrorsRequest.SerializeToString,
+            robotcontrolapp__pb2.ResetErrorsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -795,8 +894,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/ReferenceJoints',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.ReferenceJointsRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.ReferenceJointsResponse.FromString,
+            robotcontrolapp__pb2.ReferenceJointsRequest.SerializeToString,
+            robotcontrolapp__pb2.ReferenceJointsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -822,8 +921,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/GetMotionState',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.GetMotionStateRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.FromString,
+            robotcontrolapp__pb2.GetMotionStateRequest.SerializeToString,
+            robotcontrolapp__pb2.MotionState.FromString,
             options,
             channel_credentials,
             insecure,
@@ -849,8 +948,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/SetMotionInterpolator',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionInterpolatorRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.FromString,
+            robotcontrolapp__pb2.MotionInterpolatorRequest.SerializeToString,
+            robotcontrolapp__pb2.MotionState.FromString,
             options,
             channel_credentials,
             insecure,
@@ -876,8 +975,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/SetLogicInterpolator',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.LogicInterpolatorRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.FromString,
+            robotcontrolapp__pb2.LogicInterpolatorRequest.SerializeToString,
+            robotcontrolapp__pb2.MotionState.FromString,
             options,
             channel_credentials,
             insecure,
@@ -903,8 +1002,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/SetPositionInterface',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.PositionInterfaceRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.FromString,
+            robotcontrolapp__pb2.PositionInterfaceRequest.SerializeToString,
+            robotcontrolapp__pb2.MotionState.FromString,
             options,
             channel_credentials,
             insecure,
@@ -930,8 +1029,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/MoveTo',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.MoveToRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.MotionState.FromString,
+            robotcontrolapp__pb2.MoveToRequest.SerializeToString,
+            robotcontrolapp__pb2.MotionState.FromString,
             options,
             channel_credentials,
             insecure,
@@ -957,8 +1056,35 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/SetTargetVelocity',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.TargetVelocityRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.TargetVelocityResponse.FromString,
+            robotcontrolapp__pb2.TargetVelocityRequest.SerializeToString,
+            robotcontrolapp__pb2.TargetVelocityResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AddCommand(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/robotcontrolapp.RobotControlApp/AddCommand',
+            robotcontrolapp__pb2.AddCommandRequest.SerializeToString,
+            robotcontrolapp__pb2.AddCommandResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -984,8 +1110,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/TranslateJointToCart',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.JointToCartRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.JointToCartResponse.FromString,
+            robotcontrolapp__pb2.JointToCartRequest.SerializeToString,
+            robotcontrolapp__pb2.JointToCartResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1011,8 +1137,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/TranslateCartToJoint',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.CartToJointRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.CartToJointResponse.FromString,
+            robotcontrolapp__pb2.CartToJointRequest.SerializeToString,
+            robotcontrolapp__pb2.CartToJointResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1038,8 +1164,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/SetIOState',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.IOStateRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.IOStateResponse.FromString,
+            robotcontrolapp__pb2.IOStateRequest.SerializeToString,
+            robotcontrolapp__pb2.IOStateResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1065,8 +1191,8 @@ class RobotControlApp(object):
             request_iterator,
             target,
             '/robotcontrolapp.RobotControlApp/UploadFile',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.UploadFileRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.UploadFileResponse.FromString,
+            robotcontrolapp__pb2.UploadFileRequest.SerializeToString,
+            robotcontrolapp__pb2.UploadFileResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1092,8 +1218,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/DownloadFile',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.DownloadFileRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.DownloadFileResponse.FromString,
+            robotcontrolapp__pb2.DownloadFileRequest.SerializeToString,
+            robotcontrolapp__pb2.DownloadFileResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1119,8 +1245,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/ListFiles',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.ListFilesRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.ListFilesResponse.FromString,
+            robotcontrolapp__pb2.ListFilesRequest.SerializeToString,
+            robotcontrolapp__pb2.ListFilesResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1146,8 +1272,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/RemoveFiles',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.RemoveFilesRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.RemoveFilesResponse.FromString,
+            robotcontrolapp__pb2.RemoveFilesRequest.SerializeToString,
+            robotcontrolapp__pb2.RemoveFilesResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1173,8 +1299,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/GetSystemInfo',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.SystemInfoRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.SystemInfo.FromString,
+            robotcontrolapp__pb2.SystemInfoRequest.SerializeToString,
+            robotcontrolapp__pb2.SystemInfo.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1200,8 +1326,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/GetLicensedFeatures',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.LicenseInfoRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.LicenseInfoResponse.FromString,
+            robotcontrolapp__pb2.LicenseInfoRequest.SerializeToString,
+            robotcontrolapp__pb2.LicenseInfoResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1227,8 +1353,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/SetVelocityOverride',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.SetVelocityOverrideRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.SetVelocityOverrideResponse.FromString,
+            robotcontrolapp__pb2.SetVelocityOverrideRequest.SerializeToString,
+            robotcontrolapp__pb2.SetVelocityOverrideResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1254,8 +1380,8 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/ShowDialog',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.ShowDialogRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.ShowDialogResponse.FromString,
+            robotcontrolapp__pb2.ShowDialogRequest.SerializeToString,
+            robotcontrolapp__pb2.ShowDialogResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1281,8 +1407,143 @@ class RobotControlApp(object):
             request,
             target,
             '/robotcontrolapp.RobotControlApp/GetStatistics',
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.StatisticsRequest.SerializeToString,
-            irc__app_dot_rpc_dot_robotcontrolapp__pb2.StatisticsResponse.FromString,
+            robotcontrolapp__pb2.StatisticsRequest.SerializeToString,
+            robotcontrolapp__pb2.StatisticsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListUserFrames(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/robotcontrolapp.RobotControlApp/ListUserFrames',
+            robotcontrolapp__pb2.ListUserFramesRequest.SerializeToString,
+            robotcontrolapp__pb2.ListUserFramesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetUserFrame(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/robotcontrolapp.RobotControlApp/GetUserFrame',
+            robotcontrolapp__pb2.GetUserFrameRequest.SerializeToString,
+            robotcontrolapp__pb2.GetUserFrameResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SetUserFrame(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/robotcontrolapp.RobotControlApp/SetUserFrame',
+            robotcontrolapp__pb2.SetUserFrameRequest.SerializeToString,
+            robotcontrolapp__pb2.SetUserFrameResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RemoveUserFrame(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/robotcontrolapp.RobotControlApp/RemoveUserFrame',
+            robotcontrolapp__pb2.RemoveUserFrameRequest.SerializeToString,
+            robotcontrolapp__pb2.RemoveUserFrameResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SetTool(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/robotcontrolapp.RobotControlApp/SetTool',
+            robotcontrolapp__pb2.SetToolRequest.SerializeToString,
+            robotcontrolapp__pb2.SetToolResponse.FromString,
             options,
             channel_credentials,
             insecure,

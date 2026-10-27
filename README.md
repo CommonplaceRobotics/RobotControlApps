@@ -5,10 +5,15 @@
 
 Since [version 14](https://wiki.cpr-robots.com/index.php/IgusRobotControl-Release14-EN) the Commonplace Robotics (CPRog) / igus Robot Control (iRC) can be extended by apps. This repository contains guides, APIs and examples for creating your own apps.
 
+Note that the version of the API that you are using should not be newer than the software version of the robot control, new functions will not work on older robots unless they are updated.
+
 ## Features
 * Simple C++ and Python API
+* Runs on the robot control or any other device on the network
 * Add new functions to robot programs
 * User interface integration into igus Robot Control / CPRog, e.g. for configuration or monitoring
+	* UI definition via a simple XML structure
+	* Display message dialogs, e.g. for info or error messages
 * Read/write program variables
 * Read the robot's state
   * Position
@@ -28,16 +33,25 @@ Since [version 14](https://wiki.cpr-robots.com/index.php/IgusRobotControl-Releas
 * Initialize the robot
   * Enable/disable joints
   * Reference joints
+  * Set velocity of external axes in velocity mode (e.g. conveyors)
 * Get/set digital outputs, global signals and digital inputs (including setting digital inputs in simulation)
 * Programs
   * Load program files
   * Start/stop/pause motion and logic programs
+  * Get/set program variables for parameterizing pre-defined programs
+  * Define simple programs (not all commands are supported, structural commands are not supported yet). This is intended for defining short motion paths, set IOs and call pre-defined sub-programs.
 * Move-To: Move to absolute or relative joint or cartesian positions
+* Kinematics
+	* Transform positions between joint and cartesian values
+	* Define, list and query user frames
+	* Tool change
 * Files
   * Upload/download files
   * List files on the robot control (e.g. list all programs)
+* Licensing: Query whether a feature is enabled by the robot control's licensing system
+* And more...
 
-This is just a summary, please read [```AppClient.h```](minimal_cpp/src/AppClient.h) or [```AppClient.py```](minimal_python/AppClient.py) for a list of all features.
+This is just a summary, please read [```robotcontrolapp.proto```](api_cpp/protos/robotcontrolapp.proto), [```AppClient.h```](minimal_cpp/src/AppClient.h) or [```AppClient.py```](minimal_python/AppClient.py) for a list of all features.
 
 ## Planned features
 The following features are planned or considered to be added in future:
@@ -46,8 +60,7 @@ The following features are planned or considered to be added in future:
   * Multi line text
   * Assign icons to the buttons in the ribbon above the 3D view
   * Define images to be loaded by the iRC PC software instead of having to send them by the app
-* Control
-  * External axis velocity (conveyor)
+* Split Python API into a Python package (currently we recommend copying the files to your project)
 
 ## Technology overview
 The robot control provides a [gRPC](https://grpc.io/) interface that allows calling functions and transmitting data between the robot control and the app. With the gRPC protocol file ```robotcontrolapp.proto``` you can generate the API for [several different programming languages](https://grpc.io/docs/languages/). In this repository you will find classes for C++ and Python that you can use for a quick start.

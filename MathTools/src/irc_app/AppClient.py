@@ -1789,13 +1789,11 @@ class AppClient:
         else:
             return UserFrame()
 
-    def SetUserFrame(self, frame: UserFrame) -> bool:
+    def SetUserFrame(self, frame: UserFrame):
         """
-        Adds or changes a user frame
+        Adds or changes a user frame. Throws exception on error.
         Parameters:
             frame: User frame to set
-        Returns:
-            True if the frame was successfully set
         """
         if not self.IsConnected():
             raise NotConnectedException()
@@ -1803,8 +1801,10 @@ class AppClient:
         request = robotcontrolapp_pb2.SetUserFrameRequest()
         request.app_name = self.GetAppName()
         request.frame.CopyFrom(frame.ToGrpc())
+
         result = self.__grpcStub.SetUserFrame(request)
-        return result.success
+        if not result.success:
+            raise Exception(result.message)
 
     def RemoveUserFrame(self, frameName: str) -> bool:
         """

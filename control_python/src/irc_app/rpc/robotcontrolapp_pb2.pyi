@@ -1259,10 +1259,12 @@ class SetUserFrameRequest(_message.Message):
     def __init__(self, app_name: _Optional[str] = ..., frame: _Optional[_Union[UserFrame, _Mapping]] = ...) -> None: ...
 
 class SetUserFrameResponse(_message.Message):
-    __slots__ = ("success",)
+    __slots__ = ("success", "message")
     SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
     success: bool
-    def __init__(self, success: bool = ...) -> None: ...
+    message: str
+    def __init__(self, success: bool = ..., message: _Optional[str] = ...) -> None: ...
 
 class RemoveUserFrameRequest(_message.Message):
     __slots__ = ("app_name", "name")

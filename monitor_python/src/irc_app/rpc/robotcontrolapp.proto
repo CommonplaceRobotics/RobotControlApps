@@ -1214,6 +1214,8 @@ message SetUserFrameResponse
 {
     // Is true if the frame was succesfully set
     bool success = 1;
+    // Error message, if success is false
+    string message = 2;
 }
 
 message RemoveUserFrameRequest

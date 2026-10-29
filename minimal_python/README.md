@@ -22,7 +22,7 @@ For API reference check the comments in [```AppClient.py```](src/irc_app/AppClie
 
 ## Standalone apps
 
-igus Robot Control apps can be used with both the embedded robot control and the simulation on PC. They can run either on the robot control / simulation system or on a separate system as a standalone application, communicating with the robot control. This may be useful if your app requires more system resources, e.g. for high performance image processing. For development you may want to run your app like a standalone application from your IDE.
+igus Robot Control apps can either run on the robot control (the embedded control module or the simulator on PC) or run separate system as a standalone application. This may be useful if your app requires more system resources, e.g. for high performance image processing. In the first case the robot control starts and stops the app, in the second case you are responsible for running it. For development you may want to run your app like a standalone application from your IDE.
 
 In all situations you must install the app package to the robot control. For standalone operation remove (or comment out) the ```<executable ... />``` line in ```rcapp.xml``` - the robot control will register the app and wait for an incoming connection. Don't forget to enter the robot control's IP (or ```localhost``` if connecting with a simulation on your PC) as the connection target in ```app.py```.
 
@@ -37,13 +37,6 @@ We recommend installing Python via the [Python Install Manager](https://www.pyth
 
 ```bash
 py -V:3.9.2 -m pip install poetry
-```
-
-For compatibility we recommend using Python version 3.9.2. If do not intend to run your app on the robot control you may use a different Python version and update grpc, in this case you will need to regenerate the grpc definitions using the following commands:
-```bash
-cd src
-py -V:3.9.2 -m pip install grpcio-tools==1.64.1
-py -V:3.9.2 -m grpc_tools.protoc -I ./irc_app/rpc/ --python_out=. --pyi_out=. --grpc_python_out=. --proto_path=. ./irc_app/rpc/robotcontrolapp.proto
 ```
 
 To set up the poetry environment first we need the path to the correct Python binary. Run the following command and copy the path from the first output line.
@@ -74,6 +67,21 @@ py -V:3.9.2 -m pytest
 If you changed the dependencies you may need to update the ```poetry.lock``` file by calling ```poetry lock``` or simply deleting it. Then run ```poetry install``` again.
 
 
+### Regenerating GRPC files
+
+For compatibility we recommend using Python version 3.9.2. If do not intend to run your app on the robot control you may use a different Python version and update grpc, in this case you will need to regenerate the grpc definitions using the following commands:
+```bash
+cd src
+py -V:3.9.2 -m pip install grpcio-tools==1.64.1
+py -V:3.9.2 -m grpc_tools.protoc -I ./irc_app/rpc/ --python_out=./irc_app/rpc --pyi_out=./irc_app/rpc --grpc_python_out=./irc_app/rpc ./irc_app/rpc/robotcontrolapp.proto
+```
+
+Then open the generated file ```src/irc_app/rpcrobotcontrolapp_pb2_grpc.py``` and change the import line as follows (the grpc compiler seems unable to detect the correct module path):
+
+```python
+from irc_app.rpc import robotcontrolapp_pb2 as robotcontrolapp__pb2
+```
+
 ### Embedded Robot Control
 
 All new robot controls come with Python 3.9.2 and the gRPC dependencies pre-installed. Unless you add other dependencies you should not need to do anything. If you got an older robot control that predates the introduction of the app interface you will need to install the dependencies manually.
@@ -91,7 +99,7 @@ python3 -m pip install grpcio-tools==1.64.1
 ```
 
 ## Packaging the app
-The app must be packaged before it can be installed to the robot control. To do this you can simply call the packaging script:
+The app must be packaged before it can be installed to the robot control. If you got Bash (e.g. on Linux or via Cygwin) you can simply call the packaging script, otherwise follow the packaging documentation below.
 
 ```bash
 package.sh
